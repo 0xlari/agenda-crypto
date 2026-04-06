@@ -84,38 +84,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* BLOCOS DE VALOR */}
-      <section className="border-b border-white/10">
-        <div className="mx-auto grid max-w-7xl gap-6 px-6 py-10 md:grid-cols-3">
-          <div className="rounded-[28px] border border-white/10 bg-[#2A2A2A] p-6">
-            <div className="mb-4 h-10 w-10 rounded-full bg-[#19B5C9]/15" />
-            <h2 className="text-xl font-black text-white">Curadoria real</h2>
-            <p className="mt-3 text-sm leading-relaxed text-white/62">
-              A Agenda Crypto não é só uma lista. É uma seleção do que realmente
-              merece entrar no radar.
-            </p>
-          </div>
-
-          <div className="rounded-[28px] border border-white/10 bg-[#2A2A2A] p-6">
-            <div className="mb-4 h-10 w-10 rounded-full bg-[#FFD600]/15" />
-            <h2 className="text-xl font-black text-white">Mais visibilidade</h2>
-            <p className="mt-3 text-sm leading-relaxed text-white/62">
-              Projetos, eventos e iniciativas podem ganhar alcance dentro de uma
-              plataforma feita para o ecossistema.
-            </p>
-          </div>
-
-          <div className="rounded-[28px] border border-white/10 bg-[#2A2A2A] p-6">
-            <div className="mb-4 h-10 w-10 rounded-full bg-[#EC4899]/15" />
-            <h2 className="text-xl font-black text-white">Ecossistema vivo</h2>
-            <p className="mt-3 text-sm leading-relaxed text-white/62">
-              Eventos, encontros, experiências e cobertura — tudo em uma
-              linguagem visual mais viva e própria.
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* NEWSLETTER */}
       <section className="border-b border-white/10">
         <div className="mx-auto max-w-7xl px-6 py-14">

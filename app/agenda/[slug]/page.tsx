@@ -2,6 +2,7 @@ import { getEventBySlug } from "@/lib/supabase/queries";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import NewsletterSignup from "@/componentes/newsletter-signup";
+import EventResponse from "@/componentes/event-response";
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleString("pt-BR", {
@@ -184,21 +185,7 @@ export default async function EventPage({
                 </div>
               )}
 
-              <div className="pt-4">
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <button className="rounded-full border border-[#19B5C9]/25 bg-[#19B5C9]/10 px-4 py-2 text-sm font-semibold text-[#19B5C9] transition hover:bg-[#19B5C9]/20">
-                    Vou
-                  </button>
-
-                  <button className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm font-semibold text-white/70 transition hover:border-[#EC4899]/25 hover:bg-[#EC4899]/10 hover:text-[#EC4899]">
-                    Não vou
-                  </button>
-                </div>
-
-                <p className="mt-3 text-xs text-white/35">
-                  Interação social entra na próxima etapa com autenticação.
-                </p>
-              </div>
+              <EventResponse eventId={event.id} />
             </div>
           </div>
         </div>

@@ -339,7 +339,7 @@ export default function AgendaBrowser({
                   <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <Link
                       href={`/agenda/${event.slug}`}
-                      className="inline-flex items-center justify-center rounded-full bg-white px-4 py-2 text-sm font-bold text-black transition hover:bg-white/90"
+                      className="inline-flex items-center justify-center rounded-full bg-white px-4 py-2 text-sm font-bold text-black"
                     >
                       Ver evento
                     </Link>

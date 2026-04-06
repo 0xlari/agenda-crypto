@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     let skipped = 0;
 
     for (const line of lines.slice(1)) {
-      const values = line.split(",");
+      const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
 
       const row: Record<string, string> = {};
 
@@ -71,6 +71,7 @@ export async function POST(request: Request) {
         skipped++;
         continue;
       }
+      console.log("ROW IMAGE:", row.image_url)
 
       events.push({
         title: row.title,

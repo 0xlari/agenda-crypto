@@ -1,37 +1,93 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase/client";
 
-export default function EventResponse({
-  eventId,
-}: {
-  eventId: string;
-}) {
+type ResponseType = "going" | "not_going" | null;
+
+export default function EventResponse({ eventId }: { eventId: string }) {
+  const [userId, setUserId] = useState<string | null>(null);
+  const [selected, setSelected] = useState<ResponseType>(null);
   const [loading, setLoading] = useState(false);
-  const [selected, setSelected] = useState<"going" | "not_going" | null>(null);
 
-  async function handleResponse(type: "going" | "not_going") {
-    setLoading(true);
+  useEffect(() => {
+  let mounted = true;
 
-    try {
-      await fetch("/api/respond", {
-        method: "POST",
-        body: JSON.stringify({
-          event_id: eventId,
-          response: type,
-        }),
-      });
+  async function loadResponse() {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
 
-      setSelected(type);
-    } catch {
-      console.error("Erro ao responder");
-    } finally {
-      setLoading(false);
+    const user = session?.user;
+
+    if (!mounted) return;
+
+    if (!user) {
+      setUserId(null);
+      return;
+    }
+
+    setUserId(user.id);
+
+    const { data } = await supabase
+      .from("event_responses")
+      .select("response")
+      .eq("user_id", user.id)
+      .eq("event_id", eventId)
+      .maybeSingle();
+
+    if (!mounted) return;
+
+    if (data?.response) {
+      setSelected(data.response as ResponseType);
     }
   }
 
+    loadResponse();
+
+    return () => {
+      mounted = false;
+    };
+  }, [eventId]);
+
+  const handleResponse = async (response: "going" | "not_going") => {
+    if (!userId) {
+      alert("Faça login para marcar eventos.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/event-response", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          event_id: eventId,
+          response,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Erro ao salvar resposta.");
+        return;
+      }
+
+      setSelected(response);
+    } catch {
+      alert("Erro ao conectar com o servidor.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="flex gap-2">
+  <div className="flex items-center gap-2">
       <button
         disabled={loading}
         onClick={() => handleResponse("going")}
@@ -39,9 +95,9 @@ export default function EventResponse({
           selected === "going"
             ? "bg-[#19B5C9] text-black"
             : "border border-[#19B5C9]/25 bg-[#19B5C9]/10 text-[#19B5C9]"
-        }`}
+        } ${loading ? "opacity-60" : ""}`}
       >
-        Vou
+        {selected === "going" ? "Vou ✓" : "Vou"}
       </button>
 
       <button
@@ -51,9 +107,9 @@ export default function EventResponse({
           selected === "not_going"
             ? "bg-[#EC4899] text-white"
             : "border border-white/10 bg-white/[0.04] text-white/70"
-        }`}
+        } ${loading ? "opacity-60" : ""}`}
       >
-        Não vou
+        {selected === "not_going" ? "Não vou ✓" : "Não vou"}
       </button>
     </div>
   );
