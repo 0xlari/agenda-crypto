@@ -18,7 +18,10 @@ export default function NewsletterSection() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ 
+          email,
+          source: "home",
+         }),
       });
 
       const data = await response.json();

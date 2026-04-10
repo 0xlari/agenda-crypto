@@ -8,40 +8,31 @@ const supabaseAdmin = createClient(
 
 export async function POST(request: Request) {
   try {
-    const { user_id, event_id, response } = await request.json();
+    const { event_id } = await request.json();
 
-    if (!user_id || !event_id || !response) {
+    if (!event_id) {
       return NextResponse.json(
-        { error: "Dados obrigatórios ausentes." },
+        { error: "event_id é obrigatório." },
         { status: 400 }
       );
     }
 
-    if (!["going", "not_going"].includes(response)) {
-      return NextResponse.json(
-        { error: "Resposta inválida." },
-        { status: 400 }
-      );
-    }
-
-    const { error } = await supabaseAdmin
+    const { data, error } = await supabaseAdmin
       .from("event_responses")
-      .upsert(
-        {
-          user_id,
-          event_id,
-          response,
-        },
-        {
-          onConflict: "user_id,event_id",
-        }
-      );
+      .select("response")
+      .eq("event_id", event_id);
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true });
+    const going = data.filter((item) => item.response === "going").length;
+    const notGoing = data.filter((item) => item.response === "not_going").length;
+
+    return NextResponse.json({
+      going,
+      notGoing,
+    });
   } catch {
     return NextResponse.json(
       { error: "Erro interno do servidor." },
