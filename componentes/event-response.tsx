@@ -94,7 +94,7 @@ export default function EventResponse({ eventId }: Props) {
           className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
             selected === "going"
               ? "bg-[#19B5C9] text-black"
-              : "bg-white/10 text-white"
+              : "bg-white/10 text-white hover:bg-[#19B5C9] hover:text-white"
           }`}
         >
           Vou
@@ -105,8 +105,8 @@ export default function EventResponse({ eventId }: Props) {
           disabled={loading}
           className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
             selected === "not_going"
-              ? "bg-white text-black"
-              : "bg-white/10 text-white"
+              ? "bg-[#EC4899] text-white"
+              : "bg-white/10 text-white hover:bg-[#EC4899] hover:text-white"
           }`}
         >
           Não vou
