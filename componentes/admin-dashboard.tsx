@@ -45,6 +45,8 @@ type PendingSubmission = {
   created_at: string;
   lead_status?: string;
   image_url?: string | null;
+  interest_type: string | null;
+  internal_notes?: string | null;
 };
 
 function formatDate(dateString: string) {
@@ -84,6 +86,8 @@ export default function AdminDashboard({
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [approvedEventIds, setApprovedEventIds] = useState<string[]>([]);
   const [hiddenSubmissionIds, setHiddenSubmissionIds] = useState<string[]>([]);
+  const [editingSubmissionId, setEditingSubmissionId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<Record<string, string>>({});
   const [leadStatuses, setLeadStatuses] = useState<Record<string, string>>(
     Object.fromEntries(leads.map((lead) => [lead.id, lead.lead_status || "new"]))
   );
@@ -209,6 +213,62 @@ export default function AdminDashboard({
   );
 
   const latestLeads = useMemo(() => leads.slice(0, 20), [leads]);
+
+  function startEditing(submission: PendingSubmission) {
+  setEditingSubmissionId(submission.id);
+  setEditForm({
+    contact_name: submission.contact_name || "",
+    email: submission.email || "",
+    whatsapp: submission.whatsapp || "",
+    event_title: submission.event_title || "",
+    event_date: submission.event_date || "",
+    end_date: submission.end_date || "",
+    city: submission.city || "",
+    location: submission.location || "",
+    event_link: submission.event_link || "",
+    short_description: submission.short_description || "",
+    tags: submission.tags || "",
+    image_url: submission.image_url || "",
+    interest_type: submission.interest_type || "free_listing",
+    internal_notes: submission.internal_notes || "",
+  });
+}
+
+function cancelEditing() {
+  setEditingSubmissionId(null);
+  setEditForm({});
+}
+
+async function saveSubmissionEdits(submissionId: string) {
+  try {
+    setLoadingId(submissionId);
+
+    const response = await fetch("/api/admin/update-submission", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        submissionId,
+        ...editForm,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      alert(data.error || "Erro ao salvar alterações.");
+      return;
+    }
+
+    alert("Alterações salvas com sucesso.");
+    window.location.reload();
+  } catch {
+    alert("Erro ao conectar com o servidor.");
+  } finally {
+    setLoadingId(null);
+  }
+}
 
   return (
     <div className="space-y-10">
@@ -337,6 +397,145 @@ export default function AdminDashboard({
                       Tags: {submission.tags}
                     </p>
                   )}
+                  {editingSubmissionId === submission.id && (
+    <div className="mt-5 rounded-2xl border border-white/10 bg-black/20 p-4">
+      <div className="grid gap-3 md:grid-cols-2">
+        <input
+          value={editForm.contact_name || ""}
+          onChange={(e) =>
+            setEditForm((prev) => ({ ...prev, contact_name: e.target.value }))
+          }
+          placeholder="Responsável"
+          className="rounded-xl bg-white/10 px-4 py-3 text-white outline-none"
+        />
+
+        <input
+          value={editForm.email || ""}
+          onChange={(e) =>
+            setEditForm((prev) => ({ ...prev, email: e.target.value }))
+          }
+          placeholder="Email"
+          className="rounded-xl bg-white/10 px-4 py-3 text-white outline-none"
+        />
+
+        <input
+          value={editForm.whatsapp || ""}
+          onChange={(e) =>
+            setEditForm((prev) => ({ ...prev, whatsapp: e.target.value }))
+          }
+          placeholder="WhatsApp"
+          className="rounded-xl bg-white/10 px-4 py-3 text-white outline-none"
+        />
+
+        <input
+          value={editForm.event_title || ""}
+          onChange={(e) =>
+            setEditForm((prev) => ({ ...prev, event_title: e.target.value }))
+          }
+          placeholder="Título do evento"
+          className="rounded-xl bg-white/10 px-4 py-3 text-white outline-none"
+        />
+
+        <input
+          value={editForm.event_date || ""}
+          onChange={(e) =>
+            setEditForm((prev) => ({ ...prev, event_date: e.target.value }))
+          }
+          placeholder="Data início"
+          className="rounded-xl bg-white/10 px-4 py-3 text-white outline-none"
+        />
+
+        <input
+          value={editForm.end_date || ""}
+          onChange={(e) =>
+            setEditForm((prev) => ({ ...prev, end_date: e.target.value }))
+          }
+          placeholder="Data fim"
+          className="rounded-xl bg-white/10 px-4 py-3 text-white outline-none"
+        />
+
+        <input
+          value={editForm.city || ""}
+          onChange={(e) =>
+            setEditForm((prev) => ({ ...prev, city: e.target.value }))
+          }
+          placeholder="Cidade"
+          className="rounded-xl bg-white/10 px-4 py-3 text-white outline-none"
+        />
+
+        <input
+          value={editForm.location || ""}
+          onChange={(e) =>
+            setEditForm((prev) => ({ ...prev, location: e.target.value }))
+          }
+          placeholder="Local"
+          className="rounded-xl bg-white/10 px-4 py-3 text-white outline-none"
+        />
+
+        <input
+          value={editForm.event_link || ""}
+          onChange={(e) =>
+            setEditForm((prev) => ({ ...prev, event_link: e.target.value }))
+          }
+          placeholder="Link do evento"
+          className="rounded-xl bg-white/10 px-4 py-3 text-white outline-none md:col-span-2"
+        />
+
+        <input
+          value={editForm.image_url || ""}
+          onChange={(e) =>
+            setEditForm((prev) => ({ ...prev, image_url: e.target.value }))
+          }
+          placeholder="URL da imagem"
+          className="rounded-xl bg-white/10 px-4 py-3 text-white outline-none md:col-span-2"
+        />
+
+        <input
+          value={editForm.tags || ""}
+          onChange={(e) =>
+            setEditForm((prev) => ({ ...prev, tags: e.target.value }))
+          }
+          placeholder="Tags separadas por vírgula"
+          className="rounded-xl bg-white/10 px-4 py-3 text-white outline-none md:col-span-2"
+        />
+
+        <textarea
+          value={editForm.short_description || ""}
+          onChange={(e) =>
+            setEditForm((prev) => ({ ...prev, short_description: e.target.value }))
+          }
+          placeholder="Descrição curta"
+          className="min-h-[110px] rounded-xl bg-white/10 px-4 py-3 text-white outline-none md:col-span-2"
+        />
+
+        <textarea
+          value={editForm.internal_notes || ""}
+          onChange={(e) =>
+            setEditForm((prev) => ({ ...prev, internal_notes: e.target.value }))
+          }
+          placeholder="Observações internas"
+          className="min-h-[110px] rounded-xl bg-white/10 px-4 py-3 text-white outline-none md:col-span-2"
+        />
+      </div>
+
+    <div className="mt-4 flex flex-wrap gap-3">
+      <button
+        onClick={() => saveSubmissionEdits(submission.id)}
+        disabled={loadingId === submission.id}
+        className="rounded-full bg-[#19B5C9] px-5 py-3 text-sm font-bold text-black disabled:opacity-60"
+      >
+        Salvar alterações
+      </button>
+
+      <button
+        onClick={cancelEditing}
+        className="rounded-full border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-white"
+      >
+        Cancelar
+      </button>
+    </div>
+  </div>
+)}
 
                   <div className="mt-5 flex flex-wrap gap-3">
                     <button
@@ -353,6 +552,13 @@ export default function AdminDashboard({
                       className="rounded-full border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-white disabled:opacity-60"
                     >
                       Rejeitar
+                    </button>
+                    <button
+                      onClick={() => startEditing(submission)}
+                      disabled={loadingId === submission.id}
+                      className="rounded-full border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-white disabled:opacity-60"
+                    >
+                      Editar
                     </button>
 
                     {whatsappHref && (
