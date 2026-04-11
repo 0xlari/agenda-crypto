@@ -1,274 +1,95 @@
-import Link from "next/link";
+import EventSubmissionForm from "@/componentes/event-submission-form";
 
-export default function ProducaoEventosPage() {
+const whatsappMessage = encodeURIComponent(
+  "Olá! Quero entender melhor como funciona o serviço de produção de eventos da Agenda Crypto."
+);
+
+export default function ProducaoDeEventosPage() {
   return (
-    <main className="min-h-screen bg-[#212121] text-[#F5F5F5]">
-      {/* HERO */}
-      <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 py-16 md:py-20">
-          <div className="max-w-4xl">
-            <div className="mb-5 flex items-center gap-3">
-              <span className="inline-flex rounded-full border border-[#EC4899]/25 bg-[#EC4899]/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#EC4899]">
-                Produção de Eventos
-              </span>
-              <span className="h-2 w-2 rounded-full bg-[#19B5C9]" />
-            </div>
+    <main className="min-h-screen bg-[#212121] px-6 py-16 text-white">
+      <div className="mx-auto max-w-6xl">
+        <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+          <section>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#EC4899]">
+              Produção de Eventos
+            </p>
 
-            <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Experiências que conectam marca, comunidade e contexto
+            <h1 className="mt-4 text-4xl font-black leading-tight md:text-6xl">
+              Da ideia à experiência: eventos com conceito, presença e execução
             </h1>
 
-            <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/68 sm:text-lg">
-              A Agenda Crypto também atua na construção de experiências,
-              ativações e side events pensados para o ecossistema cripto, com
-              linguagem alinhada ao mercado e foco em relevância real.
+            <p className="mt-6 max-w-2xl text-base leading-7 text-white/65">
+              A Agenda Crypto também atua na construção de experiências para marcas,
+              comunidades e projetos que querem se conectar com o ecossistema de
+              forma relevante, estratégica e memorável.
             </p>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/divulgacao"
-                className="inline-flex items-center justify-center rounded-full bg-[#FFD600] px-6 py-3 text-sm font-bold text-black transition hover:scale-[1.01] hover:bg-[#ffe44c]"
-              >
-                Falar sobre projeto
-              </Link>
+            <div className="mt-10 grid gap-5">
+              <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6">
+                <h2 className="text-xl font-bold text-white">
+                  O que fazemos
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-white/65">
+                  Construímos eventos com visão de marca, comunidade e distribuição.
+                  Pensamos conceito, posicionamento, experiência e desdobramento de
+                  conteúdo para o evento existir antes, durante e depois.
+                </p>
+              </div>
 
-              <Link
-                href="/agenda"
-                className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-white transition hover:border-[#19B5C9]/30 hover:bg-[#19B5C9]/10 hover:text-[#19B5C9]"
-              >
-                Ver agenda
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+              <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6">
+                <h2 className="text-xl font-bold text-white">
+                  Podemos apoiar em
+                </h2>
 
-      {/* O QUE FAZEMOS */}
-      <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 py-12">
-          <div className="mb-8 max-w-3xl">
-            <h2 className="text-3xl font-black text-white">
-              O que podemos construir
-            </h2>
-            <p className="mt-3 text-white/62">
-              Da ideia à experiência, com linguagem, curadoria e presença
-              alinhadas ao universo cripto.
-            </p>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-            {[
-              ["Conceito", "Criação da ideia, narrativa e proposta do evento."],
-              ["Curadoria", "Conexão com público, speakers, parceiros e contexto."],
-              ["Execução", "Apoio na produção, experiência e operação."],
-              ["Distribuição", "Integração com divulgação e presença na Agenda Crypto."],
-            ].map(([title, text], index) => {
-              const dotColors = [
-                "bg-[#19B5C9]/15",
-                "bg-[#FFD600]/15",
-                "bg-[#EC4899]/15",
-                "bg-white/10",
-              ];
-
-              return (
-                <div
-                  key={title}
-                  className="rounded-[28px] border border-white/10 bg-[#2A2A2A] p-6"
-                >
-                  <div className={`mb-4 h-10 w-10 rounded-full ${dotColors[index]}`} />
-                  <h3 className="text-xl font-black text-white">{title}</h3>
-                  <p className="mt-3 text-sm leading-relaxed text-white/62">
-                    {text}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* CASES */}
-      <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 py-12">
-          <div className="mb-8 max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[#19B5C9]">
-              Cases em destaque
-            </p>
-            <h2 className="mt-3 text-3xl font-black text-white">
-              Projetos que mostram a linguagem da Agenda Crypto na prática
-            </h2>
-            <p className="mt-3 text-white/62">
-              Alguns exemplos de experiências que uniram comunidade, marca,
-              estética e ecossistema.
-            </p>
-          </div>
-
-          <div className="grid gap-8">
-            {/* CASE 1 */}
-            <article className="overflow-hidden rounded-[32px] border border-white/10 bg-[#2A2A2A]">
-              <div className="grid gap-0 lg:grid-cols-[1fr_1fr]">
-                <div className="relative min-h-[320px] border-b border-white/10 bg-[linear-gradient(135deg,rgba(25,181,201,0.20),rgba(236,72,153,0.10),rgba(255,214,0,0.18))] lg:border-b-0 lg:border-r">
-                  <div className="absolute inset-0 flex items-center justify-center px-8 text-center">
-                    <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-white/35">
-                        <video src="/videos/devsonweelsvideo.mp4" 
-                          autoPlay muted loop playsInline 
-                          className="absolute inset-0 h-full w-full object-cover"/>
-                      </p>
-                      <h3 className="mt-3 text-2xl font-black text-white">
-                        Devs on Wheels
-                      </h3>
-                      <p className="mt-3 text-sm text-white/60">
-                        Aqui pode entrar o vídeo do evento.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-8 md:p-10">
-                  <div className="mb-4 flex flex-wrap gap-2">
-                    <span className="rounded-full border border-[#FFD600]/20 bg-[#FFD600]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#FFD600]">
-                      Side event
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {[
+                    "Conceito do evento",
+                    "Curadoria",
+                    "Divulgação",
+                    "Cobertura",
+                    "Experiência de marca",
+                    "Conteúdo pós-evento",
+                  ].map((item) => (
+                    <span
+                      key={item}
+                      className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-semibold text-white/75"
+                    >
+                      {item}
                     </span>
-                    <span className="rounded-full border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#19B5C9]">
-                      Community
-                    </span>
-                    <span className="rounded-full border border-[#EC4899]/20 bg-[#EC4899]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#EC4899]">
-                      Builders
-                    </span>
-                  </div>
-
-                  <h3 className="text-3xl font-black text-white">
-                    Devs on Wheels
-                  </h3>
-
-                  <p className="mt-2 text-sm font-medium text-white/40">
-                    Polygon × Developer DAO • pós Eth Rio
-                  </p>
-
-                  <div className="mt-5 space-y-4 text-sm leading-relaxed text-white/68">
-                    <p>
-                      Um side event criado em parceria com Polygon e Developer
-                      DAO para acompanhar o lançamento da zkEVM da Polygon de um
-                      jeito memorável e fora do óbvio.
-                    </p>
-
-                    <p>
-                      A proposta foi levar devs blockchain em
-                      uma experiência dentro da roda-gigante do Rio, criando um
-                      encontro que uniu comunidade, contexto técnico e presença
-                      de mercado em um formato marcante.
-                    </p>
-
-                    <p>
-                      O evento reuniu devs, builders e jornalistas, além de
-                      contar com a presença da equipe da Polygon, que tirou
-                      dúvidas diretamente no local e palestrou durante a
-                      experiência.
-                    </p>
-                  </div>
+                  ))}
                 </div>
               </div>
-            </article>
-          </div>
-        </div>
-      </section>
 
-      {/* TIPOS DE PROJETO */}
-      <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 py-12">
-          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-            <div>
-              <h2 className="text-3xl font-black text-white">
-                Tipos de projetos
-              </h2>
-              <p className="mt-3 text-white/62">
-                A produção pode assumir formatos diferentes dependendo do
-                objetivo e do momento da marca.
-              </p>
-            </div>
+              <div className="rounded-[28px] border border-[#FFD600]/20 bg-[#FFD600]/8 p-6">
+                <h2 className="text-xl font-bold text-white">
+                  Quer conversar sobre um projeto?
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-white/70">
+                  Se você já tem uma ideia, uma marca ou um evento para tirar do
+                  papel, fale com a gente no WhatsApp.
+                </p>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              {[
-                "Side events",
-                "Ativações de marca",
-                "Experiências exclusivas",
-                "Meetups",
-                "Eventos fechados",
-                "Projetos especiais",
-              ].map((item) => (
-                <div
-                  key={item}
-                  className="rounded-[24px] border border-white/10 bg-[#2A2A2A] px-5 py-4 text-sm font-medium text-white/80"
+                <a
+                  href={`https://wa.me/5521981833526?text=${whatsappMessage}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-5 inline-flex items-center justify-center rounded-full bg-[#FFD600] px-6 py-3 text-sm font-bold text-black transition hover:scale-[1.02]"
                 >
-                  {item}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* DIFERENCIAL */}
-      <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 py-12">
-          <div className="max-w-3xl">
-            <h2 className="text-3xl font-black text-white">
-              O diferencial da Agenda Crypto
-            </h2>
-            <p className="mt-4 text-white/62">
-              Não se trata só de produzir. A diferença está em entender o
-              ecossistema, o timing e o tipo de experiência que faz sentido
-              dentro dele.
-            </p>
-
-            <div className="mt-6 space-y-3 text-white/70">
-              <p>• Visão de mercado e timing</p>
-              <p>• Conexão com comunidade, builders e marcas</p>
-              <p>• Linguagem alinhada ao universo web3</p>
-              <p>• Integração com divulgação e visibilidade</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA FINAL */}
-      <section>
-        <div className="mx-auto max-w-7xl px-6 py-14">
-          <div className="rounded-[32px] border border-white/10 bg-[#2A2A2A] p-8 md:p-10">
-            <div className="max-w-3xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[#EC4899]">
-                Parceria
-              </p>
-
-              <h2 className="mt-3 text-3xl font-black leading-tight text-white">
-                Quer construir uma experiência junto com a Agenda Crypto?
-              </h2>
-
-              <p className="mt-3 text-white/62">
-                Vamos conversar sobre seu projeto e entender como criar um evento
-                ou ativação que faça sentido dentro do ecossistema.
-              </p>
-
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href="/divulgacao"
-                  className="inline-flex items-center justify-center rounded-full bg-[#FFD600] px-6 py-3 text-sm font-bold text-black transition hover:bg-[#ffe44c]"
-                >
-                  Falar sobre projeto
-                </Link>
-
-                <Link
-                  href="/agenda"
-                  className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-white transition hover:border-[#19B5C9]/30 hover:bg-[#19B5C9]/10 hover:text-[#19B5C9]"
-                >
-                  Ver agenda
-                </Link>
+                  Falar sobre produção
+                </a>
               </div>
             </div>
-          </div>
+          </section>
+
+          <section>
+            <EventSubmissionForm
+              defaultInterestType="event_production"
+              title="Envie seu briefing inicial"
+              subtitle="Conte um pouco sobre a ideia, evento ou necessidade da sua marca. Assim a conversa já começa com mais contexto."
+            />
+          </section>
         </div>
-      </section>
+      </div>
     </main>
   );
 }

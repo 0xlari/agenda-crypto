@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -52,6 +53,15 @@ export default function AgendaBrowser({
 }: {
   events: EventItem[];
 }) {
+  useEffect(() => {
+  fetch("/api/page-view", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ page: "agenda" }),
+  });
+}, []);
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
 

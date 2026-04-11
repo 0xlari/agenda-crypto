@@ -1,199 +1,95 @@
-import Link from "next/link";
+import EventSubmissionForm from "@/componentes/event-submission-form";
+
+const whatsappMessage = encodeURIComponent(
+  "Olá! Quero entender melhor os formatos de destaque, cobertura e divulgação da Agenda Crypto para o meu evento."
+);
 
 export default function DivulgacaoPage() {
   return (
-    <main className="min-h-screen bg-[#212121] text-[#F5F5F5]">
-      {/* HERO */}
-      <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 py-16 md:py-20">
-          <div className="max-w-4xl">
-            <div className="mb-5 flex flex-wrap items-center gap-3">
-              <span className="inline-flex rounded-full border border-[#19B5C9]/30 bg-[#19B5C9]/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#19B5C9]">
-                Divulgação
-              </span>
-              <span className="h-2 w-2 rounded-full bg-[#EC4899]" />
-            </div>
+    <main className="min-h-screen bg-[#212121] px-6 py-16 text-white">
+      <div className="mx-auto max-w-6xl">
+        <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr]">
+          <section>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#19B5C9]">
+              Divulgação
+            </p>
 
-            <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Coloque seu evento na frente das pessoas certas
+            <h1 className="mt-4 text-4xl font-black leading-tight md:text-6xl">
+              Coloque seu evento no radar do ecossistema
             </h1>
 
-            <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/68 sm:text-lg">
-              A Agenda Crypto ajuda eventos, side events, meetups e iniciativas
-              do ecossistema a ganharem visibilidade com contexto, curadoria e
-              presença dentro do mercado.
+            <p className="mt-6 max-w-2xl text-base leading-7 text-white/65">
+              Na Agenda Crypto, a listagem do seu evento na plataforma é gratuita.
+              Se você quiser ir além da presença na agenda e ampliar alcance com
+              destaque, conteúdo e cobertura, também temos formatos de divulgação.
             </p>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/admin"
-                className="inline-flex items-center justify-center rounded-full bg-[#FFD600] px-6 py-3 text-sm font-bold text-black transition hover:scale-[1.01] hover:bg-[#ffe44c]"
-              >
-                Divulgar evento
-              </Link>
+            <div className="mt-10 grid gap-5">
+              <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6">
+                <h2 className="text-xl font-bold text-white">
+                  Listagem gratuita na plataforma
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-white/65">
+                  Cadastre seu evento sem custo para entrar na Agenda Crypto e
+                  aparecer para quem acompanha o mercado e busca as próximas datas
+                  relevantes do ecossistema.
+                </p>
+              </div>
 
-              <Link
-                href="/agenda"
-                className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-white transition hover:border-[#19B5C9]/30 hover:bg-[#19B5C9]/10 hover:text-[#19B5C9]"
-              >
-                Ver agenda
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+              <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6">
+                <h2 className="text-xl font-bold text-white">
+                  Pacote de divulgação e destaque
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-white/65">
+                  Para eventos que querem mais alcance, criamos estratégias com
+                  destaque na plataforma, material de divulgação antes, durante e
+                  depois do evento, além de distribuição nos nossos canais.
+                </p>
 
-      {/* O QUE FAZEMOS */}
-      <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 py-12">
-          <div className="mb-8 max-w-3xl">
-            <h2 className="text-3xl font-black text-white">
-              Como a Agenda Crypto pode ajudar
-            </h2>
-            <p className="mt-3 text-white/62">
-              Mais do que listar eventos, a Agenda pode atuar como ponte entre
-              sua iniciativa e o público certo.
-            </p>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-[28px] border border-white/10 bg-[#2A2A2A] p-6">
-              <div className="mb-4 h-10 w-10 rounded-full bg-[#19B5C9]/15" />
-              <h3 className="text-xl font-black text-white">Inclusão na agenda</h3>
-              <p className="mt-3 text-sm leading-relaxed text-white/62">
-                Seu evento entra na vitrine da Agenda Crypto com contexto e visibilidade.
-              </p>
-            </div>
-
-            <div className="rounded-[28px] border border-white/10 bg-[#2A2A2A] p-6">
-              <div className="mb-4 h-10 w-10 rounded-full bg-[#FFD600]/15" />
-              <h3 className="text-xl font-black text-white">Destaque editorial</h3>
-              <p className="mt-3 text-sm leading-relaxed text-white/62">
-                Alguns eventos podem receber posição de destaque dentro da curadoria.
-              </p>
-            </div>
-
-            <div className="rounded-[28px] border border-white/10 bg-[#2A2A2A] p-6">
-              <div className="mb-4 h-10 w-10 rounded-full bg-[#EC4899]/15" />
-              <h3 className="text-xl font-black text-white">Distribuição</h3>
-              <p className="mt-3 text-sm leading-relaxed text-white/62">
-                Divulgação integrada aos canais e à narrativa da Agenda Crypto.
-              </p>
-            </div>
-
-            <div className="rounded-[28px] border border-white/10 bg-[#2A2A2A] p-6">
-              <div className="mb-4 h-10 w-10 rounded-full bg-white/10" />
-              <h3 className="text-xl font-black text-white">Posicionamento</h3>
-              <p className="mt-3 text-sm leading-relaxed text-white/62">
-                Mais do que alcance, ajudamos o evento a se encaixar no contexto certo.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* PARA QUEM É */}
-      <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 py-12">
-          <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-            <div>
-              <h2 className="text-3xl font-black text-white">
-                Para quem é
-              </h2>
-              <p className="mt-3 text-white/62">
-                A divulgação pode funcionar para diferentes formatos e objetivos.
-              </p>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              {[
-                "Side events",
-                "Meetups",
-                "Conferências",
-                "Ativações de marca",
-                "Comunidades",
-                "Projetos do ecossistema",
-              ].map((item) => (
-                <div
-                  key={item}
-                  className="rounded-[24px] border border-white/10 bg-[#2A2A2A] px-5 py-4 text-sm font-medium text-white/80"
-                >
-                  {item}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {["Instagram", "LinkedIn", "X", "YouTube", "Newsletter"].map(
+                    (item) => (
+                      <span
+                        key={item}
+                        className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-2 text-xs font-semibold text-white/75"
+                      >
+                        {item}
+                      </span>
+                    )
+                  )}
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* COMO FUNCIONA */}
-      <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 py-12">
-          <div className="mb-8 max-w-3xl">
-            <h2 className="text-3xl font-black text-white">
-              Como funciona
-            </h2>
-            <p className="mt-3 text-white/62">
-              Um fluxo simples para colocar seu evento no radar.
-            </p>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-4">
-            {[
-              ["1", "Você envia", "Compartilha as informações principais do evento."],
-              ["2", "A Agenda analisa", "Entendemos aderência, contexto e formato."],
-              ["3", "Definimos a divulgação", "Escolhemos como o evento entra e ganha destaque."],
-              ["4", "Publicação e visibilidade", "Seu evento passa a fazer parte da Agenda Crypto."],
-            ].map(([step, title, text]) => (
-              <div
-                key={step}
-                className="rounded-[28px] border border-white/10 bg-[#2A2A2A] p-6"
-              >
-                <span className="text-sm font-bold text-[#19B5C9]">{step}</span>
-                <h3 className="mt-3 text-xl font-black text-white">{title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-white/62">{text}</p>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* CTA FINAL */}
-      <section>
-        <div className="mx-auto max-w-7xl px-6 py-14">
-          <div className="rounded-[32px] border border-white/10 bg-[#2A2A2A] p-8 md:p-10">
-            <div className="max-w-3xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[#19B5C9]">
-                Próximo passo
-              </p>
+              <div className="rounded-[28px] border border-[#19B5C9]/20 bg-[#19B5C9]/8 p-6">
+                <h2 className="text-xl font-bold text-white">
+                  Quer falar direto com a gente?
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-white/70">
+                  Se você já quer entender formatos, valores e possibilidades de
+                  divulgação, fale com a gente no WhatsApp.
+                </p>
 
-              <h2 className="mt-3 text-3xl font-black leading-tight text-white">
-                Quer colocar seu evento na Agenda Crypto?
-              </h2>
-
-              <p className="mt-3 text-white/62">
-                Envie seu evento e veja como podemos ajudar na divulgação e no posicionamento.
-              </p>
-
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href="/admin"
-                  className="inline-flex items-center justify-center rounded-full bg-[#FFD600] px-6 py-3 text-sm font-bold text-black transition hover:bg-[#ffe44c]"
+                <a
+                  href={`https://wa.me/5521981833526?text=${whatsappMessage}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-5 inline-flex items-center justify-center rounded-full bg-[#19B5C9] px-6 py-3 text-sm font-bold text-black transition hover:scale-[1.02]"
                 >
-                  Divulgar evento
-                </Link>
-
-                <Link
-                  href="/agenda"
-                  className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-white transition hover:border-[#19B5C9]/30 hover:bg-[#19B5C9]/10 hover:text-[#19B5C9]"
-                >
-                  Ver agenda
-                </Link>
+                  Falar sobre divulgação
+                </a>
               </div>
             </div>
-          </div>
+          </section>
+
+          <section>
+            <EventSubmissionForm
+              defaultInterestType="free_listing"
+              title="Cadastre seu evento gratuitamente"
+              subtitle="Envie as informações do seu evento para entrar na Agenda Crypto. Se quiser entender melhor o pacote de divulgação, você também pode marcar isso no formulário."
+            />
+          </section>
         </div>
-      </section>
+      </div>
     </main>
   );
 }
