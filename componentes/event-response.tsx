@@ -3,146 +3,118 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 
-type ResponseType = "going" | "not_going" | null;
+type Props = {
+  eventId: string;
+};
 
-export default function EventResponse({ eventId }: { eventId: string }) {
-  const [userId, setUserId] = useState<string | null>(null);
-  const [selected, setSelected] = useState<ResponseType>(null);
+export default function EventResponse({ eventId }: Props) {
+  const [selected, setSelected] = useState<"going" | "not_going" | null>(null);
   const [loading, setLoading] = useState(false);
   const [goingCount, setGoingCount] = useState(0);
-  const [notGoingCount, setNotGoingCount] = useState(0);
 
   async function loadCounts() {
     try {
-      const res = await fetch("/api/event-response-counts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ event_id: eventId }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) return;
-
-      setGoingCount(data.going || 0);
-      setNotGoingCount(data.notGoing || 0);
-    } catch {
-      // silencioso por enquanto
-    }
-  }
-
-  useEffect(() => {
-    let mounted = true;
-
-    async function loadUserAndResponse() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
-      const user = session?.user;
-
-      if (!mounted) return;
-
-      if (!user) {
-        setUserId(null);
-        await loadCounts();
-        return;
-      }
-
-      setUserId(user.id);
-
-      const { data } = await supabase
-        .from("event_responses")
-        .select("response")
-        .eq("user_id", user.id)
-        .eq("event_id", eventId)
-        .maybeSingle();
-
-      if (!mounted) return;
-
-      if (data?.response) {
-        setSelected(data.response as ResponseType);
-      }
-
-      await loadCounts();
-    }
-
-    loadUserAndResponse();
-
-    return () => {
-      mounted = false;
-    };
-  }, [eventId]);
-
-  const handleResponse = async (response: "going" | "not_going") => {
-    if (!userId) {
-      alert("Faça login para marcar eventos.");
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      const res = await fetch("/api/event-response", {
+      const response = await fetch("/api/event-response", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          user_id: userId,
           event_id: eventId,
-          response,
         }),
       });
 
-      const data = await res.json();
+      const data = await response.json();
 
-      if (!res.ok) {
-        alert(data.error || "Erro ao salvar resposta.");
+      if (response.ok) {
+        setGoingCount(data.going || 0);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar contagem:", error);
+    }
+  }
+
+  async function handleResponse(responseType: "going" | "not_going") {
+    try {
+      setLoading(true);
+
+      const userResult = await supabase.auth.getUser();
+      const user = userResult.data.user;
+
+      console.log("USUÁRIO LOGADO:", user);
+      console.log("EVENT ID ENVIADO:", eventId);
+      console.log("RESPONSE ENVIADA:", responseType);
+
+      if (!user) {
+        alert("Você precisa estar logada para marcar presença.");
         return;
       }
 
-      setSelected(response);
+      const response = await fetch("/api/respond", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          event_id: eventId,
+          user_id: user.id,
+          response: responseType,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        alert(data.error || "Erro ao salvar resposta");
+        return;
+      }
+
+      setSelected(responseType);
       await loadCounts();
-    } catch {
-      alert("Erro ao conectar com o servidor.");
+    } catch (error) {
+      console.error("Erro ao responder evento:", error);
+      alert("Erro ao conectar com o servidor");
     } finally {
       setLoading(false);
     }
-  };
+  }
+
+  useEffect(() => {
+    if (eventId) {
+      loadCounts();
+    }
+  }, [eventId]);
 
   return (
-    <div className="flex flex-col items-end gap-2">
-      <div className="flex items-center gap-2">
+    <div className="mt-4">
+      <div className="flex gap-3">
         <button
-          disabled={loading}
           onClick={() => handleResponse("going")}
-          className={`rounded-full px-3 py-2 text-xs font-semibold transition ${
+          disabled={loading}
+          className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
             selected === "going"
               ? "bg-[#19B5C9] text-black"
-              : "border border-[#19B5C9]/25 bg-[#19B5C9]/10 text-[#19B5C9]"
-          } ${loading ? "opacity-60" : ""}`}
+              : "bg-white/10 text-white"
+          }`}
         >
-          {selected === "going" ? "Vou ✓" : "Vou"}
+          Vou
         </button>
 
         <button
-          disabled={loading}
           onClick={() => handleResponse("not_going")}
-          className={`rounded-full px-3 py-2 text-xs font-semibold transition ${
+          disabled={loading}
+          className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
             selected === "not_going"
-              ? "bg-[#EC4899] text-white"
-              : "border border-white/10 bg-white/[0.04] text-white/70"
-          } ${loading ? "opacity-60" : ""}`}
+              ? "bg-white text-black"
+              : "bg-white/10 text-white"
+          }`}
         >
-          {selected === "not_going" ? "Não vou ✓" : "Não vou"}
+          Não vou
         </button>
       </div>
 
-      <p className="text-xs text-white/45">
-        {goingCount} vão • {notGoingCount} não vão
+      <p className="mt-2 text-sm text-white/70">
+        Vão ao evento: {goingCount} pessoas
       </p>
     </div>
   );

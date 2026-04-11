@@ -23,15 +23,16 @@ export async function POST(request: Request) {
       .eq("event_id", event_id);
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json(
+        { error: error.message },
+        { status: 500 }
+      );
     }
 
     const going = data.filter((item) => item.response === "going").length;
-    const notGoing = data.filter((item) => item.response === "not_going").length;
 
     return NextResponse.json({
       going,
-      notGoing,
     });
   } catch {
     return NextResponse.json(

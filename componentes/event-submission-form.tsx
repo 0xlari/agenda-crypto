@@ -24,6 +24,7 @@ export default function EventSubmissionForm({
   const [eventLink, setEventLink] = useState("");
   const [shortDescription, setShortDescription] = useState("");
   const [tags, setTags] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [interestType, setInterestType] = useState<
     "free_listing" | "promo_package" | "event_production"
@@ -86,6 +87,7 @@ export default function EventSubmissionForm({
           whatsapp,
           event_title: eventTitle,
           event_date: eventDate,
+          end_date: endDate,
           city,
           location,
           event_link: eventLink,
@@ -109,6 +111,7 @@ export default function EventSubmissionForm({
       setWhatsapp("");
       setEventTitle("");
       setEventDate("");
+      setEndDate("");
       setCity("");
       setLocation("");
       setEventLink("");
@@ -174,6 +177,14 @@ export default function EventSubmissionForm({
           placeholder="Data do evento"
           value={eventDate}
           onChange={(e) => setEventDate(e.target.value)}
+          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none"
+        />
+
+        <input
+          type="text"
+          placeholder="Data de fim do evento"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
           className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none"
         />
 

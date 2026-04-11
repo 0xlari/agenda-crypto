@@ -15,6 +15,22 @@ function normalizeSlug(text: string) {
     .replace(/(^-|-$)/g, "");
 }
 
+function normalizeDate(dateStr?: string | null) {
+  if (!dateStr) return null;
+
+  if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
+    return dateStr;
+  }
+
+  const brMatch = dateStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (brMatch) {
+    const [, day, month, year] = brMatch;
+    return `${year}-${month}-${day}`;
+  }
+
+  return null;
+}
+
 export async function POST(req: Request) {
   try {
     const { submissionId } = await req.json();
@@ -48,14 +64,14 @@ export async function POST(req: Request) {
       description: submission.short_description || null,
       city: submission.city || null,
       venue: submission.location || null,
-      start_date: submission.event_date || null,
-      end_date: submission.event_date || null,
+      start_date: normalizeDate(submission.event_date),
+      end_date: normalizeDate(submission.end_date || submission.event_date),
+      registration_url: submission.event_link || null,
       tags: Array.isArray(submission.tags)
-      ? submission.tags.map((tag) => tag.trim())
-      : submission.tags
-      ? 
-      submission.tags.split(",").map((tag) => tag.trim())
-      : [],
+        ? submission.tags.map((tag) => tag.trim())
+        : submission.tags
+          ? submission.tags.split(",").map((tag) => tag.trim())
+          : [],
       image_url: submission.image_url || null,
       published: true,
       featured: false,
