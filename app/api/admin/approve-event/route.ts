@@ -39,8 +39,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const baseSlug = normalizeSlug(submission.event_title || "evento");
-    const slug = `${baseSlug}-${Date.now()}`;
+    const slug = `${normalizeSlug(submission.event_title || "evento")}-${Date.now()}`;
 
     const { error: eventInsertError } = await supabase.from("events").insert({
       title: submission.event_title,
@@ -48,18 +47,18 @@ export async function POST(req: Request) {
       short_description: submission.short_description || null,
       description: submission.short_description || null,
       city: submission.city || null,
-      country: "Brazil",
       venue: submission.location || null,
-      is_online:
-        submission.location?.toLowerCase().includes("online") || false,
       start_date: submission.event_date || null,
       end_date: submission.event_date || null,
-      category: submission.tags || null,
-      tags: submission.tags || null,
-      registration_url: submission.event_link || null,
+      tags: Array.isArray(submission.tags)
+      ? submission.tags.map((tag) => tag.trim())
+      : submission.tags
+      ? 
+      submission.tags.split(",").map((tag) => tag.trim())
+      : [],
       image_url: submission.image_url || null,
-      featured: false,
       published: true,
+      featured: false,
     });
 
     if (eventInsertError) {
@@ -72,15 +71,15 @@ export async function POST(req: Request) {
 
     const { error: updateSubmissionError } = await supabase
       .from("event_submissions")
-      .update({
-        status: "approved",
-      })
+      .update({ status: "approved" })
       .eq("id", submissionId);
 
     if (updateSubmissionError) {
       console.error("Erro ao atualizar submissão:", updateSubmissionError);
       return NextResponse.json(
-        { error: `Evento criado, mas falhou ao atualizar submissão: ${updateSubmissionError.message}` },
+        {
+          error: `Evento criado, mas falhou ao atualizar submissão: ${updateSubmissionError.message}`,
+        },
         { status: 500 }
       );
     }

@@ -92,32 +92,33 @@ export default function AdminDashboard({
     }
   }
 
-  async function handleApproveSubmission(submissionId: string) {
-    setApprovingId(submissionId);
+  async function handleApprove(id: string) {
+  try {
+    const res = await fetch("/api/admin/approve-event", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        submissionId: id,
+      }),
+    });
 
-    try {
-      const response = await fetch("/api/admin/approve-submission", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ submissionId }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        alert(data.error || "Erro ao aprovar submissão.");
-        return;
-      }
-
-      setApprovedSubmissionIds((prev) => [...prev, submissionId]);
-    } catch {
-      alert("Erro ao conectar com o servidor.");
-    } finally {
-      setApprovingId(null);
+    if (!res.ok) {
+      alert("Erro ao aprovar evento");
+      return;
     }
+
+    alert("Evento aprovado 🚀");
+
+    // opcional: recarregar lista
+    window.location.reload();
+
+  } catch (err) {
+    console.error(err);
+    alert("Erro ao conectar com o servidor");
   }
+}
 
   const visiblePendingEvents = pendingEvents.filter(
     (event) => !approvedEventIds.includes(event.id)
@@ -218,7 +219,7 @@ export default function AdminDashboard({
                 )}
 
                 <button
-                  onClick={() => handleApproveSubmission(submission.id)}
+                  onClick={() => handleApprove(submission.id)}
                   disabled={approvingId === submission.id}
                   className="mt-5 rounded-full bg-[#FFD600] px-5 py-3 text-sm font-bold text-black disabled:opacity-60"
                 >
