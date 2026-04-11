@@ -24,6 +24,8 @@ export async function POST(req: Request) {
       tags,
       image_url,
       interest_type,
+      event_time,
+      agenda_highlight,
     } = body;
 
     if (!contact_name || !email || !event_title) {
@@ -40,6 +42,8 @@ export async function POST(req: Request) {
       event_title,
       event_date: event_date || null,
       end_date: end_date || null,
+      event_time: event_time || null,
+      agenda_highlight: agenda_highlight || null,
       event_link: event_link || null,
       city: city || null,
       location: location || null,

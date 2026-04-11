@@ -10,6 +10,8 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
+    console.log("BODY UPDATE SUBMISSION:", body);
+
     const {
       submissionId,
       contact_name,
@@ -18,6 +20,7 @@ export async function POST(req: Request) {
       event_title,
       event_date,
       end_date,
+      event_time,
       city,
       location,
       event_link,
@@ -26,6 +29,7 @@ export async function POST(req: Request) {
       image_url,
       interest_type,
       internal_notes,
+      agenda_highlight,
     } = body;
 
     if (!submissionId) {
@@ -44,6 +48,7 @@ export async function POST(req: Request) {
         event_title: event_title || null,
         event_date: event_date || null,
         end_date: end_date || null,
+        event_time: event_time || null,
         city: city || null,
         location: location || null,
         event_link: event_link || null,
@@ -52,10 +57,13 @@ export async function POST(req: Request) {
         image_url: image_url || null,
         interest_type: interest_type || null,
         internal_notes: internal_notes || null,
+        agenda_highlight: agenda_highlight || null,
       })
       .eq("id", submissionId);
 
     if (error) {
+      console.error("ERRO UPDATE SUBMISSION:", error);
+
       return NextResponse.json(
         { error: `Erro ao atualizar submissão: ${error.message}` },
         { status: 500 }
@@ -67,7 +75,8 @@ export async function POST(req: Request) {
       message: "Submissão atualizada com sucesso.",
     });
   } catch (err) {
-    console.error("Erro geral update-submission:", err);
+    console.error("ERRO GERAL UPDATE SUBMISSION:", err);
+
     return NextResponse.json(
       { error: "Erro interno ao atualizar submissão." },
       { status: 500 }

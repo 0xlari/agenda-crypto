@@ -26,6 +26,8 @@ export default function EventSubmissionForm({
   const [tags, setTags] = useState("");
   const [endDate, setEndDate] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [eventTime, setEventTime] = useState("");
+  const [agendaHighlight, setAgendaHighlight] = useState("");
   const [interestType, setInterestType] = useState<
     "free_listing" | "promo_package" | "event_production"
   >(defaultInterestType);
@@ -88,6 +90,7 @@ export default function EventSubmissionForm({
           event_title: eventTitle,
           event_date: eventDate,
           end_date: endDate,
+          event_time: eventTime,
           city,
           location,
           event_link: eventLink,
@@ -95,6 +98,7 @@ export default function EventSubmissionForm({
           tags,
           image_url: imageUrl,
           interest_type: interestType,
+          agenda_highlight: agendaHighlight,
         }),
       });
 
@@ -118,6 +122,8 @@ export default function EventSubmissionForm({
       setShortDescription("");
       setTags("");
       setImageUrl("");
+      setEventTime("");
+      setAgendaHighlight("");
       setInterestType(defaultInterestType);
     } catch {
       setMessage("Erro ao conectar com o servidor.");
@@ -190,6 +196,14 @@ export default function EventSubmissionForm({
 
         <input
           type="text"
+          placeholder="Horário do evento"
+          value={eventTime}
+          onChange={(e) => setEventTime(e.target.value)}
+          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none"
+        />
+
+        <input
+          type="text"
           placeholder="Cidade"
           value={city}
           onChange={(e) => setCity(e.target.value)}
@@ -218,6 +232,13 @@ export default function EventSubmissionForm({
           value={tags}
           onChange={(e) => setTags(e.target.value)}
           className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none md:col-span-2"
+        />
+
+        <textarea
+          placeholder="O que vale a pena a Agenda Crypto destacar nesse evento? (opcional)"
+          value={agendaHighlight}
+          onChange={(e) => setAgendaHighlight(e.target.value)}
+          className="min-h-[120px] rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none md:col-span-2"
         />
 
         <div className="md:col-span-2 space-y-3">

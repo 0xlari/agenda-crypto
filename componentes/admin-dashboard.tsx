@@ -37,6 +37,7 @@ type PendingSubmission = {
   event_title: string;
   event_date: string | null;
   end_date?: string | null;
+  event_time: string | null;
   event_link?: string | null;
   city: string | null;
   location: string | null;
@@ -47,6 +48,7 @@ type PendingSubmission = {
   image_url?: string | null;
   interest_type: string | null;
   internal_notes?: string | null;
+  agenda_highlight?: string | null;
 };
 
 function formatDate(dateString: string) {
@@ -223,6 +225,7 @@ export default function AdminDashboard({
     event_title: submission.event_title || "",
     event_date: submission.event_date || "",
     end_date: submission.end_date || "",
+    event_time: submission.event_time || "",
     city: submission.city || "",
     location: submission.location || "",
     event_link: submission.event_link || "",
@@ -230,6 +233,7 @@ export default function AdminDashboard({
     tags: submission.tags || "",
     image_url: submission.image_url || "",
     interest_type: submission.interest_type || "free_listing",
+    agenda_highlight: submission.agenda_highlight || "",
     internal_notes: submission.internal_notes || "",
   });
 }
@@ -371,6 +375,11 @@ async function saveSubmissionEdits(submissionId: string) {
                       {submission.end_date && (
                         <p><strong className="text-white">Data fim:</strong> {submission.end_date}</p>
                       )}
+                      {submission.event_time && (
+                        <p>
+                          <strong className="text-white">Horário:</strong> {submission.event_time}
+                        </p>
+                      )}
 
                       {submission.event_link && (
                         <p className="md:col-span-2">
@@ -390,6 +399,16 @@ async function saveSubmissionEdits(submissionId: string) {
                     <p className="mt-4 text-sm leading-6 text-white/65">
                       {submission.short_description}
                     </p>
+                  )}
+                  {submission.agenda_highlight && (
+                    <div className="mt-4 rounded-2xl border border-[#19B5C9]/20 bg-[#19B5C9]/10 p-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#19B5C9]">
+                        Destacar na Agenda Crypto
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-white/75">
+                        {submission.agenda_highlight}
+                      </p>
+                    </div>
                   )}
 
                   {submission.tags && (
@@ -453,6 +472,14 @@ async function saveSubmissionEdits(submissionId: string) {
           placeholder="Data fim"
           className="rounded-xl bg-white/10 px-4 py-3 text-white outline-none"
         />
+        <input
+          value={editForm.event_time || ""}
+          onChange={(e) =>
+            setEditForm((prev) => ({ ...prev, event_time: e.target.value }))
+          }
+          placeholder="Horário do evento"
+          className="rounded-xl bg-white/10 px-4 py-3 text-white outline-none"
+        />
 
         <input
           value={editForm.city || ""}
@@ -507,6 +534,15 @@ async function saveSubmissionEdits(submissionId: string) {
           placeholder="Descrição curta"
           className="min-h-[110px] rounded-xl bg-white/10 px-4 py-3 text-white outline-none md:col-span-2"
         />
+        <textarea
+          value={editForm.agenda_highlight || ""}
+          onChange={(e) =>
+            setEditForm((prev) => ({ ...prev, agenda_highlight: e.target.value }))
+          }
+          placeholder="Olhar da Agenda Crypto"
+          className="min-h-[110px] rounded-xl bg-white/10 px-4 py-3 text-white outline-none md:col-span-2"
+        />
+
 
         <textarea
           value={editForm.internal_notes || ""}

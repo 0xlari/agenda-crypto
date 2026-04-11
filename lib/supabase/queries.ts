@@ -1,4 +1,5 @@
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseServer } from "./server";
+
 
 function nowIso() {
   return new Date().toISOString();
@@ -46,11 +47,28 @@ export async function getFeaturedEvents() {
 
   return data;
 }
-
 export async function getEventBySlug(slug: string) {
   const { data, error } = await supabaseServer
     .from("events")
-    .select("*")
+    .select(`
+      id,
+      title,
+      slug,
+      short_description,
+      description,
+      city,
+      venue,
+      start_date,
+      end_date,
+      event_time,
+      registration_url,
+      image_url,
+      tags,
+      category,
+      audience,
+      source_url,
+      agenda_highlight
+    `)
     .eq("slug", slug)
     .maybeSingle();
 

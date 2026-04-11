@@ -18,6 +18,7 @@ export default async function EventPage({
 }) {
   const { slug } = await params;
   const event = await getEventBySlug(slug);
+  console.log("EVENT DATA:", event);
 
   if (!event) {
     return notFound();
@@ -95,6 +96,16 @@ export default async function EventPage({
                   <p className="text-white/35">Data</p>
                   <p className="mt-1 text-white">{formatDate(event.start_date)}</p>
                 </div>
+              {event.end_date && (
+              <p className="text-white/70">
+                <strong className="text-white">Data de fim:</strong> {formatDate(event.end_date)}
+              </p>
+                )}
+                {event.event_time && (
+                <p className="text-white/70">
+                  <strong className="text-white">Horário:</strong> {event.event_time}
+                </p>
+              )}
 
                 {event.venue && (
                   <div>
@@ -114,6 +125,7 @@ export default async function EventPage({
                     <p className="mt-1 text-white">{event.audience}</p>
                   </div>
                 )}
+
               </div>
             </div>
           </div>
@@ -159,7 +171,6 @@ export default async function EventPage({
               <p className="text-base leading-relaxed text-white/68">
                 {event.description || "Sem descrição disponível."}
               </p>
-
               {event.tags && event.tags.length > 0 && (
                 <div>
                   <p className="mb-3 text-sm font-medium text-white/45">Tags</p>
@@ -189,6 +200,16 @@ export default async function EventPage({
             </div>
           </div>
         </div>
+      {event.agenda_highlight && (
+        <section className="mt-8 rounded-[32px] border border-[#19B5C9]/20 bg-[#19B5C9]/10 p-6 md:p-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#19B5C9]">
+            Destaque da Agenda Crypto
+          </p>
+          <p className="mt-3 max-w-3xl text-base leading-8 text-white/80">
+            {event.agenda_highlight}
+          </p>
+        </section>
+      )}
       </section>
 
       {/* NEWSLETTER */}

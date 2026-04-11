@@ -66,6 +66,7 @@ export async function POST(req: Request) {
       venue: submission.location || null,
       start_date: normalizeDate(submission.event_date),
       end_date: normalizeDate(submission.end_date || submission.event_date),
+      event_time: submission.event_time || null,
       registration_url: submission.event_link || null,
       tags: Array.isArray(submission.tags)
         ? submission.tags.map((tag) => tag.trim())
@@ -73,6 +74,7 @@ export async function POST(req: Request) {
           ? submission.tags.split(",").map((tag) => tag.trim())
           : [],
       image_url: submission.image_url || null,
+      agenda_highlight: submission.agenda_highlight || null,
       published: true,
       featured: false,
     });
