@@ -16,7 +16,7 @@ export default async function AgendaPage() {
     <main className="min-h-screen bg-[#F8F8F6] text-[#1F1F1F]">
       {/* HERO */}
       <section className="border-b border-black/10 bg-[#F8F8F6]">
-        <div className="mx-auto max-w-7xl px-6 py-14 md:py-16">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 md:py-16">
           <div className="grid gap-10 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
             <div>
               <div className="mb-5 flex flex-wrap items-center gap-3">
@@ -27,18 +27,18 @@ export default async function AgendaPage() {
                 <span className="h-2 w-2 rounded-full bg-[#EC4899]" />
               </div>
 
-              <h1 className="max-w-4xl text-4xl font-black tracking-tight text-[#111111] sm:text-5xl lg:text-6xl">
+              <h1 className="max-w-4xl text-3xl font-black tracking-tight text-[#111111] sm:text-5xl lg:text-6xl">
                 Agenda Crypto
               </h1>
 
-              <p className="mt-5 max-w-2xl text-base leading-relaxed text-black/65 sm:text-lg">
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-black/65 sm:mt-5 sm:text-lg">
                 Descubra os eventos mais relevantes do mercado cripto em uma
                 agenda viva, visual e feita para quem quer acompanhar o que
                 realmente importa.
               </p>
             </div>
 
-            <div className="rounded-[32px] border border-[#19B5C9]/15 bg-white p-6 shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
+            <div className="hidden rounded-[32px] border border-[#19B5C9]/15 bg-white p-6 shadow-[0_10px_30px_rgba(0,0,0,0.05)] lg:block">
               <div className="mb-4 flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-[#19B5C9]" />
                 <span className="h-2.5 w-2.5 rounded-full bg-[#FFD600]" />
@@ -66,28 +66,28 @@ export default async function AgendaPage() {
 
       {/* BUSCA + FILTROS */}
       <section className="border-b border-black/10 bg-[#F8F8F6]">
-        <div className="mx-auto max-w-7xl px-6 py-6">
-          <div className="rounded-[28px] border border-black/10 bg-white p-4 md:p-5 shadow-[0_10px_30px_rgba(0,0,0,0.03)]">
+        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6">
+          <div className="rounded-[20px] border border-black/10 bg-white p-3 sm:rounded-[28px] sm:p-4 md:p-5 shadow-[0_10px_30px_rgba(0,0,0,0.03)]">
             <div className="flex flex-col gap-4">
-              <div className="flex items-center rounded-2xl border border-black/10 bg-[#F7FBFC] px-4 py-3">
-                <span className="mr-3 text-black/35">⌕</span>
+              <div className="flex items-center rounded-xl border border-black/10 bg-[#F7FBFC] px-3 py-2.5 sm:rounded-2xl sm:px-4 sm:py-3">
+                <span className="mr-2 text-black/35 sm:mr-3">⌕</span>
                 <input
                   type="text"
-                  placeholder="Buscar eventos, cidades ou temas..."
-                  className="w-full bg-transparent text-sm text-[#111111] outline-none placeholder:text-black/35"
+                  placeholder="Buscar eventos..."
+                  className="w-full bg-transparent text-xs text-[#111111] outline-none placeholder:text-black/35 sm:text-sm"
                 />
               </div>
 
-              <div className="flex flex-wrap gap-2">
-                <button className="rounded-full border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-4 py-2 text-xs font-semibold text-[#0E8FA0] transition hover:bg-[#19B5C9]/15">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                <button className="rounded-full border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-3 py-1.5 text-[11px] sm:px-4 sm:py-2 sm:text-xs font-semibold text-[#0E8FA0] transition hover:bg-[#19B5C9]/15">
                   side events
                 </button>
 
-                <button className="rounded-full border border-[#EC4899]/20 bg-[#EC4899]/10 px-4 py-2 text-xs font-semibold text-[#D53C86] transition hover:bg-[#EC4899]/15">
+                <button className="rounded-full border border-[#EC4899]/20 bg-[#EC4899]/10 px-3 py-1.5 text-[11px] sm:px-4 sm:py-2 sm:text-xs font-semibold text-[#D53C86] transition hover:bg-[#EC4899]/15">
                   builders
                 </button>
 
-                <button className="rounded-full border border-[#FFD600]/30 bg-[#FFF5B8] px-4 py-2 text-xs font-semibold text-[#8A7200] transition hover:bg-[#FFE970]">
+                <button className="rounded-full border border-[#FFD600]/30 bg-[#FFF5B8] px-3 py-1.5 text-[11px] sm:px-4 sm:py-2 sm:text-xs font-semibold text-[#8A7200] transition hover:bg-[#FFE970]">
                   stablecoin
                 </button>
 
@@ -109,10 +109,10 @@ export default async function AgendaPage() {
       </section>
 
       {/* LISTA */}
-      <section className="mx-auto max-w-7xl px-6 py-10 md:py-12">
+      <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10 md:py-12">
         <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-3xl font-black tracking-tight text-[#111111]">
+            <h2 className="text-2xl font-black tracking-tight text-[#111111] sm:text-3xl">
               Eventos em destaque
             </h2>
             <p className="mt-2 text-sm text-black/50">
@@ -130,14 +130,14 @@ export default async function AgendaPage() {
             <p className="text-black/60">Nenhum evento publicado no momento.</p>
           </div>
         ) : (
-          <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-4 sm:gap-8 md:grid-cols-2 xl:grid-cols-3">
             {events.map((event) => (
               <article
                 key={event.id}
-                className="group overflow-hidden rounded-[30px] border border-black/10 bg-white transition duration-300 hover:-translate-y-1 hover:border-[#19B5C9]/20 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)]"
+                className="group overflow-hidden rounded-[20px] border border-black/10 bg-white transition duration-300 hover:-translate-y-1 hover:border-[#19B5C9]/20 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] sm:rounded-[30px]"
               >
                 {/* IMAGEM */}
-                <div className="relative h-56 w-full overflow-hidden bg-[linear-gradient(135deg,rgba(25,181,201,0.12),rgba(236,72,153,0.06),rgba(255,214,0,0.12))]">
+                <div className="relative h-44 w-full overflow-hidden sm:h-56 bg-[linear-gradient(135deg,rgba(25,181,201,0.12),rgba(236,72,153,0.06),rgba(255,214,0,0.12))]">
                   {event.image_url ? (
                     <Image
                       src={event.image_url}
@@ -175,12 +175,12 @@ export default async function AgendaPage() {
                 </div>
 
                 {/* CONTEÚDO */}
-                <div className="p-6">
+                <div className="p-4 sm:p-6">
                   <p className="text-sm font-medium text-[#0E8FA0]">
                     {formatEventDate(event.start_date)}
                   </p>
 
-                  <h2 className="mt-2 text-2xl font-black leading-tight text-[#111111]">
+                  <h2 className="mt-2 text-lg font-black leading-tight text-[#111111] sm:text-2xl">
                     {event.title}
                   </h2>
 
@@ -210,20 +210,20 @@ export default async function AgendaPage() {
                     </div>
                   )}
 
-                  <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="mt-4 flex items-center justify-between gap-2 sm:mt-6">
                     <Link
                       href={`/agenda/${event.slug}`}
-                      className="inline-flex items-center justify-center rounded-full bg-[#19B5C9] px-4 py-2 text-sm font-bold text-white transition hover:bg-[#149caf]"
+                      className="inline-flex items-center justify-center rounded-full bg-[#19B5C9] px-3 py-1.5 text-xs font-bold text-white transition hover:bg-[#149caf] sm:px-4 sm:py-2 sm:text-sm"
                     >
                       Ver evento
                     </Link>
 
-                    <div className="flex gap-2">
-                      <button className="rounded-full border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-3 py-2 text-xs font-semibold text-[#0E8FA0] transition hover:bg-[#19B5C9]/15">
+                    <div className="flex gap-1.5 sm:gap-2">
+                      <button className="rounded-full border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-2.5 py-1.5 text-[11px] sm:px-3 sm:py-2 sm:text-xs font-semibold text-[#0E8FA0] transition hover:bg-[#19B5C9]/15">
                         Vou
                       </button>
 
-                      <button className="rounded-full border border-black/10 bg-[#F6F6F6] px-3 py-2 text-xs font-semibold text-black/60 transition hover:border-[#EC4899]/20 hover:bg-[#EC4899]/10 hover:text-[#D53C86]">
+                      <button className="rounded-full border border-black/10 bg-[#F6F6F6] px-2.5 py-1.5 text-[11px] sm:px-3 sm:py-2 sm:text-xs font-semibold text-black/60 transition hover:border-[#EC4899]/20 hover:bg-[#EC4899]/10 hover:text-[#D53C86]">
                         Não vou
                       </button>
                     </div>
@@ -237,10 +237,10 @@ export default async function AgendaPage() {
 
       {/* NEWSLETTER */}
       <section className="border-t border-black/10">
-        <div className="mx-auto max-w-7xl px-6 py-14">
-          <div className="overflow-hidden rounded-[32px] border border-black/10 bg-white">
-            <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
-              <div className="p-8 md:p-10">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-14">
+          <div className="overflow-hidden rounded-[20px] border border-black/10 bg-white sm:rounded-[32px]">
+            <div className="grid gap-0 md:grid-cols-[1.1fr_0.9fr]">
+              <div className="p-5 sm:p-8 md:p-10">
                 <div className="mb-4 flex items-center gap-2">
                   <span className="h-2.5 w-2.5 rounded-full bg-[#19B5C9]" />
                   <span className="h-2.5 w-2.5 rounded-full bg-[#FFD600]" />
@@ -251,31 +251,31 @@ export default async function AgendaPage() {
                   Newsletter
                 </p>
 
-                <h3 className="mt-3 max-w-xl text-3xl font-black leading-tight text-[#111111]">
+                <h3 className="mt-3 max-w-xl text-xl font-black leading-tight text-[#111111] sm:text-3xl">
                   Receba os eventos antes de todo mundo
                 </h3>
 
-                <p className="mt-3 max-w-2xl text-black/62">
+                <p className="mt-2 max-w-2xl text-sm text-black/62 sm:mt-3 sm:text-base">
                   Entre na lista da Agenda Crypto para acompanhar novidades,
                   curadoria e os principais eventos do mercado.
                 </p>
 
-                <form className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <form className="mt-6 flex flex-row items-center gap-2">
                   <input
                     type="email"
                     placeholder="Seu melhor email"
-                    className="w-full rounded-full border border-black/10 bg-[#F8F8F6] px-5 py-3 text-[#111111] outline-none placeholder:text-black/35"
+                    className="min-w-0 flex-1 rounded-full border border-black/10 bg-[#F8F8F6] px-4 py-2.5 text-sm text-[#111111] outline-none placeholder:text-black/35"
                   />
                   <button
                     type="button"
-                    className="rounded-full bg-[#FFD600] px-6 py-3 font-bold text-black transition hover:bg-[#ffe44c]"
+                    className="shrink-0 whitespace-nowrap rounded-full bg-[#FFD600] px-5 py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe44c]"
                   >
                     Entrar na lista
                   </button>
                 </form>
               </div>
 
-              <div className="relative hidden min-h-[280px] overflow-hidden lg:block">
+              <div className="relative hidden min-h-[280px] overflow-hidden md:block">
                 <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(25,181,201,0.10),rgba(236,72,153,0.08),rgba(255,214,0,0.10))]" />
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(25,181,201,0.14),transparent_40%),radial-gradient(circle_at_bottom_right,rgba(236,72,153,0.12),transparent_40%)]" />
                 <div className="absolute left-8 top-8 rounded-full border border-black/10 bg-white/70 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-black/60 backdrop-blur">
