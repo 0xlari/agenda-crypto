@@ -79,3 +79,18 @@ export async function getEventBySlug(slug: string) {
 
   return data;
 }
+export async function getChildEvents(parentId: string) {
+  const { data, error } = await supabaseServer
+    .from("events")
+    .select("*")
+    .eq("published", true)
+    .eq("parent_event_id", parentId)
+    .order("start_date", { ascending: true });
+
+  if (error) {
+    console.error("Erro ao buscar side events:", error.message);
+    return [];
+  }
+
+  return data;
+}

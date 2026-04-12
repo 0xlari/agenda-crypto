@@ -4,7 +4,7 @@ import Header from "@/componentes/layout/header";
 
 export const metadata: Metadata = {
   title: "Agenda Crypto",
-  description: "Os eventos cripto que realmente importam.",
+  description: "Eventos cripto que realmente importam.",
 };
 
 export default function RootLayout({

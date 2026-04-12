@@ -1,4 +1,4 @@
-import { getEventBySlug } from "@/lib/supabase/queries";
+import { getEventBySlug, getChildEvents } from "@/lib/supabase/queries";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import NewsletterSignup from "@/componentes/newsletter-signup";
@@ -18,7 +18,7 @@ export default async function EventPage({
 }) {
   const { slug } = await params;
   const event = await getEventBySlug(slug);
-  console.log("EVENT DATA:", event);
+  const sideEvents = event ? await getChildEvents(event.id) : [];
 
   if (!event) {
     return notFound();
@@ -211,6 +211,69 @@ export default async function EventPage({
         </section>
       )}
       </section>
+      
+      {sideEvents.length > 0 && (
+        <section className="mx-auto max-w-7xl px-6 pb-12">
+          <div className="rounded-[32px] border border-white/10 bg-[#2A2A2A] p-6 md:p-8">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#19B5C9]">
+              Agenda paralela
+            </p>
+
+            <h2 className="mt-3 text-2xl font-black text-white">
+              Side events relacionados
+            </h2>
+
+            <p className="mt-2 max-w-2xl text-sm leading-7 text-white/65">
+              Outros eventos conectados a este momento do mercado e à mesma semana.
+            </p>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {sideEvents.map((item: any) => (
+                <a
+                  key={item.id}
+                  href={`/agenda/${item.slug}`}
+                  className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5 transition hover:border-[#19B5C9]/30 hover:bg-[#19B5C9]/10"
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full border border-[#FFD600]/20 bg-[#FFD600]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#FFD600]">
+                      {item.event_type || "side event"}
+                    </span>
+
+                    {item.city && (
+                      <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/70">
+                        {item.city}
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="mt-4 text-xl font-bold text-white">
+                    {item.title}
+                  </h3>
+
+                  {item.short_description && (
+                    <p className="mt-2 text-sm leading-7 text-white/65">
+                      {item.short_description}
+                    </p>
+                  )}
+
+                  <div className="mt-4 text-sm text-white/55">
+                    {item.start_date && (
+                      <p>
+                        {new Date(item.start_date).toLocaleDateString("pt-BR", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                        {item.event_time ? ` • ${item.event_time}` : ""}
+                      </p>
+                    )}
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* NEWSLETTER */}
       <section className="border-t border-white/10">
