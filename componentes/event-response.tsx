@@ -34,22 +34,51 @@ export default function EventResponse({ eventId }: Props) {
     }
   }
 
+  // 🔥 TRACK SAVE
+  async function handleSave() {
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        alert("Faça login para salvar eventos.");
+        return;
+      }
+
+      await fetch("/api/track-event", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          eventId,
+          type: "save",
+        }),
+      });
+
+      alert("Evento salvo com sucesso!");
+    } catch (error) {
+      console.error("Erro ao salvar evento:", error);
+    }
+  }
+
+  // 🔥 TRACK RSVP
   async function handleResponse(responseType: "going" | "not_going") {
     try {
       setLoading(true);
 
-      const userResult = await supabase.auth.getUser();
-      const user = userResult.data.user;
-
-      console.log("USUÁRIO LOGADO:", user);
-      console.log("EVENT ID ENVIADO:", eventId);
-      console.log("RESPONSE ENVIADA:", responseType);
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
       if (!user) {
         alert("Você precisa estar logada para marcar presença.");
         return;
       }
 
+      // 👉 salva resposta
       const response = await fetch("/api/respond", {
         method: "POST",
         headers: {
@@ -68,6 +97,19 @@ export default function EventResponse({ eventId }: Props) {
         alert(data.error || "Erro ao salvar resposta");
         return;
       }
+
+      // 👉 TRACK (AQUI É O CERTO)
+      await fetch("/api/track-event", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          eventId,
+          type: responseType === "going" ? "rsvp_yes" : "rsvp_no",
+        }),
+      });
 
       setSelected(responseType);
       await loadCounts();
@@ -112,6 +154,13 @@ export default function EventResponse({ eventId }: Props) {
           Não vou
         </button>
       </div>
+
+      <button
+        onClick={handleSave}
+        className="mt-3 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
+      >
+        Salvar
+      </button>
 
       <p className="mt-2 text-sm text-white/70">
         Vão ao evento: {goingCount} pessoas

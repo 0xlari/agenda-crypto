@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import NewsletterSignup from "@/componentes/newsletter-signup";
 import EventResponse from "@/componentes/event-response";
+import EventViewTracker from "@/componentes/event_view_tracker";
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleString("pt-BR", {
@@ -26,6 +27,7 @@ export default async function EventPage({
 
   return (
     <main className="min-h-screen bg-[#212121] text-[#F5F5F5]">
+      <EventViewTracker eventId={event.id} />
       {/* HERO */}
       <section className="border-b border-white/10">
         <div className="mx-auto max-w-7xl px-6 py-10 md:py-12">
@@ -220,7 +222,7 @@ export default async function EventPage({
             </p>
 
             <h2 className="mt-3 text-2xl font-black text-white">
-              Side events relacionados
+              Agenda Paralela
             </h2>
 
             <p className="mt-2 max-w-2xl text-sm leading-7 text-white/65">
