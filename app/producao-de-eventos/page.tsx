@@ -28,14 +28,14 @@ export default function ProducaoDeEventosPage() {
         ]}
       />
       <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 py-16 md:py-24">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 md:py-24">
           <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#19B5C9]">
                 Produção de eventos
               </p>
 
-              <h1 className="mt-4 max-w-4xl text-4xl font-black leading-tight text-white sm:text-5xl">
+              <h1 className="mt-4 max-w-4xl text-3xl font-black leading-tight text-white sm:text-5xl">
                 Eventos que conectam comunidade, marcas e experiências no Web3
               </h1>
 
@@ -51,7 +51,7 @@ export default function ProducaoDeEventosPage() {
                   href={`https://wa.me/5521981833526?text=${whatsappMessage}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center rounded-full bg-[#FFD600] px-6 py-3 text-sm font-bold text-black transition hover:scale-[1.01] hover:bg-[#ffe44c]"
+                  className="inline-flex w-full items-center justify-center rounded-full bg-[#FFD600] px-6 py-3 text-sm font-bold text-black transition hover:scale-[1.01] hover:bg-[#ffe44c] sm:w-auto"
                 >
                   Falar no WhatsApp
                 </a>
@@ -123,7 +123,7 @@ export default function ProducaoDeEventosPage() {
       </section>
 
       <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 py-14 md:py-16">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-14 md:py-16">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#EC4899]">
               Como atuamos
@@ -172,7 +172,7 @@ export default function ProducaoDeEventosPage() {
 
       {/* CASES */}
 <section className="border-b border-white/10">
-  <div className="mx-auto max-w-7xl px-6 py-12">
+  <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
     <div className="mb-8 max-w-3xl">
       <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[#19B5C9]">
         Cases em destaque
@@ -255,7 +255,7 @@ export default function ProducaoDeEventosPage() {
   </div>
 </section>
       <section className="border-t border-white/10">
-        <div className="mx-auto max-w-7xl px-6 py-16">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
           <div className="rounded-[36px] border border-[#FFD600]/20 bg-[#FFD600]/10 p-8 md:p-10">
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#FFD600]">
               Vamos conversar
@@ -275,14 +275,14 @@ export default function ProducaoDeEventosPage() {
                 href={`https://wa.me/5521981833526?text=${whatsappMessage}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center rounded-full bg-[#FFD600] px-6 py-3 text-sm font-bold text-black transition hover:scale-[1.01] hover:bg-[#ffe44c]"
+                className="inline-flex w-full items-center justify-center rounded-full bg-[#FFD600] px-6 py-3 text-sm font-bold text-black transition hover:scale-[1.01] hover:bg-[#ffe44c] sm:w-auto"
               >
                 Falar no WhatsApp
               </a>
 
               <a
                 href="/divulgacao"
-                className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-white transition hover:border-[#19B5C9]/30 hover:bg-[#19B5C9]/10 hover:text-[#19B5C9]"
+                className="inline-flex w-full items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-white transition hover:border-[#19B5C9]/30 hover:bg-[#19B5C9]/10 hover:text-[#19B5C9] sm:w-auto"
               >
                 Ver página de divulgação
               </a>

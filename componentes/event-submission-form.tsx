@@ -133,22 +133,22 @@ export default function EventSubmissionForm({
   }
 
   return (
-    <div className="rounded-[32px] border border-white/10 bg-white/[0.03] p-6 md:p-8">
+    <div className="rounded-[32px] border border-white/10 bg-white/[0.03] p-4 sm:p-6 md:p-8">
       <div className="mb-6">
         <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#19B5C9]">
           Formulário
         </p>
-        <h3 className="mt-3 text-2xl font-black text-white">{title}</h3>
+        <h3 className="mt-3 text-xl font-black text-white sm:text-2xl">{title}</h3>
         <p className="mt-2 text-sm leading-6 text-white/65">{subtitle}</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
+      <form onSubmit={handleSubmit} className="grid gap-3 sm:gap-4 md:grid-cols-2">
         <input
           type="text"
           placeholder="Seu nome"
           value={contactName}
           onChange={(e) => setContactName(e.target.value)}
-          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none"
+          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none transition hover:border-[#19B5C9]/35 focus:border-[#19B5C9]/55"
           required
         />
 
@@ -157,7 +157,7 @@ export default function EventSubmissionForm({
           placeholder="Seu email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none"
+          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none transition hover:border-[#19B5C9]/35 focus:border-[#19B5C9]/55"
           required
         />
 
@@ -166,7 +166,7 @@ export default function EventSubmissionForm({
           placeholder="WhatsApp"
           value={whatsapp}
           onChange={(e) => setWhatsapp(e.target.value)}
-          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none"
+          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none transition hover:border-[#19B5C9]/35 focus:border-[#19B5C9]/55"
         />
 
         <input
@@ -174,7 +174,7 @@ export default function EventSubmissionForm({
           placeholder="Nome do evento"
           value={eventTitle}
           onChange={(e) => setEventTitle(e.target.value)}
-          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none"
+          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none transition hover:border-[#19B5C9]/35 focus:border-[#19B5C9]/55"
           required
         />
 
@@ -183,7 +183,7 @@ export default function EventSubmissionForm({
           placeholder="Data do evento"
           value={eventDate}
           onChange={(e) => setEventDate(e.target.value)}
-          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none"
+          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none transition hover:border-[#19B5C9]/35 focus:border-[#19B5C9]/55"
         />
 
         <input
@@ -191,7 +191,7 @@ export default function EventSubmissionForm({
           placeholder="Data de fim do evento"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
-          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none"
+          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none transition hover:border-[#19B5C9]/35 focus:border-[#19B5C9]/55"
         />
 
         <input
@@ -199,7 +199,7 @@ export default function EventSubmissionForm({
           placeholder="Horário do evento"
           value={eventTime}
           onChange={(e) => setEventTime(e.target.value)}
-          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none"
+          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none transition hover:border-[#19B5C9]/35 focus:border-[#19B5C9]/55"
         />
 
         <input
@@ -207,7 +207,7 @@ export default function EventSubmissionForm({
           placeholder="Cidade"
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none"
+          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none transition hover:border-[#19B5C9]/35 focus:border-[#19B5C9]/55"
         />
 
         <input
@@ -215,7 +215,7 @@ export default function EventSubmissionForm({
           placeholder="Local ou online"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
-          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none"
+          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none transition hover:border-[#19B5C9]/35 focus:border-[#19B5C9]/55"
         />
 
         <input
@@ -223,7 +223,7 @@ export default function EventSubmissionForm({
           placeholder="Link do evento"
           value={eventLink}
           onChange={(e) => setEventLink(e.target.value)}
-          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none"
+          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none transition hover:border-[#19B5C9]/35 focus:border-[#19B5C9]/55"
         />
 
         <input
@@ -231,14 +231,14 @@ export default function EventSubmissionForm({
           placeholder="Tags ou categoria"
           value={tags}
           onChange={(e) => setTags(e.target.value)}
-          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none md:col-span-2"
+          className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none transition hover:border-[#19B5C9]/35 focus:border-[#19B5C9]/55 md:col-span-2"
         />
 
         <textarea
           placeholder="O que vale a pena a Agenda Crypto destacar nesse evento? (opcional)"
           value={agendaHighlight}
           onChange={(e) => setAgendaHighlight(e.target.value)}
-          className="min-h-[120px] rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none md:col-span-2"
+          className="min-h-[120px] rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none transition hover:border-[#19B5C9]/35 focus:border-[#19B5C9]/55 md:col-span-2"
         />
 
         <div className="md:col-span-2 space-y-3">
@@ -247,7 +247,7 @@ export default function EventSubmissionForm({
             placeholder="Link da imagem (opcional)"
             value={imageUrl}
             onChange={(e) => setImageUrl(e.target.value)}
-            className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none"
+            className="w-full rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none transition hover:border-[#19B5C9]/35 focus:border-[#19B5C9]/55"
           />
 
           <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.03] p-4">
@@ -264,7 +264,7 @@ export default function EventSubmissionForm({
                   handleImageUpload(file);
                 }
               }}
-              className="text-sm text-white/70 file:mr-4 file:rounded-full file:border-0 file:bg-[#19B5C9] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black"
+              className="w-full text-sm text-white/70 file:mb-2 file:mr-4 file:w-full file:rounded-full file:border-0 file:bg-[#19B5C9] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-black sm:file:mb-0 sm:file:w-auto"
             />
 
             {uploadingImage && (
@@ -276,7 +276,7 @@ export default function EventSubmissionForm({
                 <img
                   src={imageUrl}
                   alt="Prévia"
-                  className="max-h-48 rounded-2xl border border-white/10 object-cover"
+                  className="max-h-48 w-full rounded-2xl border border-white/10 object-cover"
                 />
               </div>
             )}
@@ -287,7 +287,7 @@ export default function EventSubmissionForm({
           placeholder="Descrição curta do evento"
           value={shortDescription}
           onChange={(e) => setShortDescription(e.target.value)}
-          className="min-h-[120px] rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none md:col-span-2"
+          className="min-h-[120px] rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none transition hover:border-[#19B5C9]/35 focus:border-[#19B5C9]/55 md:col-span-2"
         />
 
         <div className="md:col-span-2">
@@ -295,14 +295,14 @@ export default function EventSubmissionForm({
             O que você deseja?
           </p>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="grid gap-2 sm:flex sm:flex-wrap sm:gap-3">
             <button
               type="button"
               onClick={() => setInterestType("free_listing")}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+              className={`w-full rounded-full px-4 py-2 text-sm font-semibold transition sm:w-auto ${
                 interestType === "free_listing"
                   ? "bg-[#19B5C9] text-black"
-                  : "border border-white/10 bg-white/[0.04] text-white/70"
+                  : "border border-white/10 bg-white/[0.04] text-white/70 hover:border-[#19B5C9]/35 hover:bg-[#19B5C9]/10 hover:text-[#19B5C9]"
               }`}
             >
               Apenas listagem gratuita
@@ -311,10 +311,10 @@ export default function EventSubmissionForm({
             <button
               type="button"
               onClick={() => setInterestType("promo_package")}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+              className={`w-full rounded-full px-4 py-2 text-sm font-semibold transition sm:w-auto ${
                 interestType === "promo_package"
                   ? "bg-[#FFD600] text-black"
-                  : "border border-white/10 bg-white/[0.04] text-white/70"
+                  : "border border-white/10 bg-white/[0.04] text-white/70 hover:border-[#FFD600]/35 hover:bg-[#FFD600]/10 hover:text-[#FFD600]"
               }`}
             >
               Quero saber sobre divulgação
@@ -323,10 +323,10 @@ export default function EventSubmissionForm({
             <button
               type="button"
               onClick={() => setInterestType("event_production")}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
+              className={`w-full rounded-full px-4 py-2 text-sm font-semibold transition sm:w-auto ${
                 interestType === "event_production"
                   ? "bg-[#EC4899] text-white"
-                  : "border border-white/10 bg-white/[0.04] text-white/70"
+                  : "border border-white/10 bg-white/[0.04] text-white/70 hover:border-[#EC4899]/35 hover:bg-[#EC4899]/10 hover:text-[#EC4899]"
               }`}
             >
               Quero falar sobre produção
@@ -338,7 +338,7 @@ export default function EventSubmissionForm({
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex items-center justify-center rounded-full bg-[#FFD600] px-6 py-3 text-sm font-bold text-black transition hover:scale-[1.02] disabled:opacity-60"
+            className="inline-flex w-full items-center justify-center rounded-full bg-[#FFD600] px-6 py-3 text-sm font-bold text-black transition hover:scale-[1.02] disabled:opacity-60 sm:w-auto"
           >
             {loading ? "Enviando..." : "Enviar informações"}
           </button>

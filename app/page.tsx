@@ -43,7 +43,7 @@ export default async function HomePage() {
       />
       {/* HERO */}
       <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 py-16 md:py-20">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16 md:py-20">
           <div className="grid gap-10 lg:grid-cols-[1.25fr_0.75fr] lg:items-end">
             <div>
               <div className="mb-5 flex flex-wrap items-center gap-3">
@@ -54,7 +54,7 @@ export default async function HomePage() {
                 <span className="h-2 w-2 rounded-full bg-[#EC4899]" />
               </div>
 
-              <h1 className="max-w-5xl text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
+              <h1 className="max-w-5xl text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
                 O hub dos eventos mais relevantes do mercado
               </h1>
 
@@ -67,21 +67,21 @@ export default async function HomePage() {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/agenda"
-                  className="inline-flex items-center justify-center rounded-full bg-[#FFD600] px-6 py-3 text-sm font-bold text-black transition hover:scale-[1.01] hover:bg-[#ffe44c]"
+                  className="inline-flex w-full items-center justify-center rounded-full bg-[#FFD600] px-6 py-3 text-sm font-bold text-black transition hover:scale-[1.01] hover:bg-[#ffe44c] sm:w-auto"
                 >
                   Ver agenda
                 </Link>
 
                 <Link
                   href="/divulgacao"
-                  className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-white transition hover:border-[#19B5C9]/30 hover:bg-[#19B5C9]/10 hover:text-[#19B5C9]"
+                  className="inline-flex w-full items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-white transition hover:border-[#19B5C9]/30 hover:bg-[#19B5C9]/10 hover:text-[#19B5C9] sm:w-auto"
                 >
                   Divulgar evento
                 </Link>
               </div>
             </div>
 
-            <div className="rounded-[32px] border border-white/10 bg-white/[0.03] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+            <div className="rounded-[32px] border border-white/10 bg-white/[0.03] p-5 sm:p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
               <div className="mb-4 flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-[#19B5C9]" />
                 <span className="h-2.5 w-2.5 rounded-full bg-[#FFD600]" />
@@ -101,7 +101,7 @@ export default async function HomePage() {
 
               <Link
                 href="/producao-de-eventos"
-                className="mt-6 inline-flex rounded-full border border-[#19B5C9]/25 bg-[#19B5C9]/10 px-5 py-3 text-sm font-semibold text-[#19B5C9] transition hover:bg-[#19B5C9]/20"
+                className="mt-6 inline-flex w-full items-center justify-center rounded-full border border-[#19B5C9]/25 bg-[#19B5C9]/10 px-5 py-3 text-sm font-semibold text-[#19B5C9] transition hover:bg-[#19B5C9]/20 sm:w-auto"
               >
                 Conhecer produção de eventos
               </Link>
@@ -112,13 +112,13 @@ export default async function HomePage() {
 
       {/* NEWSLETTER */}
       <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 py-14">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-14">
           <NewsletterSignup />
         </div>
       </section>
 
       {/* EVENTOS EM DESTAQUE */}
-      <section className="mx-auto max-w-7xl px-6 py-12">
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
         <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h2 className="text-3xl font-black tracking-tight text-white">
@@ -215,7 +215,7 @@ export default async function HomePage() {
 
       {/* SERVIÇOS */}
       <section className="border-y border-white/10 bg-white/[0.02]">
-        <div className="mx-auto max-w-7xl px-6 py-14">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-14">
           <div className="mb-8 max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[#19B5C9]">
               Serviços
