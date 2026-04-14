@@ -2,15 +2,39 @@ import { getPublishedEvents } from "@/lib/supabase/queries";
 import NewsletterSignup from "@/componentes/newsletter-signup";
 import AgendaBrowser from "@/componentes/agenda/agenda-browser";
 import Link from "next/link";
+import PageTour from "@/componentes/onboarding/page-tour";
 
 export default async function AgendaPage() {
   const events = await getPublishedEvents();
 
   return (
     <main className="min-h-screen bg-[#212121] text-[#F5F5F5]">
+      <PageTour
+        pageId="agenda"
+        steps={[
+          {
+            icon: "🔍",
+            title: "Busca inteligente",
+            description:
+              "Digite o nome de um evento, cidade ou categoria na barra de busca para filtrar a lista em tempo real.",
+          },
+          {
+            icon: "🏷️",
+            title: "Filtros por tag",
+            description:
+              "Clique nas pills coloridas (side events, builders…) para filtrar os eventos por tema de interesse.",
+          },
+          {
+            icon: "📌",
+            title: "Marcando presença",
+            description:
+              'Use os botões "Vou" e "Não vou" em cada card. Eventos marcados aparecem na sua Minha Agenda.',
+          },
+        ]}
+      />
       {/* HERO */}
       <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 py-14 md:py-16">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-14 md:py-16">
           <div className="grid gap-10 lg:grid-cols-[1.3fr_0.7fr] lg:items-end">
             <div>
               <div className="mb-5 flex flex-wrap items-center gap-3">
@@ -21,7 +45,7 @@ export default async function AgendaPage() {
                 <span className="h-2 w-2 rounded-full bg-[#EC4899]" />
               </div>
 
-              <h1 className="max-w-4xl text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
+              <h1 className="max-w-4xl text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
                 Agenda Crypto
               </h1>
 
@@ -49,7 +73,7 @@ export default async function AgendaPage() {
 
               <Link
                 href="/divulgacao"
-                className="mt-6 inline-flex rounded-full bg-[#FFD600] px-5 py-3 text-sm font-bold text-black transition hover:scale-[1.01] hover:bg-[#ffe44c]"
+                className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-[#FFD600] px-5 py-3 text-sm font-bold text-black transition hover:scale-[1.01] hover:bg-[#ffe44c] sm:w-auto"
               >
                 + Cadastre seu evento
               </Link>
@@ -62,7 +86,7 @@ export default async function AgendaPage() {
 
       {/* NEWSLETTER */}
       <section className="border-t border-white/10">
-        <div className="mx-auto max-w-7xl px-6 py-14">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-14">
           <NewsletterSignup compact />
         </div>
       </section>

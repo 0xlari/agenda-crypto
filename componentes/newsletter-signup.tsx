@@ -54,7 +54,7 @@ export default function NewsletterSignup({
   return (
     <div className="overflow-hidden rounded-[32px] border border-white/10 bg-[#2A2A2A]">
       <div className={`grid gap-0 ${compact ? "lg:grid-cols-1" : "lg:grid-cols-[1.1fr_0.9fr]"}`}>
-        <div className="p-8 md:p-10">
+        <div className="p-6 sm:p-8 md:p-10">
           <div className="mb-4 flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full bg-[#19B5C9]" />
             <span className="h-2.5 w-2.5 rounded-full bg-[#FFD600]" />
@@ -75,21 +75,21 @@ export default function NewsletterSignup({
 
           <form
             onSubmit={handleSubscribe}
-            className="mt-6 flex flex-col gap-3 sm:flex-row"
+            className="mt-6 flex w-full max-w-3xl flex-col gap-3 sm:flex-row sm:items-center"
           >
             <input
               type="email"
               placeholder="Seu melhor email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-full border border-white/10 bg-[#212121] px-5 py-3 text-white outline-none placeholder:text-white/35"
+              className="w-full flex-1 rounded-full border border-white/10 bg-[#212121] px-5 py-3 text-white outline-none placeholder:text-white/35 sm:px-6"
               required
             />
 
             <button
               type="submit"
               disabled={loading}
-              className="rounded-full bg-[#FFD600] px-6 py-3 font-bold text-black transition hover:bg-[#ffe44c] disabled:opacity-60"
+              className="w-full min-w-45 rounded-full bg-[#FFD600] px-6 py-3 font-bold text-black transition hover:bg-[#ffe44c] disabled:opacity-60 sm:w-auto"
             >
               {loading ? "Entrando..." : "Entrar na lista"}
             </button>
