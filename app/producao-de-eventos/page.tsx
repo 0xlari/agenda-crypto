@@ -1,8 +1,29 @@
 import Link from "next/link";
+import PageTour from "@/componentes/onboarding/page-tour";
 
 export default function ProducaoEventosPage() {
   return (
     <main className="min-h-screen bg-[#212121] text-[#F5F5F5]">
+      <PageTour
+        pageId="producao-de-eventos"
+        steps={[
+          {
+            title: "Produção de Eventos",
+            description:
+              "Aqui você encontra como a Agenda Crypto pode apoiar a produção do seu evento, do planejamento à divulgação.",
+          },
+          {
+            title: "Conecte marca e comunidade",
+            description:
+              "Criamos experiências que unem sua marca ao ecossistema cripto — side events, meetups, ativações e muito mais.",
+          },
+          {
+            title: "Fale com a gente",
+            description:
+              'Use o botão de contato para iniciar uma conversa e montar o evento ideal para o seu público.',
+          },
+        ]}
+      />
       {/* HERO */}
       <section className="border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 md:py-20">

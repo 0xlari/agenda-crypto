@@ -2,6 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { getFeaturedEvents } from "@/lib/supabase/queries";
 import NewsletterSignup from "@/componentes/newsletter-signup";
+import PageTour from "@/componentes/onboarding/page-tour";
+import OnboardingWizard from "@/componentes/onboarding/onboarding-wizard";
 
 function formatEventDate(dateString: string) {
   return new Date(dateString).toLocaleDateString("pt-BR", {
@@ -15,6 +17,30 @@ export default async function HomePage() {
 
   return (
     <main className="min-h-screen bg-[#212121] text-[#F5F5F5]">
+      <OnboardingWizard />
+      <PageTour
+        pageId="home"
+        steps={[
+          {
+            icon: "👋",
+            title: "Bem-vindo à Home",
+            description:
+              "Aqui você encontra os eventos em destaque e acessa rapidamente todas as seções da Agenda Crypto.",
+          },
+          {
+            icon: "🗓️",
+            title: "Eventos em destaque",
+            description:
+              "Os cards abaixo mostram os eventos mais relevantes do momento. Clique em qualquer um para ver os detalhes completos.",
+          },
+          {
+            icon: "📣",
+            title: "Divulgue seu evento",
+            description:
+              'Use o botão "Divulgar evento" para cadastrar sua iniciativa e ganhar visibilidade no ecossistema.',
+          },
+        ]}
+      />
       {/* HERO */}
       <section className="border-b border-white/10">
         <div className="mx-auto max-w-7xl px-6 py-16 md:py-20">

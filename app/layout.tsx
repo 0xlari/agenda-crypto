@@ -3,6 +3,7 @@ import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Header from "@/componentes/layout/header";
 import Footer from "@/componentes/layout/footer";
+import { OnboardingProvider } from "@/componentes/onboarding/onboarding-context";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,9 +30,11 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={`${inter.variable} ${spaceGrotesk.variable} bg-black text-white`}>
-        <Header />
-        {children}
-        <Footer />
+        <OnboardingProvider>
+          <Header />
+          {children}
+          <Footer />
+        </OnboardingProvider>
       </body>
     </html>
   );

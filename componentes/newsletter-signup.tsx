@@ -75,21 +75,21 @@ export default function NewsletterSignup({
 
           <form
             onSubmit={handleSubscribe}
-            className="mt-6 flex flex-col gap-3 sm:flex-row"
+            className="mt-6 flex w-full max-w-3xl flex-col gap-3 sm:flex-row sm:items-center"
           >
             <input
               type="email"
               placeholder="Seu melhor email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-full border border-white/10 bg-[#212121] px-5 py-3 text-white outline-none placeholder:text-white/35"
+              className="w-full flex-1 rounded-full border border-white/10 bg-[#212121] px-5 py-3 text-white outline-none placeholder:text-white/35 sm:px-6"
               required
             />
 
             <button
               type="submit"
               disabled={loading}
-              className="rounded-full bg-[#FFD600] px-6 py-3 font-bold text-black transition hover:bg-[#ffe44c] disabled:opacity-60"
+              className="min-w-45 rounded-full bg-[#FFD600] px-6 py-3 font-bold text-black transition hover:bg-[#ffe44c] disabled:opacity-60 sm:w-auto"
             >
               {loading ? "Entrando..." : "Entrar na lista"}
             </button>

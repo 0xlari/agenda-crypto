@@ -2,12 +2,36 @@ import { getPublishedEvents } from "@/lib/supabase/queries";
 import NewsletterSignup from "@/componentes/newsletter-signup";
 import AgendaBrowser from "@/componentes/agenda/agenda-browser";
 import Link from "next/link";
+import PageTour from "@/componentes/onboarding/page-tour";
 
 export default async function AgendaPage() {
   const events = await getPublishedEvents();
 
   return (
     <main className="min-h-screen bg-[#212121] text-[#F5F5F5]">
+      <PageTour
+        pageId="agenda"
+        steps={[
+          {
+            icon: "🔍",
+            title: "Busca inteligente",
+            description:
+              "Digite o nome de um evento, cidade ou categoria na barra de busca para filtrar a lista em tempo real.",
+          },
+          {
+            icon: "🏷️",
+            title: "Filtros por tag",
+            description:
+              "Clique nas pills coloridas (side events, builders…) para filtrar os eventos por tema de interesse.",
+          },
+          {
+            icon: "📌",
+            title: "Marcando presença",
+            description:
+              'Use os botões "Vou" e "Não vou" em cada card. Eventos marcados aparecem na sua Minha Agenda.',
+          },
+        ]}
+      />
       {/* HERO */}
       <section className="border-b border-white/10">
         <div className="mx-auto max-w-7xl px-6 py-14 md:py-16">

@@ -1,8 +1,26 @@
 import Link from "next/link";
+import PageTour from "@/componentes/onboarding/page-tour";
 
 export default function DivulgacaoPage() {
   return (
     <main className="min-h-screen bg-[#212121] text-[#F5F5F5]">
+      <PageTour
+        pageId="divulgacao"
+        steps={[
+          {
+            icon: "📣",
+            title: "Divulgue seu evento",
+            description:
+              "Esta página explica como colocar seu evento na Agenda Crypto e os benefícios de estar aqui.",
+          },
+          {
+            icon: "✏️",
+            title: "Cadastro rápido",
+            description:
+              'Clique em "Divulgar evento" para preencher o formulário. Após a curadoria, seu evento aparece na agenda.',
+          },
+        ]}
+      />
       {/* HERO */}
       <section className="border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 md:py-20">
