@@ -1,142 +1,162 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase/client";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase/client";
 
-type EventItem = {
+type EventData = {
   id: string;
   title: string;
   slug: string;
   city: string | null;
-  start_date: string;
-  short_description: string | null;
 };
 
-type ResponseItem = {
-  event_id: string;
-  response: "going" | "not_going";
+type InteractionRow = {
+  type: "save" | "rsvp_yes" | "rsvp_no";
+  events: EventData | EventData[] | null;
 };
-
-function formatEventDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-}
 
 export default function MinhaAgendaClient() {
   const [loading, setLoading] = useState(true);
-  const [events, setEvents] = useState<EventItem[]>([]);
-  const [filter, setFilter] = useState<"going" | "not_going">("going");
+  const [isLogged, setIsLogged] = useState(false);
+  const [saved, setSaved] = useState<EventData[]>([]);
+  const [going, setGoing] = useState<EventData[]>([]);
 
   useEffect(() => {
-    async function loadData() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+    async function loadAgenda() {
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const user = sessionData.session?.user;
 
-      if (!user) {
+        if (!user) {
+          setIsLogged(false);
+          setLoading(false);
+          return;
+        }
+
+        setIsLogged(true);
+
+        const { data, error } = await supabase
+          .from("event_interactions")
+          .select(`
+            type,
+            events (
+              id,
+              title,
+              slug,
+              city
+            )
+          `)
+          .eq("user_id", user.id)
+          .in("type", ["save", "rsvp_yes"]);
+
+        if (error) {
+          console.error("Erro ao buscar agenda:", error);
+          setLoading(false);
+          return;
+        }
+
+        const rows = (data || []) as InteractionRow[];
+
+        const normalizeEvent = (row: InteractionRow): EventData | null => {
+          if (!row.events) return null;
+          if (Array.isArray(row.events)) return row.events[0] || null;
+          return row.events;
+        };
+
+        const savedEvents = rows
+          .filter((row) => row.type === "save")
+          .map(normalizeEvent)
+          .filter(Boolean) as EventData[];
+
+        const goingEvents = rows
+          .filter((row) => row.type === "rsvp_yes")
+          .map(normalizeEvent)
+          .filter(Boolean) as EventData[];
+
+        setSaved(savedEvents);
+        setGoing(goingEvents);
+      } catch (error) {
+        console.error("Erro ao carregar minha agenda:", error);
+      } finally {
         setLoading(false);
-        return;
       }
-
-      const { data: responses } = await supabase
-        .from("event_responses")
-        .select("event_id,response")
-        .eq("user_id", user.id)
-        .eq("response", filter);
-
-      const typedResponses = (responses || []) as ResponseItem[];
-
-      if (typedResponses.length === 0) {
-        setEvents([]);
-        setLoading(false);
-        return;
-      }
-
-      const eventIds = typedResponses.map((item) => item.event_id);
-
-      const { data: eventsData } = await supabase
-        .from("events")
-        .select("id,title,slug,city,start_date,short_description")
-        .in("id", eventIds)
-        .eq("published", true)
-        .order("start_date", { ascending: true });
-
-      setEvents((eventsData || []) as EventItem[]);
-      setLoading(false);
     }
 
-    loadData();
-  }, [filter]);
+    loadAgenda();
+  }, []);
 
   if (loading) {
-    return <p className="mt-8 text-white/60">Carregando sua agenda...</p>;
+    return (
+      <main className="min-h-screen bg-[#212121] px-6 py-10 text-white">
+        <div className="mx-auto max-w-7xl">Carregando sua agenda...</div>
+      </main>
+    );
+  }
+
+  if (!isLogged) {
+    return (
+      <main className="min-h-screen bg-[#212121] px-6 py-10 text-white">
+        <div className="mx-auto max-w-7xl">Você precisa estar logada.</div>
+      </main>
+    );
   }
 
   return (
-    <div className="mt-10">
-      <div className="mb-6 flex gap-3">
-        <button
-          onClick={() => setFilter("going")}
-          className={`rounded-full px-4 py-2 text-sm font-semibold ${
-            filter === "going"
-              ? "bg-[#19B5C9] text-black"
-              : "border border-white/10 bg-white/[0.04] text-white/70"
-          }`}
-        >
-          Vou
-        </button>
+    <main className="min-h-screen bg-[#212121] px-6 py-10 text-white">
+      <div className="mx-auto max-w-7xl">
+        <h1 className="mb-8 text-3xl font-black">Minha Agenda</h1>
 
-        <button
-          onClick={() => setFilter("not_going")}
-          className={`rounded-full px-4 py-2 text-sm font-semibold ${
-            filter === "not_going"
-              ? "bg-[#EC4899] text-white"
-              : "border border-white/10 bg-white/[0.04] text-white/70"
-          }`}
-        >
-          Não vou
-        </button>
-      </div>
+        <section className="mb-12">
+          <h2 className="mb-4 text-xl font-bold text-[#19B5C9]">Vou</h2>
 
-      {events.length === 0 ? (
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-          <p className="text-white/60">Nenhum evento marcado nessa categoria.</p>
-        </div>
-      ) : (
-        <div className="grid gap-6">
-          {events.map((event) => (
-            <div
-              key={event.id}
-              className="rounded-3xl border border-white/10 bg-white/[0.03] p-6"
-            >
-              <p className="text-sm font-medium text-[#19B5C9]">
-                {formatEventDate(event.start_date)}
-              </p>
-
-              <h2 className="mt-2 text-2xl font-black">{event.title}</h2>
-
-              <p className="mt-2 text-white/60">
-                {event.city || "Online"}
-              </p>
-
-              <p className="mt-3 text-white/60">
-                {event.short_description || "Sem descrição curta."}
-              </p>
-
-              <Link
-                href={`/agenda/${event.slug}`}
-                className="mt-5 inline-flex rounded-full bg-white px-4 py-2 text-sm font-bold text-black"
-              >
-                Ver evento
-              </Link>
+          {going.length === 0 ? (
+            <p className="text-white/60">
+              Você ainda não marcou presença em nenhum evento.
+            </p>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2">
+              {going.map((event) => (
+                <Link
+                  key={`going-${event.id}`}
+                  href={`/agenda/${event.slug}`}
+                  className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition hover:border-[#19B5C9]/30 hover:bg-[#19B5C9]/10"
+                >
+                  <h3 className="text-lg font-bold text-white">{event.title}</h3>
+                  <p className="mt-1 text-sm text-white/60">
+                    {event.city || "Online"}
+                  </p>
+                </Link>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
-    </div>
+          )}
+        </section>
+
+        <section>
+          <h2 className="mb-4 text-xl font-bold text-[#FFD600]">Salvos</h2>
+
+          {saved.length === 0 ? (
+            <p className="text-white/60">
+              Você ainda não salvou nenhum evento.
+            </p>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2">
+              {saved.map((event) => (
+                <Link
+                  key={`saved-${event.id}`}
+                  href={`/agenda/${event.slug}`}
+                  className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition hover:border-[#FFD600]/30 hover:bg-[#FFD600]/10"
+                >
+                  <h3 className="text-lg font-bold text-white">{event.title}</h3>
+                  <p className="mt-1 text-sm text-white/60">
+                    {event.city || "Online"}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+    </main>
   );
 }

@@ -116,6 +116,7 @@ export async function POST(request: Request) {
       event_type: row.event_type?.trim() || "main_event",
       parent_event_id: parentEventId,
     });
+  }
 
     if (events.length === 0) {
       return Response.json(

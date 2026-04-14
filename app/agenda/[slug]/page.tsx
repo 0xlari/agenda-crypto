@@ -174,29 +174,58 @@ export default async function EventPage({
                 {event.description || "Sem descrição disponível."}
               </p>
               {event.tags && event.tags.length > 0 && (
-                <div>
-                  <p className="mb-3 text-sm font-medium text-white/45">Tags</p>
-                  <div className="flex flex-wrap gap-2">
-                    {event.tags.map((tag: string, index: number) => {
-                      const styles = [
-                        "border-[#19B5C9]/20 bg-[#19B5C9]/10 text-[#19B5C9]",
-                        "border-[#EC4899]/20 bg-[#EC4899]/10 text-[#EC4899]",
-                        "border-[#FFD600]/20 bg-[#FFD600]/10 text-[#FFD600]",
-                        "border-white/10 bg-white/[0.04] text-white/70",
-                      ];
+              <div>
+                <p className="mb-3 text-sm font-medium text-white/45">Tags</p>
+                <div className="flex flex-wrap gap-2">
+                  {event.tags.map((tag: string, index: number) => {
+                    const styles = [
+                      "border-[#19B5C9]/20 bg-[#19B5C9]/10 text-[#19B5C9]",
+                      "border-[#EC4899]/20 bg-[#EC4899]/10 text-[#EC4899]",
+                      "border-[#FFD600]/20 bg-[#FFD600]/10 text-[#FFD600]",
+                      "border-white/10 bg-white/[0.04] text-white/70",
+                    ];
 
-                      return (
-                        <span
-                          key={tag}
-                          className={`rounded-full border px-3 py-1 text-[11px] font-medium ${styles[index % styles.length]}`}
-                        >
-                          {tag}
-                        </span>
-                      );
-                    })}
-                  </div>
+                    return (
+                      <span
+                        key={tag}
+                        className={`rounded-full border px-3 py-1 text-[11px] font-medium ${styles[index % styles.length]}`}
+                      >
+                        {tag}
+                      </span>
+                    );
+                  })}
                 </div>
+              </div>
+            )}
+
+            {/* 👇 COLE AQUI 👇 */}
+            <div className="flex flex-wrap gap-2 mt-4">
+
+              {event.category && (
+                <span className="rounded-full border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-3 py-1 text-[11px] text-[#19B5C9]">
+                  {event.category}
+                </span>
               )}
+
+              {event.event_type && (
+                <span className="rounded-full border border-[#FFD600]/20 bg-[#FFD600]/10 px-3 py-1 text-[11px] text-[#FFD600]">
+                  {event.event_type}
+                </span>
+              )}
+
+              {event.level && (
+                <span className="rounded-full border border-[#EC4899]/20 bg-[#EC4899]/10 px-3 py-1 text-[11px] text-[#EC4899]">
+                  {event.level}
+                </span>
+              )}
+
+              {event.intent && (
+                <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] text-white/70">
+                  {event.intent}
+                </span>
+              )}
+
+</div>
 
               <EventResponse eventId={event.id} />
             </div>

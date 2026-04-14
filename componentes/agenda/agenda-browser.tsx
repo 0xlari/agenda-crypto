@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import EventResponse from "@/componentes/event-response";
@@ -19,6 +18,7 @@ type EventItem = {
   start_date: string;
   end_date: string | null;
   category: string | null;
+  event_type: string | null;
   audience: string | null;
   tags: string[] | null;
   source_url: string | null;
@@ -26,12 +26,13 @@ type EventItem = {
   featured: boolean | null;
   published: boolean | null;
   image_url?: string | null;
+  event_time?: string | null;
 };
 
 type Suggestion = {
   label: string;
   value: string;
-  type: "cidade" | "categoria" | "tag" | "evento";
+  type: "cidade" | "categoria" | "tag" | "evento" | "tipo";
 };
 
 function formatEventDate(dateString: string) {
@@ -48,20 +49,57 @@ function normalize(text: string) {
     .replace(/\p{Diacritic}/gu, "");
 }
 
+function formatEventTypeLabel(eventType: string | null) {
+  if (!eventType) return null;
+
+  const normalized = normalize(eventType);
+
+  if (normalized === "side_event" || normalized === "side event") {
+    return "Side Event";
+  }
+
+  if (normalized === "conference" || normalized === "conferencia") {
+    return "Conference";
+  }
+
+  if (normalized === "meetup") {
+    return "Meetup";
+  }
+
+  if (normalized === "main_event" || normalized === "main event") {
+    return "Evento Principal";
+  }
+
+  if (normalized === "networking") {
+    return "Networking";
+  }
+
+  if (normalized === "institucional") {
+    return "Institucional";
+  }
+
+  if (normalized === "tecnico" || normalized === "técnico") {
+    return "Técnico";
+  }
+
+  return eventType.replaceAll("_", " ");
+}
+
 export default function AgendaBrowser({
   events,
 }: {
   events: EventItem[];
 }) {
   useEffect(() => {
-  fetch("/api/page-view", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ page: "agenda" }),
-  });
-}, []);
+    fetch("/api/page-view", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ page: "agenda" }),
+    });
+  }, []);
+
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
 
@@ -71,10 +109,12 @@ export default function AgendaBrowser({
     const cities = new Set<string>();
     const categories = new Set<string>();
     const tags = new Set<string>();
+    const eventTypes = new Set<string>();
 
     events.forEach((event) => {
       if (event.city) cities.add(event.city);
       if (event.category) categories.add(event.category);
+      if (event.event_type) eventTypes.add(event.event_type);
       event.tags?.forEach((tag) => tags.add(tag));
 
       suggestions.push({
@@ -97,6 +137,14 @@ export default function AgendaBrowser({
         label: category,
         value: category,
         type: "categoria",
+      })
+    );
+
+    Array.from(eventTypes).forEach((eventType) =>
+      suggestions.push({
+        label: formatEventTypeLabel(eventType) || eventType,
+        value: eventType,
+        type: "tipo",
       })
     );
 
@@ -134,6 +182,7 @@ export default function AgendaBrowser({
         event.country || "",
         event.venue || "",
         event.category || "",
+        event.event_type || "",
         event.audience || "",
         ...(event.tags || []),
       ]
@@ -166,7 +215,6 @@ export default function AgendaBrowser({
 
   return (
     <>
-      {/* BUSCA */}
       <section className="border-b border-white/10">
         <div className="mx-auto max-w-7xl px-6 py-6">
           <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-4 md:p-5">
@@ -232,7 +280,6 @@ export default function AgendaBrowser({
         </div>
       </section>
 
-      {/* LISTA */}
       <section className="mx-auto max-w-7xl px-6 py-10 md:py-12">
         <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -259,119 +306,142 @@ export default function AgendaBrowser({
           </div>
         ) : (
           <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-3">
-            {filteredEvents.map((event) => (
-              <article
-                key={event.id}
-                className="group overflow-hidden rounded-[30px] border border-white/10 bg-[#2A2A2A] transition duration-300 hover:-translate-y-1 hover:border-white/20"
-              >
-                <div className="relative h-56 w-full overflow-hidden bg-[linear-gradient(135deg,rgba(25,181,201,0.16),rgba(236,72,153,0.08),rgba(255,214,0,0.16))]">
-                  {event.image_url ? (
-                    <Image
-                      src={event.image_url}
-                      alt={event.title}
-                      fill
-                      unoptimized
-                      className="object-cover transition duration-300 group-hover:scale-[1.03]"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center px-6 text-center">
-                      <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-white/35">
-                          Agenda Crypto
-                        </p>
-                        <h3 className="mt-3 text-xl font-black text-white">
-                          {event.title}
-                        </h3>
+            {filteredEvents.map((event) => {
+              const eventTypeLabel = formatEventTypeLabel(event.event_type);
+              const normalizedType = normalize(event.event_type || "");
+
+              const eventTypeClass =
+                normalizedType === "side_event" || normalizedType === "side event"
+                  ? "bg-black/70 text-[#FFD600]"
+                  : normalizedType === "conference" || normalizedType === "conferencia"
+                  ? "bg-black/70 text-[#19B5C9]"
+                  : normalizedType === "meetup"
+                  ? "bg-black/70 text-[#EC4899]"
+                  : "bg-black/70 text-white";
+
+              return (
+                <article
+                  key={event.id}
+                  className="group overflow-hidden rounded-[30px] border border-white/10 bg-[#2A2A2A] transition duration-300 hover:-translate-y-1 hover:border-white/20"
+                >
+                  <div className="relative h-56 w-full overflow-hidden bg-[linear-gradient(135deg,rgba(25,181,201,0.16),rgba(236,72,153,0.08),rgba(255,214,0,0.16))]">
+                    {event.image_url ? (
+                      <Image
+                        src={event.image_url}
+                        alt={event.title}
+                        fill
+                        unoptimized
+                        className="object-cover transition duration-300 group-hover:scale-[1.03]"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center px-6 text-center">
+                        <div>
+                          <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-white/35">
+                            Agenda Crypto
+                          </p>
+                          <h3 className="mt-3 text-xl font-black text-white">
+                            {event.title}
+                          </h3>
+                        </div>
                       </div>
-                    </div>
-                  )}
-
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
-
-                  <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-                    {event.category && (
-                      <button
-                        type="button"
-                        onClick={() => applyFilter(event.category!)}
-                        className="rounded-full bg-black/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#FFD600] backdrop-blur"
-                      >
-                        {event.category}
-                      </button>
                     )}
 
-                    <button
-                      type="button"
-                      onClick={() => applyFilter(event.city || "Online")}
-                      className="rounded-full bg-black/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white backdrop-blur"
-                    >
-                      {event.city || "Online"}
-                    </button>
-                  </div>
-                </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
 
-                <div className="p-6">
-                  <p className="text-sm font-medium text-[#19B5C9]">
-                    {formatEventDate(event.start_date)}
-                  </p>
+                    <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+                      {eventTypeLabel && (
+                        <button
+                          type="button"
+                          onClick={() => applyFilter(event.event_type!)}
+                          className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-wide backdrop-blur ${eventTypeClass}`}
+                        >
+                          {eventTypeLabel}
+                        </button>
+                      )}
 
-                  {event.end_date && event.end_date !== event.start_date && (
-                    <p className="text-sm text-white/40">
-                      até {formatEventDate(event.end_date)}
-                    </p>
-                  )}
+                      <button
+                        type="button"
+                        onClick={() => applyFilter(event.city || "Online")}
+                        className="rounded-full bg-black/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white backdrop-blur"
+                      >
+                        {event.city || "Online"}
+                      </button>
 
-                  {event.event_time && (
-                    <p className="text-sm text-white/60 mt-1">
-                      {event.event_time}
-                    </p>
-                  )}
-
-                  <h2 className="mt-2 text-2xl font-black leading-tight text-white">
-                    {event.title}
-                  </h2>
-
-                  <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-white/62">
-                    {event.short_description || "Sem descrição curta."}
-                  </p>
-
-                  {event.tags && event.tags.length > 0 && (
-                    <div className="mt-5 flex flex-wrap gap-2">
-                      {event.tags.slice(0, 4).map((tagItem, index) => {
-                        const styles = [
-                          "border-[#19B5C9]/20 bg-[#19B5C9]/10 text-[#19B5C9]",
-                          "border-[#EC4899]/20 bg-[#EC4899]/10 text-[#EC4899]",
-                          "border-[#FFD600]/20 bg-[#FFD600]/10 text-[#FFD600]",
-                          "border-white/10 bg-white/[0.04] text-white/70",
-                        ];
-
-                        return (
-                          <button
-                            key={tagItem}
-                            type="button"
-                            onClick={() => applyFilter(tagItem)}
-                            className={`rounded-full border px-3 py-1 text-[11px] font-medium transition hover:opacity-90 ${styles[index % styles.length]}`}
-                          >
-                            {tagItem}
-                          </button>
-                        );
-                      })}
+                      {event.category && (
+                        <button
+                          type="button"
+                          onClick={() => applyFilter(event.category)}
+                          className="rounded-full bg-black/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#EC4899] backdrop-blur"
+                        >
+                          {event.category}
+                        </button>
+                      )}
                     </div>
-                  )}
-
-                  <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <Link
-                      href={`/agenda/${event.slug}`}
-                      className="inline-flex items-center justify-center rounded-full bg-white px-4 py-2 text-sm font-bold text-black"
-                    >
-                      Ver evento
-                    </Link>
-
-
-                    <EventResponse eventId={event.id} />
                   </div>
-                </div>
-              </article>
-            ))}
+
+                  <div className="p-6">
+                    <p className="text-sm font-medium text-[#19B5C9]">
+                      {formatEventDate(event.start_date)}
+                    </p>
+
+                    {event.end_date && event.end_date !== event.start_date && (
+                      <p className="text-sm text-white/40">
+                        até {formatEventDate(event.end_date)}
+                      </p>
+                    )}
+
+                    {event.event_time && (
+                      <p className="mt-1 text-sm text-white/60">
+                        {event.event_time}
+                      </p>
+                    )}
+
+                    <h2 className="mt-2 text-2xl font-black leading-tight text-white">
+                      {event.title}
+                    </h2>
+
+                    <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-white/62">
+                      {event.short_description || "Sem descrição curta."}
+                    </p>
+
+                    {event.tags && event.tags.length > 0 && (
+                      <div className="mt-5 flex flex-wrap gap-2">
+                        {event.tags.slice(0, 2).map((tagItem, index) => {
+                          const styles = [
+                            "border-[#19B5C9]/20 bg-[#19B5C9]/10 text-[#19B5C9]",
+                            "border-[#EC4899]/20 bg-[#EC4899]/10 text-[#EC4899]",
+                            "border-[#FFD600]/20 bg-[#FFD600]/10 text-[#FFD600]",
+                            "border-white/10 bg-white/[0.04] text-white/70",
+                          ];
+
+                          return (
+                            <button
+                              key={tagItem}
+                              type="button"
+                              onClick={() => applyFilter(tagItem)}
+                              className={`rounded-full border px-3 py-1 text-[11px] font-medium transition hover:opacity-90 ${styles[index % styles.length]}`}
+                            >
+                              {tagItem}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <Link
+                        href={`/agenda/${event.slug}`}
+                        className="inline-flex items-center justify-center rounded-full bg-white px-4 py-2 text-sm font-bold text-black"
+                      >
+                        Ver evento
+                      </Link>
+
+                      <EventResponse eventId={event.id} />
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
           </div>
         )}
       </section>
