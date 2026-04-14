@@ -65,6 +65,9 @@ export async function getEventBySlug(slug: string) {
       image_url,
       tags,
       category,
+      event_type,
+      level,
+      intent,
       audience,
       source_url,
       agenda_highlight
@@ -89,6 +92,24 @@ export async function getChildEvents(parentId: string) {
 
   if (error) {
     console.error("Erro ao buscar side events:", error.message);
+    return [];
+  }
+
+  return data;
+}
+
+export async function getUserAgenda(userId: string) {
+  const { data, error } = await supabaseServer
+    .from("event_interactions")
+    .select(`
+      type,
+      events (*)
+    `)
+    .eq("user_id", userId)
+    .in("type", ["save", "rsvp_yes"]);
+
+  if (error) {
+    console.error("Erro ao buscar agenda:", error);
     return [];
   }
 
