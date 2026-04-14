@@ -370,7 +370,7 @@ export default function AgendaBrowser({
                       {event.category && (
                         <button
                           type="button"
-                          onClick={() => applyFilter(event.category)}
+                          onClick={() => applyFilter(event.category!)}
                           className="rounded-full bg-black/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#EC4899] backdrop-blur"
                         >
                           {event.category}

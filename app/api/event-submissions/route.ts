@@ -47,7 +47,6 @@ export async function POST(req: Request) {
       event_link: event_link || null,
       city: city || null,
       location: location || null,
-      event_link: event_link || null,
       short_description: short_description || null,
       tags: tags || null,
       image_url: image_url || null,
