@@ -1,12 +1,15 @@
 import { supabaseServer } from "@/lib/supabase/server";
 
-function parseBool(value: string) {
-  return String(value).trim().toLowerCase() === "true";
+function parseBool(value?: string) {
+  return String(value || "").trim().toLowerCase() === "true";
 }
 
-function parseTags(value: string) {
+function parseTags(value?: string) {
   if (!value) return [];
-  return value.split(",").map((tag) => tag.trim()).filter(Boolean);
+  return value
+    .split(",")
+    .map((tag) => tag.trim())
+    .filter(Boolean);
 }
 
 export async function POST(request: Request) {
@@ -46,34 +49,34 @@ export async function POST(request: Request) {
 
     const headers = lines[0].split(",").map((h) => h.trim());
 
-    // valida se tem colunas mínimas
     if (!headers.includes("title") || !headers.includes("slug")) {
       return Response.json(
-        { error: "A planilha precisa ter pelo menos as colunas 'title' e 'slug'." },
+        {
+          error:
+            "A planilha precisa ter pelo menos as colunas 'title' e 'slug'.",
+        },
         { status: 400 }
       );
     }
 
-    const events = [];
+    const events: Record<string, any>[] = [];
     let skipped = 0;
 
     for (const line of lines.slice(1)) {
-      const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+      const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
 
       const row: Record<string, string> = {};
 
       headers.forEach((header, index) => {
-        row[header] = values[index]?.trim() || "";
+        row[header] = values[index]?.trim().replace(/^"|"$/g, "") || "";
       });
 
-      // validação mínima
       if (!row.title || !row.slug) {
         skipped++;
         continue;
       }
-      console.log("ROW IMAGE:", row.image_url)
 
-     let parentEventId: string | null = null;
+      let parentEventId: string | null = null;
 
       if (row.parent_slug?.trim()) {
         const { data: parentEvent, error: parentError } = await supabaseServer
@@ -83,7 +86,11 @@ export async function POST(request: Request) {
           .maybeSingle();
 
         if (parentError) {
-          console.error("Erro ao buscar parent event:", row.parent_slug, parentError);
+          console.error(
+            "Erro ao buscar parent event:",
+            row.parent_slug,
+            parentError
+          );
         }
 
         if (parentEvent?.id) {
@@ -91,32 +98,34 @@ export async function POST(request: Request) {
         }
       }
 
-    events.push({
-      title: row.title?.trim() || null,
-      slug: row.slug?.trim() || null,
-      short_description: row.short_description?.trim() || null,
-      description: row.description?.trim() || null,
-      city: row.city?.trim() || null,
-      venue: row.venue?.trim() || null,
-      start_date: row.start_date?.trim() || null,
-      end_date: row.end_date?.trim() || null,
-      event_time: row.event_time?.trim() || null,
-      registration_url: row.registration_url?.trim() || null,
-      image_url: row.image_url?.trim() || null,
-      tags: row.tags
-        ? row.tags.split(",").map((tag: string) => tag.trim()).filter(Boolean)
-        : [],
-      category: row.category?.trim() || null,
-      audience: row.audience?.trim() || null,
-      agenda_highlight: row.agenda_highlight?.trim() || null,
-      published: String(row.published).toLowerCase().trim() === "true",
-      featured: String(row.featured).toLowerCase().trim() === "true",
-      is_online: String(row.is_online).toLowerCase().trim() === "true",
-      source_url: row.source_url?.trim() || null,
-      event_type: row.event_type?.trim() || "main_event",
-      parent_event_id: parentEventId,
-    });
-  }
+      events.push({
+        title: row.title?.trim() || null,
+        slug: row.slug?.trim() || null,
+        short_description: row.short_description?.trim() || null,
+        description: row.description?.trim() || null,
+        city: row.city?.trim() || null,
+        venue: row.venue?.trim() || null,
+        start_date: row.start_date?.trim() || null,
+        end_date: row.end_date?.trim() || null,
+        event_time: row.event_time?.trim() || null,
+        registration_url: row.registration_url?.trim() || null,
+        image_url: row.image_url?.trim() || null,
+        tags: parseTags(row.tags),
+        category: row.category?.trim() || null,
+        audience: row.audience?.trim() || null,
+        agenda_highlight: row.agenda_highlight?.trim() || null,
+        published: parseBool(row.published),
+        featured: parseBool(row.featured),
+        is_online: parseBool(row.is_online),
+        source_url: row.source_url?.trim() || null,
+        event_type: row.event_type?.trim() || "main_event",
+        level: row.level?.trim() || null,
+        intent: (row.intent || row.Intent)?.trim() || null,
+        is_big_event: parseBool(row.is_big_event),
+        is_side_event: parseBool(row.is_side_event),
+        parent_event_id: parentEventId,
+      });
+    }
 
     if (events.length === 0) {
       return Response.json(
@@ -130,20 +139,18 @@ export async function POST(request: Request) {
       .upsert(events, { onConflict: "slug" });
 
     if (error) {
-      return Response.json(
-        { error: error.message },
-        { status: 400 }
-      );
+      return Response.json({ error: error.message }, { status: 400 });
     }
 
     return Response.json({
       message: `${events.length} eventos importados. ${skipped} ignorados.`,
     });
   } catch (err) {
-  console.error("Erro ao importar eventos:", err);
+    console.error("Erro ao importar eventos:", err);
 
-  return Response.json(
-    { error: "Erro interno ao importar eventos." },
-    { status: 500 }
-  )};
+    return Response.json(
+      { error: "Erro interno ao importar eventos." },
+      { status: 500 }
+    );
+  }
 }
