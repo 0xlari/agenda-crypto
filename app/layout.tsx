@@ -3,6 +3,7 @@ import { Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import Header from "@/componentes/layout/header";
 import Footer from "@/componentes/layout/footer";
+import UserPersistor from "@/componentes/user-persistor";
 import { OnboardingProvider } from "@/componentes/onboarding/onboarding-context";
 
 const inter = Inter({
@@ -31,6 +32,7 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body className={`${inter.variable} ${spaceGrotesk.variable} bg-black text-white`}>
         <OnboardingProvider>
+          <UserPersistor />
           <Header />
           {children}
           <Footer />

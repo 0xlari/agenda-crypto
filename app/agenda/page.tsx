@@ -72,7 +72,7 @@ export default async function AgendaPage() {
               </p>
 
               <Link
-                href="/admin"
+                href="/divulgacao"
                 className="mt-6 inline-flex rounded-full bg-[#FFD600] px-5 py-3 text-sm font-bold text-black transition hover:scale-[1.01] hover:bg-[#ffe44c]"
               >
                 + Cadastre seu evento

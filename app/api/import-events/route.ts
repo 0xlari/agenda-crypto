@@ -73,27 +73,49 @@ export async function POST(request: Request) {
       }
       console.log("ROW IMAGE:", row.image_url)
 
-      events.push({
-        title: row.title,
-        slug: row.slug,
-        short_description: row.short_description,
-        description: row.description,
-        city: row.city,
-        country: row.country || "Brazil",
-        venue: row.venue,
-        is_online: parseBool(row.is_online),
-        start_date: row.start_date,
-        end_date: row.end_date || null,
-        category: row.category,
-        audience: row.audience,
-        tags: parseTags(row.tags),
-        source_url: row.source_url,
-        registration_url: row.registration_url,
-        featured: parseBool(row.featured),
-        published: parseBool(row.published),
-        image_url: row.image_url,
-      });
-    }
+     let parentEventId: string | null = null;
+
+      if (row.parent_slug?.trim()) {
+        const { data: parentEvent, error: parentError } = await supabaseServer
+          .from("events")
+          .select("id")
+          .eq("slug", row.parent_slug.trim())
+          .maybeSingle();
+
+        if (parentError) {
+          console.error("Erro ao buscar parent event:", row.parent_slug, parentError);
+        }
+
+        if (parentEvent?.id) {
+          parentEventId = parentEvent.id;
+        }
+      }
+
+    events.push({
+      title: row.title?.trim() || null,
+      slug: row.slug?.trim() || null,
+      short_description: row.short_description?.trim() || null,
+      description: row.description?.trim() || null,
+      city: row.city?.trim() || null,
+      venue: row.venue?.trim() || null,
+      start_date: row.start_date?.trim() || null,
+      end_date: row.end_date?.trim() || null,
+      event_time: row.event_time?.trim() || null,
+      registration_url: row.registration_url?.trim() || null,
+      image_url: row.image_url?.trim() || null,
+      tags: row.tags
+        ? row.tags.split(",").map((tag: string) => tag.trim()).filter(Boolean)
+        : [],
+      category: row.category?.trim() || null,
+      audience: row.audience?.trim() || null,
+      agenda_highlight: row.agenda_highlight?.trim() || null,
+      published: String(row.published).toLowerCase().trim() === "true",
+      featured: String(row.featured).toLowerCase().trim() === "true",
+      is_online: String(row.is_online).toLowerCase().trim() === "true",
+      source_url: row.source_url?.trim() || null,
+      event_type: row.event_type?.trim() || "main_event",
+      parent_event_id: parentEventId,
+    });
 
     if (events.length === 0) {
       return Response.json(
@@ -122,6 +144,5 @@ export async function POST(request: Request) {
   return Response.json(
     { error: "Erro interno ao importar eventos." },
     { status: 500 }
-  );
-    }
+  )};
 }

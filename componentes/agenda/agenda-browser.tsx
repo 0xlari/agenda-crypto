@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -52,6 +53,15 @@ export default function AgendaBrowser({
 }: {
   events: EventItem[];
 }) {
+  useEffect(() => {
+  fetch("/api/page-view", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ page: "agenda" }),
+  });
+}, []);
   const [query, setQuery] = useState("");
   const [isFocused, setIsFocused] = useState(false);
 
@@ -304,6 +314,18 @@ export default function AgendaBrowser({
                     {formatEventDate(event.start_date)}
                   </p>
 
+                  {event.end_date && event.end_date !== event.start_date && (
+                    <p className="text-sm text-white/40">
+                      até {formatEventDate(event.end_date)}
+                    </p>
+                  )}
+
+                  {event.event_time && (
+                    <p className="text-sm text-white/60 mt-1">
+                      {event.event_time}
+                    </p>
+                  )}
+
                   <h2 className="mt-2 text-2xl font-black leading-tight text-white">
                     {event.title}
                   </h2>
@@ -343,6 +365,7 @@ export default function AgendaBrowser({
                     >
                       Ver evento
                     </Link>
+
 
                     <EventResponse eventId={event.id} />
                   </div>

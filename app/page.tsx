@@ -55,7 +55,7 @@ export default async function HomePage() {
               </div>
 
               <h1 className="max-w-5xl text-4xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
-                O hub dos eventos mais relevantes do mercado cripto
+                O hub dos eventos mais relevantes do mercado
               </h1>
 
               <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/68 sm:text-lg">

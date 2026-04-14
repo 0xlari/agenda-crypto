@@ -1,8 +1,9 @@
-import { getEventBySlug } from "@/lib/supabase/queries";
+import { getEventBySlug, getChildEvents } from "@/lib/supabase/queries";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import NewsletterSignup from "@/componentes/newsletter-signup";
 import EventResponse from "@/componentes/event-response";
+import EventViewTracker from "@/componentes/event_view_tracker";
 
 function formatDate(dateString: string) {
   return new Date(dateString).toLocaleString("pt-BR", {
@@ -18,6 +19,7 @@ export default async function EventPage({
 }) {
   const { slug } = await params;
   const event = await getEventBySlug(slug);
+  const sideEvents = event ? await getChildEvents(event.id) : [];
 
   if (!event) {
     return notFound();
@@ -25,6 +27,7 @@ export default async function EventPage({
 
   return (
     <main className="min-h-screen bg-[#212121] text-[#F5F5F5]">
+      <EventViewTracker eventId={event.id} />
       {/* HERO */}
       <section className="border-b border-white/10">
         <div className="mx-auto max-w-7xl px-6 py-10 md:py-12">
@@ -95,6 +98,16 @@ export default async function EventPage({
                   <p className="text-white/35">Data</p>
                   <p className="mt-1 text-white">{formatDate(event.start_date)}</p>
                 </div>
+              {event.end_date && (
+              <p className="text-white/70">
+                <strong className="text-white">Data de fim:</strong> {formatDate(event.end_date)}
+              </p>
+                )}
+                {event.event_time && (
+                <p className="text-white/70">
+                  <strong className="text-white">Horário:</strong> {event.event_time}
+                </p>
+              )}
 
                 {event.venue && (
                   <div>
@@ -114,6 +127,7 @@ export default async function EventPage({
                     <p className="mt-1 text-white">{event.audience}</p>
                   </div>
                 )}
+
               </div>
             </div>
           </div>
@@ -159,7 +173,6 @@ export default async function EventPage({
               <p className="text-base leading-relaxed text-white/68">
                 {event.description || "Sem descrição disponível."}
               </p>
-
               {event.tags && event.tags.length > 0 && (
                 <div>
                   <p className="mb-3 text-sm font-medium text-white/45">Tags</p>
@@ -189,7 +202,80 @@ export default async function EventPage({
             </div>
           </div>
         </div>
+      {event.agenda_highlight && (
+        <section className="mt-8 rounded-[32px] border border-[#19B5C9]/20 bg-[#19B5C9]/10 p-6 md:p-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#19B5C9]">
+            Destaque da Agenda Crypto
+          </p>
+          <p className="mt-3 max-w-3xl text-base leading-8 text-white/80">
+            {event.agenda_highlight}
+          </p>
+        </section>
+      )}
       </section>
+      
+      {sideEvents.length > 0 && (
+        <section className="mx-auto max-w-7xl px-6 pb-12">
+          <div className="rounded-[32px] border border-white/10 bg-[#2A2A2A] p-6 md:p-8">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#19B5C9]">
+              Agenda paralela
+            </p>
+
+            <h2 className="mt-3 text-2xl font-black text-white">
+              Agenda Paralela
+            </h2>
+
+            <p className="mt-2 max-w-2xl text-sm leading-7 text-white/65">
+              Outros eventos conectados a este momento do mercado e à mesma semana.
+            </p>
+
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {sideEvents.map((item: any) => (
+                <a
+                  key={item.id}
+                  href={`/agenda/${item.slug}`}
+                  className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5 transition hover:border-[#19B5C9]/30 hover:bg-[#19B5C9]/10"
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full border border-[#FFD600]/20 bg-[#FFD600]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#FFD600]">
+                      {item.event_type || "side event"}
+                    </span>
+
+                    {item.city && (
+                      <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/70">
+                        {item.city}
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="mt-4 text-xl font-bold text-white">
+                    {item.title}
+                  </h3>
+
+                  {item.short_description && (
+                    <p className="mt-2 text-sm leading-7 text-white/65">
+                      {item.short_description}
+                    </p>
+                  )}
+
+                  <div className="mt-4 text-sm text-white/55">
+                    {item.start_date && (
+                      <p>
+                        {new Date(item.start_date).toLocaleDateString("pt-BR", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                        {item.event_time ? ` • ${item.event_time}` : ""}
+                      </p>
+                    )}
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* NEWSLETTER */}
       <section className="border-t border-white/10">
