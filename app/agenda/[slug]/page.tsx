@@ -6,9 +6,8 @@ import EventResponse from "@/componentes/event-response";
 import EventViewTracker from "@/componentes/event_view_tracker";
 
 function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleString("pt-BR", {
+  return new Date(`${dateString}T00:00:00`).toLocaleDateString("pt-BR", {
     dateStyle: "medium",
-    timeStyle: "short",
   });
 }
 

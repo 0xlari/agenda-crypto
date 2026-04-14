@@ -179,7 +179,7 @@ export default function EventSubmissionForm({
         />
 
         <input
-          type="text"
+          type="date"
           placeholder="Data do evento"
           value={eventDate}
           onChange={(e) => setEventDate(e.target.value)}
@@ -187,7 +187,7 @@ export default function EventSubmissionForm({
         />
 
         <input
-          type="text"
+          type="date"
           placeholder="Data de fim do evento"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}

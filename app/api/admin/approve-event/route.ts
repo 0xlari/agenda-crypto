@@ -64,8 +64,8 @@ export async function POST(req: Request) {
       description: submission.short_description || null,
       city: submission.city || null,
       venue: submission.location || null,
-      start_date: normalizeDate(submission.event_date),
-      end_date: normalizeDate(submission.end_date || submission.event_date),
+      start_date: submission.event_date || null,
+      end_date: submission.end_date || submission.event_date || null,
       event_time: submission.event_time || null,
       registration_url: submission.event_link || null,
       tags: Array.isArray(submission.tags)
