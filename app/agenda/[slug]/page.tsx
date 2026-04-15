@@ -4,6 +4,7 @@ import Image from "next/image";
 import NewsletterSignup from "@/componentes/newsletter-signup";
 import EventResponse from "@/componentes/event-response";
 import EventViewTracker from "@/componentes/event_view_tracker";
+import { getRelatedEvents } from "@/lib/supabase/queries";
 
 function formatDate(dateString: string) {
   return new Date(`${dateString}T00:00:00`).toLocaleDateString("pt-BR", {
@@ -19,6 +20,7 @@ export default async function EventPage({
   const { slug } = await params;
   const event = await getEventBySlug(slug);
   const sideEvents = event ? await getChildEvents(event.id) : [];
+  const relatedEvents = await getRelatedEvents(event);
 
   if (!event) {
     return notFound();
@@ -197,35 +199,6 @@ export default async function EventPage({
               </div>
             )}
 
-            {/* 👇 COLE AQUI 👇 */}
-            <div className="flex flex-wrap gap-2 mt-4">
-
-              {event.category && (
-                <span className="rounded-full border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-3 py-1 text-[11px] text-[#19B5C9]">
-                  {event.category}
-                </span>
-              )}
-
-              {event.event_type && (
-                <span className="rounded-full border border-[#FFD600]/20 bg-[#FFD600]/10 px-3 py-1 text-[11px] text-[#FFD600]">
-                  {event.event_type}
-                </span>
-              )}
-
-              {event.level && (
-                <span className="rounded-full border border-[#EC4899]/20 bg-[#EC4899]/10 px-3 py-1 text-[11px] text-[#EC4899]">
-                  {event.level}
-                </span>
-              )}
-
-              {event.intent && (
-                <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] text-white/70">
-                  {event.intent}
-                </span>
-              )}
-
-</div>
-
               <EventResponse eventId={event.id} />
             </div>
           </div>
@@ -241,6 +214,62 @@ export default async function EventPage({
         </section>
       )}
       </section>
+
+      {relatedEvents.length > 0 && (
+  <section className="mx-auto max-w-7xl px-6 pb-12">
+    <div className="rounded-[32px] border border-white/10 bg-[#2A2A2A] p-6 md:p-8">
+      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#EC4899]">
+        Você também pode gostar
+      </p>
+
+      <h2 className="mt-3 text-2xl font-black text-white">
+        Eventos relacionados
+      </h2>
+
+      <p className="mt-2 max-w-2xl text-sm leading-7 text-white/65">
+        Seleções com base em tema, formato, cidade e contexto do evento.
+      </p>
+
+      <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {relatedEvents.map((item: any) => (
+          <a
+            key={item.id}
+            href={`/agenda/${item.slug}`}
+            className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5 transition hover:border-[#EC4899]/30 hover:bg-[#EC4899]/10"
+          >
+            <div className="flex flex-wrap gap-2">
+              {item.category && (
+                <span className="rounded-full border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#19B5C9]">
+                  {item.category}
+                </span>
+              )}
+
+              {item.event_type && (
+                <span className="rounded-full border border-[#FFD600]/20 bg-[#FFD600]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#FFD600]">
+                  {item.event_type}
+                </span>
+              )}
+            </div>
+
+            <h3 className="mt-4 text-lg font-bold text-white">
+              {item.title}
+            </h3>
+
+            {item.short_description && (
+              <p className="mt-2 text-sm leading-7 text-white/65">
+                {item.short_description}
+              </p>
+            )}
+
+            <p className="mt-4 text-sm text-white/55">
+              {item.city || "Online"}
+            </p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
       
       {sideEvents.length > 0 && (
         <section className="mx-auto max-w-7xl px-6 pb-12">
