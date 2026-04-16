@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
+import AgendaPass from "@/componentes/agenda-pass";
+import ConfirmPresenceButton from "@/componentes/confirm-presence-button";
 
 type EventData = {
   id: string;
@@ -29,6 +31,29 @@ type RecommendedEvent = {
   city: string | null;
   category?: string | null;
   event_type?: string | null;
+};
+
+type UserPass = {
+  id: string;
+  serial: string;
+  pass_type: "main_event" | "side_event";
+  verified: boolean;
+  events:
+    | {
+        id: string;
+        title: string;
+        slug: string;
+        city: string | null;
+        start_date: string | null;
+      }
+    | {
+        id: string;
+        title: string;
+        slug: string;
+        city: string | null;
+        start_date: string | null;
+      }[]
+    | null;
 };
 
 function formatDate(dateString?: string | null) {
@@ -99,6 +124,7 @@ export default function MinhaAgendaClient() {
   const [saved, setSaved] = useState<EventData[]>([]);
   const [going, setGoing] = useState<EventData[]>([]);
   const [recommended, setRecommended] = useState<RecommendedEvent[]>([]);
+  const [passes, setPasses] = useState<UserPass[]>([]);
 
   useEffect(() => {
     async function loadAgenda() {
@@ -154,6 +180,22 @@ export default function MinhaAgendaClient() {
 
         if (recommendationsResponse.ok) {
           setRecommended(recommendationsJson.data || []);
+        }
+
+        const passesResponse = await fetch("/api/my-passes", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: user.id,
+          }),
+        });
+
+        const passesJson = await passesResponse.json();
+
+        if (passesResponse.ok) {
+          setPasses(passesJson.data || []);
         }
 
         const rows = (data || []) as InteractionRow[];
@@ -306,83 +348,133 @@ export default function MinhaAgendaClient() {
               Você ainda não marcou presença em nenhum evento.
             </p>
           ) : (
-            <div className="space-y-4">
-              <div className="space-y-3">
-  {going.map((event) => (
-    <div
-      key={`going-${event.id}`}
-      className="rounded-[24px] border border-white/10 bg-[#2A2A2A] px-4 py-4 md:px-5 "
-    >
-      <div className="grid gap-4 md:grid-cols-[90px_1fr_auto] md:items-center ">
-        <div className="flex h-[84px] flex-col items-center justify-center rounded-[20px] bg-[linear-gradient(135deg,rgba(25,181,201,0.16),rgba(236,72,153,0.08),rgba(255,214,0,0.14))]">
-          <p className="text-2xl font-black text-white">
-            {getDay(event.start_date)}
-          </p>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70">
-            {getMonth(event.start_date)}
-          </p>
-        </div>
+            <div className="space-y-3">
+              {going.map((event) => (
+                <div
+                  key={`going-${event.id}`}
+                  className="rounded-[24px] border border-white/10 bg-[#2A2A2A] px-4 py-4 md:px-5"
+                >
+                  <div className="grid gap-4 md:grid-cols-[90px_1fr_auto] md:items-center">
+                    <div className="flex h-[84px] flex-col items-center justify-center rounded-[20px] bg-[linear-gradient(135deg,rgba(25,181,201,0.16),rgba(236,72,153,0.08),rgba(255,214,0,0.14))]">
+                      <p className="text-2xl font-black text-white">
+                        {getDay(event.start_date)}
+                      </p>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70">
+                        {getMonth(event.start_date)}
+                      </p>
+                    </div>
 
-        <div>
-          <div className="mb-2 flex flex-wrap gap-2">
-            {event.category && (
-              <span className="rounded-full border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#19B5C9]">
-                {event.category}
-              </span>
-            )}
+                    <div>
+                      <div className="mb-2 flex flex-wrap gap-2">
+                        {event.category && (
+                          <span className="rounded-full border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#19B5C9]">
+                            {event.category}
+                          </span>
+                        )}
 
-            {event.city && (
-              <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white/70">
-                {event.city}
-              </span>
-            )}
+                        {event.city && (
+                          <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white/70">
+                            {event.city}
+                          </span>
+                        )}
 
-            {event.event_time && (
-              <span className="rounded-full border border-[#FFD600]/20 bg-[#FFD600]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#FFD600]">
-                {event.event_time}
-              </span>
-            )}
+                        {event.event_time && (
+                          <span className="rounded-full border border-[#FFD600]/20 bg-[#FFD600]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#FFD600]">
+                            {event.event_time}
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="text-lg font-black text-white">
+                        {event.title}
+                      </h3>
+
+                      <div className="mt-2 text-sm text-white/60">
+                        {event.start_date && (
+                          <p>
+                            {formatDate(event.start_date)}
+                            {event.end_date && event.end_date !== event.start_date
+                              ? ` até ${formatDate(event.end_date)}`
+                              : ""}
+                          </p>
+                        )}
+
+                        {event.venue && <p>{event.venue}</p>}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2 md:min-w-[210px]">
+                      <Link
+                        href={`/agenda/${event.slug}`}
+                        className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-white transition hover:border-[#19B5C9]/30 hover:bg-[#19B5C9]/10 hover:text-[#19B5C9]"
+                      >
+                        Ver evento
+                      </Link>
+
+                      <a
+                        href={buildGoogleCalendarUrl(event)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-white transition hover:border-[#FFD600]/30 hover:bg-[#FFD600]/10 hover:text-[#FFD600]"
+                      >
+                        Google Calendar
+                      </a>
+
+                      <ConfirmPresenceButton
+                        eventId={event.id}
+                        onSuccess={() => window.location.reload()}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="mb-12">
+          <div className="mb-5">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#FFD600]">
+              Seus passes
+            </p>
+            <h2 className="mt-2 text-2xl font-black text-white">
+              Agenda Pass
+            </h2>
           </div>
 
-          <h3 className="text-lg font-black text-white">
-            {event.title}
-          </h3>
+          {passes.length === 0 ? (
+            <p className="text-white/60">
+              Você ainda não possui nenhum pass.
+            </p>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {passes.map((pass) => {
+                const event = Array.isArray(pass.events)
+                  ? pass.events[0]
+                  : pass.events;
 
-          <div className="mt-2 text-sm text-white/60">
-            {event.start_date && (
-              <p>
-                {formatDate(event.start_date)}
-                {event.end_date && event.end_date !== event.start_date
-                  ? ` até ${formatDate(event.end_date)}`
-                  : ""}
-              </p>
-            )}
+                if (!event) return null;
 
-            {event.venue && <p>{event.venue}</p>}
-          </div>
-        </div>
+                return (
+                  <div key={pass.id} className="flex flex-col items-center gap-3">
+                    <AgendaPass
+                      title={event.title}
+                      city={event.city || "Online"}
+                      date={event.start_date || ""}
+                      passType={pass.pass_type}
+                      verified={pass.verified}
+                      serial={pass.serial}
+                    />
 
-        <div className="flex flex-col gap-2 md:min-w-[210px]">
-          <Link
-            href={`/agenda/${event.slug}`}
-            className="inline-flex items-center justify-center rounded-full bg-[#19B5C9] px-4 py-2.5 text-sm font-bold text-black transition hover:scale-[1.01]"
-          >
-            Ver evento
-          </Link>
-
-          <a
-            href={buildGoogleCalendarUrl(event)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-white transition hover:border-[#FFD600]/30 hover:bg-[#FFD600]/10 hover:text-[#FFD600]"
-          >
-            Google Calendar
-          </a>
-        </div>
-      </div>
-    </div>
-  ))}
-</div>
+                    <Link
+                      href={`/agenda/${event.slug}`}
+                      className="text-sm text-[#19B5C9] hover:underline"
+                    >
+                      Ver evento
+                    </Link>
+                  </div>
+                );
+              })}
             </div>
           )}
         </section>

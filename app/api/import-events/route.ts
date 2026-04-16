@@ -1,4 +1,5 @@
 import { supabaseServer } from "@/lib/supabase/server";
+import { geocodeAddress } from "@/lib/geocode";
 
 function parseBool(value?: string) {
   return String(value || "").trim().toLowerCase() === "true";
@@ -97,6 +98,20 @@ export async function POST(request: Request) {
           parentEventId = parentEvent.id;
         }
       }
+      const fullAddress = row.address?.trim() || null;
+
+      let lat: number | null = null;
+      let lng: number | null = null;
+
+      if (fullAddress) {
+        try {
+          const coords = await geocodeAddress(fullAddress);
+          lat = coords.lat;
+          lng = coords.lng;
+        } catch (error) {
+          console.error("Erro ao geocodificar endereço:", fullAddress, error);
+        }
+      }
 
       events.push({
         title: row.title?.trim() || null,
@@ -124,6 +139,9 @@ export async function POST(request: Request) {
         is_big_event: parseBool(row.is_big_event),
         is_side_event: parseBool(row.is_side_event),
         parent_event_id: parentEventId,
+        address: fullAddress,
+        lat,
+        lng,
       });
     }
 
