@@ -5,6 +5,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
 import AgendaPass from "@/componentes/agenda-pass";
 import ConfirmPresenceButton from "@/componentes/confirm-presence-button";
+import PassDropModal from "./pass-drop-modal";
 
 type EventData = {
   id: string;
@@ -30,13 +31,13 @@ type RecommendedEvent = {
   slug: string;
   city: string | null;
   category?: string | null;
-  event_type?: string | null;
+  event_type?: "conference" | "side_event" | "online" | "happy_hour" | null;
 };
 
 type UserPass = {
   id: string;
   serial: string;
-  pass_type: "main_event" | "side_event";
+  pass_type: "conference" | "side_event" | "online" | "happy_hour";
   verified: boolean;
   events:
     | {
@@ -121,6 +122,8 @@ function buildGoogleCalendarUrl(event: EventData) {
 export default function MinhaAgendaClient() {
   const [loading, setLoading] = useState(true);
   const [isLogged, setIsLogged] = useState(false);
+  const [dropModalOpen, setDropModalOpen] = useState(false);
+  const [droppedEvent, setDroppedEvent] = useState<EventData | null>(null);
   const [saved, setSaved] = useState<EventData[]>([]);
   const [going, setGoing] = useState<EventData[]>([]);
   const [recommended, setRecommended] = useState<RecommendedEvent[]>([]);
@@ -141,24 +144,25 @@ export default function MinhaAgendaClient() {
         setIsLogged(true);
 
         const { data, error } = await supabase
-          .from("event_interactions")
-          .select(`
-            type,
-            events (
-              id,
-              title,
-              slug,
-              city,
-              venue,
-              start_date,
-              end_date,
-              event_time,
-              description,
-              category
-            )
-          `)
-          .eq("user_id", user.id)
-          .in("type", ["save", "rsvp_yes"]);
+        .from("event_interactions")
+        .select(`
+          type,
+          events (
+            id,
+            title,
+            slug,
+            city,
+            venue,
+            start_date,
+            end_date,
+            event_time,
+            description,
+            category,
+            event_type
+          )
+        `)
+        .eq("user_id", user.id)
+        .in("type", ["save", "rsvp_yes"]);
 
         if (error) {
           console.error("Erro ao buscar agenda:", error);
@@ -211,10 +215,15 @@ export default function MinhaAgendaClient() {
           .map(normalizeEvent)
           .filter(Boolean) as EventData[];
 
-        const goingEvents = rows
-          .filter((row) => row.type === "rsvp_yes")
-          .map(normalizeEvent)
-          .filter(Boolean) as EventData[];
+        const goingEvents = Array.from(
+          new Map(
+            rows
+              .filter((row) => row.type === "rsvp_yes")
+              .map(normalizeEvent)
+              .filter(Boolean)
+              .map((event) => [event.id, event])
+          ).values()
+        ) as EventData[];
 
         setSaved(savedEvents);
         setGoing(goingEvents);
@@ -313,7 +322,7 @@ export default function MinhaAgendaClient() {
                       )}
 
                       {event.event_type && (
-                        <span className="rounded-full border border-[#FFD600]/20 bg-[#FFD600]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#FFD600]">
+                        <span className="text-xs text-white/50 uppercase">
                           {event.event_type}
                         </span>
                       )}
@@ -349,9 +358,9 @@ export default function MinhaAgendaClient() {
             </p>
           ) : (
             <div className="space-y-3">
-              {going.map((event) => (
+              {going.map((event, index) => (
                 <div
-                  key={`going-${event.id}`}
+                  key={`going-${event.id}-${index}`}
                   className="rounded-[24px] border border-white/10 bg-[#2A2A2A] px-4 py-4 md:px-5"
                 >
                   <div className="grid gap-4 md:grid-cols-[90px_1fr_auto] md:items-center">
@@ -422,7 +431,10 @@ export default function MinhaAgendaClient() {
 
                       <ConfirmPresenceButton
                         eventId={event.id}
-                        onSuccess={() => window.location.reload()}
+                        onSuccess={() => {
+                          setDroppedEvent(event);
+                          setDropModalOpen(true);
+                        }}
                       />
                     </div>
                   </div>
@@ -528,6 +540,14 @@ export default function MinhaAgendaClient() {
           )}
         </section>
       </div>
+      <PassDropModal
+      open={dropModalOpen}
+      event={droppedEvent}
+      onClose={() => {
+        setDropModalOpen(false);
+        window.location.reload();
+      }}
+    />
     </main>
   );
 }

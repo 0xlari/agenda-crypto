@@ -23,7 +23,7 @@ export default async function HomePage() {
         steps={[
           {
             icon: "👋",
-            title: "Bem-vindo à Home",
+            title: "Bem-vindo à Home da Agenda Crypto",
             description:
               "Aqui você encontra os eventos em destaque e acessa rapidamente todas as seções da Agenda Crypto.",
           },
@@ -31,7 +31,7 @@ export default async function HomePage() {
             icon: "🗓️",
             title: "Eventos em destaque",
             description:
-              "Os cards abaixo mostram os eventos mais relevantes do momento. Clique em qualquer um para ver os detalhes completos.",
+              "Os cards abaixo mostram os eventos LATAM mais relevantes. Clique em qualquer um para ver os detalhes completos.",
           },
           {
             icon: "📣",
@@ -96,7 +96,6 @@ export default async function HomePage() {
                 <p>• Builders, founders e pessoas do ecossistema</p>
                 <p>• Quem quer descobrir side events e encontros relevantes</p>
                 <p>• Marcas e projetos que querem divulgar eventos</p>
-                <p>• Quem acompanha o mercado e quer contexto, não ruído</p>
               </div>
 
               <Link

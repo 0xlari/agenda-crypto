@@ -15,9 +15,7 @@ function generateSerial() {
 
 export async function POST(request: Request) {
   try {
-    const { userId, eventId, lat, lng } = await request.json();
-
-    console.log("CHECKIN BODY:", { userId, eventId, lat, lng });
+    const { userId, eventId } = await request.json();
 
     if (!userId || !eventId) {
       return NextResponse.json(
@@ -28,12 +26,9 @@ export async function POST(request: Request) {
 
     const { data: event, error: eventError } = await supabaseServer
       .from("events")
-      .select("id, title, slug")
+      .select("id, title, slug, event_type")
       .eq("id", eventId)
       .maybeSingle();
-
-    console.log("EVENT RESULT:", event);
-    console.log("EVENT ERROR:", eventError);
 
     if (eventError) {
       return NextResponse.json(
@@ -49,7 +44,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const validated = true;
+    const validPassTypes = ["conference", "side_event", "online", "happy_hour"];
+
+    const passType = validPassTypes.includes(event.event_type)
+      ? event.event_type
+      : "conference";
 
     const { data: existingCheckin } = await supabaseServer
       .from("checkins")
@@ -64,9 +63,7 @@ export async function POST(request: Request) {
         .insert({
           user_id: userId,
           event_id: eventId,
-          lat: lat ?? null,
-          lng: lng ?? null,
-          validated,
+          validated: true,
         });
 
       if (checkinError) {
@@ -115,7 +112,7 @@ export async function POST(request: Request) {
         .insert({
           user_id: userId,
           event_id: eventId,
-          pass_type: "main_event",
+          pass_type: passType,
           serial: generateSerial(),
           verified: true,
         });
