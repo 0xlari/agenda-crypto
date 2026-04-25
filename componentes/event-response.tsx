@@ -128,43 +128,31 @@ export default function EventResponse({ eventId }: Props) {
   }, [eventId]);
 
   return (
-    <div className="mt-4">
-      <div className="flex gap-3">
-        <button
-          onClick={() => handleResponse("going")}
-          disabled={loading}
-          className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-            selected === "going"
-              ? "bg-[#19B5C9] text-black"
-              : "bg-white/10 text-white hover:bg-[#19B5C9] hover:text-white"
-          }`}
-        >
-          Vou
-        </button>
-
-        <button
-          onClick={() => handleResponse("not_going")}
-          disabled={loading}
-          className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
-            selected === "not_going"
-              ? "bg-[#EC4899] text-white"
-              : "bg-white/10 text-white hover:bg-[#EC4899] hover:text-white"
-          }`}
-        >
-          Não vou
-        </button>
-      </div>
+  <div className="mt-4">
+    <div className="flex items-center gap-3">
+      <button
+        onClick={() => handleResponse("going")}
+        disabled={loading}
+        className={`flex-1 rounded-full px-4 py-2 text-xs font-bold transition ${
+          selected === "going"
+            ? "bg-[#19B5C9] text-black"
+            : "bg-[#19B5C9]/15 text-[#19B5C9] hover:bg-[#19B5C9] hover:text-black"
+        }`}
+      >
+        {loading ? "Salvando..." : "Vou"}
+      </button>
 
       <button
         onClick={handleSave}
-        className="mt-3 rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/20"
+        className="flex-1 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-white transition hover:border-[#FFD600]/30 hover:bg-[#FFD600]/10 hover:text-[#FFD600]"
       >
         Salvar
       </button>
-
-      <p className="mt-2 text-sm text-white/70">
-        Vão ao evento: {goingCount} pessoas
-      </p>
     </div>
-  );
+
+    <p className="mt-3 text-center text-xs text-white/50">
+      Vão ao evento: {goingCount} pessoas
+    </p>
+  </div>
+);
 }
