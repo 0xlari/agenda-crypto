@@ -17,7 +17,7 @@ export default async function AgendaPage() {
       {/* HERO */}
       <section className="border-b border-white/10 bg-[#111111]">
         <div className="mx-auto max-w-7xl px-6 py-14">
-          <div className="grid gap-8 lg:grid-cols-[1.4fr_0.8fr] lg:items-center">
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <span className="inline-flex rounded-full bg-[#19B5C9] px-4 py-1 text-xs font-bold uppercase tracking-wide text-black">
                 Se tem data, tá na agenda

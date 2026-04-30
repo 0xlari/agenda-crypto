@@ -31,9 +31,9 @@ export default async function EventPage({
       <EventViewTracker eventId={event.id} />
       {/* HERO */}
       <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl overflow-hidden px-4 py-8 sm:px-6 md:py-12">
-          <div className="min-w-0 overflow-hidden">
-            <div>
+        <div className="mx-auto max-w-7xl px-5 py-8 sm:px-6 md:py-12">
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start">
+            <div className="min-w-0">
               <div className="mb-5 flex flex-wrap items-center gap-2">
                 {event.category && (
                   <span className="rounded-full border border-[#FFD600]/25 bg-[#FFD600]/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#FFD600]">
@@ -52,15 +52,16 @@ export default async function EventPage({
                 )}
               </div>
 
-              <h1 className="max-w-full overflow-hidden break-words text-[42px] font-black leading-[0.98] tracking-[-0.04em] text-white sm:max-w-4xl sm:text-5xl lg:text-6xl">
+              <h1 className="max-w-full break-words text-[42px] font-black leading-[0.98] tracking-[-0.04em] text-white sm:max-w-4xl sm:text-5xl lg:text-6xl">
                 {event.title}
               </h1>
 
-              <p className="mt-4 max-w-2xl overflow-hidden break-words text-base leading-relaxed text-white/68 sm:text-lg">
-                {event.short_description || "Confira os detalhes do evento e acesse as informações principais."}
+              <p className="mt-4 max-w-2xl break-words text-base leading-relaxed text-white/68 sm:text-lg">
+                {event.short_description ||
+                  "Confira os detalhes do evento e acesse as informações principais."}
               </p>
 
-              <div className="mb-8 mt-8 flex w-full flex-col gap-3 sm:mb-0 sm:flex-row">
+              <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row">
                 {event.registration_url && (
                   <a
                     href={event.registration_url}
@@ -85,7 +86,7 @@ export default async function EventPage({
               </div>
             </div>
 
-            <div className="mt-4 rounded-[32px] border border-white/10 bg-white/[0.03] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] lg:mt-0">
+            <div className="w-full rounded-[32px] border border-white/10 bg-white/[0.03] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] lg:justify-self-end">
               <div className="mb-4 flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-[#19B5C9]" />
                 <span className="h-2.5 w-2.5 rounded-full bg-[#FFD600]" />
@@ -99,16 +100,20 @@ export default async function EventPage({
                   <p className="text-white/35">Data</p>
                   <p className="mt-1 text-white">{formatDate(event.start_date)}</p>
                 </div>
-              {event.end_date && (
-              <p className="text-white/70">
-                <strong className="text-white">Data de fim:</strong> {formatDate(event.end_date)}
-              </p>
+
+                {event.end_date && (
+                  <p className="text-white/70">
+                    <strong className="text-white">Data de fim:</strong>{" "}
+                    {formatDate(event.end_date)}
+                  </p>
                 )}
+
                 {event.event_time && (
-                <p className="text-white/70">
-                  <strong className="text-white">Horário:</strong> {event.event_time}
-                </p>
-              )}
+                  <p className="text-white/70">
+                    <strong className="text-white">Horário:</strong>{" "}
+                    {event.event_time}
+                  </p>
+                )}
 
                 {event.venue && (
                   <div>
@@ -336,7 +341,7 @@ export default async function EventPage({
 
       {/* NEWSLETTER */}
       <section className="border-t border-white/10">
-        <div className="mx-auto max-w-7xl overflow-hidden px-5 py-10 sm:px-6 md:py-14">
+        <div className="mx-auto max-w-7xl px-5 py-8 sm:px-6 md:py-12">
           <NewsletterSignup compact />
         </div>
       </section>
