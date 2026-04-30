@@ -46,7 +46,7 @@ export default async function EventPage({
                 </span>
 
                 {event.audience && (
-                  <span className="rounded-full border border-[#EC4899]/25 bg-[#EC4899]/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#EC4899]">
+                  <span className="max-w-full break-words rounded-full border border-[#EC4899]/25 bg-[#EC4899]/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#EC4899] sm:max-w-[520px]">
                     {event.audience}
                   </span>
                 )}
@@ -60,7 +60,7 @@ export default async function EventPage({
                 {event.short_description || "Confira os detalhes do evento e acesse as informações principais."}
               </p>
 
-              <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row">
+              <div className="mb-8 mt-8 flex w-full flex-col gap-3 sm:mb-0 sm:flex-row">
                 {event.registration_url && (
                   <a
                     href={event.registration_url}
@@ -85,7 +85,7 @@ export default async function EventPage({
               </div>
             </div>
 
-            <div className="rounded-[32px] border border-white/10 bg-white/[0.03] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)]">
+            <div className="mt-4 rounded-[32px] border border-white/10 bg-white/[0.03] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] lg:mt-0">
               <div className="mb-4 flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-[#19B5C9]" />
                 <span className="h-2.5 w-2.5 rounded-full bg-[#FFD600]" />
