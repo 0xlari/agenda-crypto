@@ -220,7 +220,7 @@ export default function MinhaAgendaClient() {
             rows
               .filter((row) => row.type === "rsvp_yes")
               .map(normalizeEvent)
-              .filter(Boolean)
+              .filter((event): event is EventData => event !== null)
               .map((event) => [event.id, event])
           ).values()
         ) as EventData[];
