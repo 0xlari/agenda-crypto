@@ -31,7 +31,7 @@ export default async function EventPage({
       <EventViewTracker eventId={event.id} />
       {/* HERO */}
       <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-6 py-10 md:py-12">
+        <div className="mx-auto max-w-7xl overflow-hidden px-4 py-8 sm:px-6 md:py-12">
           <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
             <div>
               <div className="mb-5 flex flex-wrap items-center gap-2">
@@ -52,7 +52,7 @@ export default async function EventPage({
                 )}
               </div>
 
-              <h1 className="max-w-4xl text-4xl font-black tracking-tight text-white sm:text-5xl">
+              <h1 className="max-w-full break-words text-4xl font-black leading-[1.05] tracking-tight text-white sm:max-w-4xl sm:text-5xl lg:text-6xl">
                 {event.title}
               </h1>
 
@@ -60,13 +60,13 @@ export default async function EventPage({
                 {event.short_description || "Confira os detalhes do evento e acesse as informações principais."}
               </p>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row">
                 {event.registration_url && (
                   <a
                     href={event.registration_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-full bg-[#FFD600] px-6 py-3 text-sm font-bold text-black transition hover:scale-[1.01] hover:bg-[#ffe44c]"
+                    className="inline-flex w-full items-center justify-center rounded-full bg-[#FFD600] px-6 py-3 text-sm font-bold text-black transition hover:scale-[1.01] hover:bg-[#ffe44c] sm:w-auto"
                   >
                     Inscrever-se no evento
                   </a>
@@ -77,7 +77,7 @@ export default async function EventPage({
                     href={event.source_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-white transition hover:border-[#19B5C9]/30 hover:bg-[#19B5C9]/10 hover:text-[#19B5C9]"
+                    className="inline-flex w-full items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-6 py-3 text-sm font-semibold text-white transition hover:border-[#19B5C9]/30 hover:bg-[#19B5C9]/10 hover:text-[#19B5C9] sm:w-auto"
                   >
                     Ver fonte original
                   </a>
@@ -136,7 +136,7 @@ export default async function EventPage({
       </section>
 
       {/* IMAGEM + DETALHES */}
-      <section className="mx-auto max-w-7xl px-6 py-10 md:py-12">
+      <section className="mx-auto max-w-7xl overflow-hidden px-5 py-8 sm:px-6 md:py-12">
         <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="overflow-hidden rounded-[32px] border border-white/10 bg-[#2A2A2A]">
             <div className="relative h-[320px] w-full overflow-hidden bg-[linear-gradient(135deg,rgba(25,181,201,0.16),rgba(236,72,153,0.08),rgba(255,214,0,0.16))] md:h-[420px]">
@@ -216,7 +216,7 @@ export default async function EventPage({
       </section>
 
       {relatedEvents.length > 0 && (
-  <section className="mx-auto max-w-7xl px-6 pb-12">
+  <section className="mx-auto max-w-7xl overflow-hidden px-5 pb-10 sm:px-6 md:pb-12">
     <div className="rounded-[32px] border border-white/10 bg-[#2A2A2A] p-6 md:p-8">
       <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#EC4899]">
         Você também pode gostar
@@ -336,7 +336,7 @@ export default async function EventPage({
 
       {/* NEWSLETTER */}
       <section className="border-t border-white/10">
-        <div className="mx-auto max-w-7xl px-6 py-14">
+        <div className="mx-auto max-w-7xl overflow-hidden px-5 py-10 sm:px-6 md:py-14">
           <NewsletterSignup compact />
         </div>
       </section>

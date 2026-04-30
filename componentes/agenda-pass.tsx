@@ -28,7 +28,6 @@ export default function AgendaPass({
   verified = true,
   serial = "000001",
 }: AgendaPassProps) {
-  // 🔒 garante que nunca quebra mesmo com dado errado do banco
   const safePassType =
     passType === "conference" ||
     passType === "side_event" ||
@@ -80,34 +79,34 @@ export default function AgendaPass({
       animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
       transition={{ duration: 0.55, ease: "easeOut" }}
       whileHover={{ y: -6, scale: 1.02 }}
-      className="flex justify-center"
+      className="flex w-full justify-center"
     >
       <div
-        className={`relative w-[340px] overflow-hidden rounded-[32px] border ${styles.border} bg-[#0B0B0B] shadow-[0_20px_80px_rgba(0,0,0,0.45)]`}
+        className={`relative w-full max-w-[340px] overflow-hidden rounded-[28px] border ${styles.border} bg-[#0B0B0B] shadow-[0_20px_80px_rgba(0,0,0,0.45)] sm:rounded-[32px]`}
       >
         <div className={`absolute inset-0 ${styles.glow}`} />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.035),transparent_34%,rgba(0,0,0,0.16)_100%)]" />
-        <div className="absolute inset-0 rounded-[32px] border border-white/5" />
+        <div className="absolute inset-0 rounded-[28px] border border-white/5 sm:rounded-[32px]" />
 
-        <div className="relative z-10 flex min-h-[460px] flex-col p-6 text-white">
-          <div className="flex items-start justify-between gap-4">
+        <div className="relative z-10 flex min-h-[410px] flex-col p-5 text-white sm:min-h-[460px] sm:p-6">
+          <div className="flex items-start justify-between gap-3">
             <div>
               <p
-                className={`text-[11px] font-semibold uppercase tracking-[0.32em] ${styles.text}`}
+                className={`text-[10px] font-semibold uppercase tracking-[0.28em] sm:text-[11px] sm:tracking-[0.32em] ${styles.text}`}
               >
                 Agenda Pass
               </p>
-              <p className="mt-2 text-[10px] font-medium uppercase tracking-[0.24em] text-white/35">
+              <p className="mt-2 text-[9px] font-medium uppercase tracking-[0.22em] text-white/35 sm:text-[10px] sm:tracking-[0.24em]">
                 Agenda Crypto
               </p>
             </div>
 
-            <div className="rounded-full border border-white/10 bg-white/[0.08] px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-[#19B5C9]">
+            <div className="shrink-0 rounded-full border border-white/10 bg-white/[0.08] px-3 py-1.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-[#19B5C9] sm:text-[10px] sm:tracking-[0.18em]">
               {verified ? "Verified" : "Pending"}
             </div>
           </div>
 
-          <div className="mt-10 flex-1">
+          <div className="mt-8 flex-1 sm:mt-10">
             <div
               className={`mb-5 h-px w-full ${
                 safePassType === "conference"
@@ -116,11 +115,11 @@ export default function AgendaPass({
               }`}
             />
 
-            <h2 className="max-w-[240px] text-3xl font-black leading-[1.02] tracking-tight text-white">
+            <h2 className="max-w-[240px] break-words text-2xl font-black leading-[1.05] tracking-tight text-white sm:text-3xl">
               {title}
             </h2>
 
-            <div className="mt-6 space-y-2">
+            <div className="mt-5 space-y-2 sm:mt-6">
               <p className="text-sm font-medium text-white/70">{city}</p>
               <p className={`text-sm font-semibold ${styles.text}`}>
                 {formatDate(date)}
@@ -128,18 +127,18 @@ export default function AgendaPass({
             </div>
           </div>
 
-          <div className="mt-8 flex items-end justify-between gap-4">
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.24em] text-white/30">
+          <div className="mt-7 flex items-end justify-between gap-4 sm:mt-8">
+            <div className="min-w-0">
+              <p className="text-[9px] uppercase tracking-[0.22em] text-white/30 sm:text-[10px] sm:tracking-[0.24em]">
                 Proof of Presence
               </p>
-              <p className="mt-2 text-xs font-semibold uppercase tracking-[0.24em] text-white/85">
+              <p className="mt-2 break-words text-[11px] font-semibold uppercase tracking-[0.22em] text-white/85 sm:text-xs sm:tracking-[0.24em]">
                 {styles.label}
               </p>
             </div>
 
             <div
-              className={`flex h-12 w-12 items-center justify-center rounded-2xl border ${styles.chip}`}
+              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border sm:h-12 sm:w-12 ${styles.chip}`}
             >
               <span className="text-xs font-black tracking-[0.18em]">
                 AC
@@ -147,14 +146,14 @@ export default function AgendaPass({
             </div>
           </div>
 
-          <div className="mt-6 h-px w-full bg-white/10" />
+          <div className="mt-5 h-px w-full bg-white/10 sm:mt-6" />
 
-          <div className="mt-4 flex items-center justify-between">
-            <p className="text-[10px] uppercase tracking-[0.24em] text-white/25">
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <p className="min-w-0 truncate text-[9px] uppercase tracking-[0.2em] text-white/25 sm:text-[10px] sm:tracking-[0.24em]">
               Pass #{serial}
             </p>
 
-            <div className="flex gap-1.5">
+            <div className="flex shrink-0 gap-1.5">
               <span className="h-2.5 w-2.5 rounded-full bg-[#19B5C9]" />
               <span className="h-2.5 w-2.5 rounded-full bg-[#FFD600]" />
               <span className="h-2.5 w-2.5 rounded-full bg-[#EC4899]" />
