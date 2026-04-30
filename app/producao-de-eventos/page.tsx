@@ -262,7 +262,7 @@ export default function ProducaoDeEventosPage() {
             </p>
 
             <h2 className="mt-3 max-w-3xl text-3xl font-black text-white sm:text-4xl">
-              Quer tirar um evento do papel, começe falando com a gente
+              Quer tirar um evento do papel, comece falando com a gente
             </h2>
 
             <p className="mt-4 max-w-2xl text-base leading-8 text-white/80">
