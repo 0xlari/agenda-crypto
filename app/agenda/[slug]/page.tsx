@@ -32,7 +32,7 @@ export default async function EventPage({
       {/* HERO */}
       <section className="border-b border-white/10">
         <div className="mx-auto max-w-7xl overflow-hidden px-4 py-8 sm:px-6 md:py-12">
-          <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+          <div className="min-w-0 overflow-hidden">
             <div>
               <div className="mb-5 flex flex-wrap items-center gap-2">
                 {event.category && (
@@ -52,11 +52,11 @@ export default async function EventPage({
                 )}
               </div>
 
-              <h1 className="max-w-full break-words text-4xl font-black leading-[1.05] tracking-tight text-white sm:max-w-4xl sm:text-5xl lg:text-6xl">
+              <h1 className="max-w-full overflow-hidden break-words text-[42px] font-black leading-[0.98] tracking-[-0.04em] text-white sm:max-w-4xl sm:text-5xl lg:text-6xl">
                 {event.title}
               </h1>
 
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-white/68 sm:text-lg">
+              <p className="mt-4 max-w-2xl overflow-hidden break-words text-base leading-relaxed text-white/68 sm:text-lg">
                 {event.short_description || "Confira os detalhes do evento e acesse as informações principais."}
               </p>
 
