@@ -9,8 +9,8 @@ type NewsletterSignupProps = {
 };
 
 export default function NewsletterSignup({
-  title = "Receba os eventos antes de todo mundo",
-  description = "Entre na lista da Agenda Crypto para acompanhar novidades, curadoria e os principais eventos do mercado.",
+  title = "Receba a curadoria da semana",
+  description = "Entre na lista da Agenda Crypto para acompanhar eventos, oportunidades e movimentos relevantes do ecossistema.",
   compact = false,
 }: NewsletterSignupProps) {
   const [email, setEmail] = useState("");
@@ -112,7 +112,7 @@ export default function NewsletterSignup({
                 Se tem data, tá na agenda.
               </p>
               <p className="mt-3 text-2xl font-black leading-tight text-white">
-                Curadoria viva para quem acompanha o ecossistema de perto.
+                Curadoria viva para quem quer estar onde o mercado acontece.
               </p>
             </div>
           </div>

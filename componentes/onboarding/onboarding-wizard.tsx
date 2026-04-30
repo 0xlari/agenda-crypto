@@ -18,40 +18,40 @@ const STEPS: Step[] = [
     badge: "Bem-vindo",
     title: "A agenda viva do mercado cripto",
     description:
-      "Aqui você encontra os eventos mais relevantes do ecossistema — de side events a conferências internacionais. Em menos de 1 minuto te mostramos tudo que você pode fazer.",
+      "Acompanhe os eventos, encontros e experiências que movimentam o ecossistema blockchain, de meetups locais a conferências internacionais.",
     highlight: "Se tem data, tá na agenda.",
   },
   {
     badge: "Explore",
-    title: "Descubra e filtre eventos",
+    title: "Encontre onde o mercado acontece",
     description:
-      "Use a busca ou os filtros por categoria, cidade e formato para encontrar exatamente o que combina com você. Os cards mostram data, local e tags para facilitar sua escolha.",
-    highlight: "Acesse a Agenda e comece a explorar.",
+      "Use busca, filtros e tags para descobrir eventos por cidade, categoria, formato e interesse. A Agenda te ajuda a achar o encontro certo sem perder tempo.",
+    highlight: "Filtre por tema, cidade ou formato e monte sua rota.",
     cta: "Ver agenda",
     ctaHref: "/agenda",
   },
   {
     badge: "Minha Agenda",
-    title: "Monte sua agenda pessoal",
+    title: "Monte sua rota no ecossistema",
     description:
-      'Clique em "Vou" nos eventos que te interessam. Eles vão aparecer na sua Minha Agenda — um painel personalizado para você não perder nenhuma data.',
-    highlight: "Eventos salvos ficam disponíveis mesmo se você voltar depois.",
+          "Salve eventos, marque onde você pretende ir e organize tudo em um só lugar. A Minha Agenda acompanha sua jornada pelos encontros que importam para você.",
+    highlight:    "Adicione ao Google Calendar e desbloqueie Agenda Pass ao confirmar presença.",
   },
   {
     badge: "Divulgação",
-    title: "Tem um evento? Divulgue aqui",
+    title: "Coloque seu evento no radar da comunidade",
     description:
-      "Submeta seu evento, meetup ou side event para a curadoria da Agenda Crypto. Ganhe visibilidade com a audiência certa dentro do ecossistema.",
-    highlight: "Cadastro rápido, visibilidade imediata.",
+      "Cadastre seu meetup, side event, conferência ou experiência web3 para passar pela curadoria da Agenda Crypto e alcançar quem realmente circula no ecossistema.",
+    highlight: "Cadastro rápido. Visibilidade para a audiência certa.",
     cta: "Divulgar evento",
     ctaHref: "/divulgacao",
   },
   {
     badge: "Newsletter",
-    title: "Fique por dentro antes de todo mundo",
+    title: "Receba a curadoria antes de todo mundo",
     description:
-      "Assine a newsletter da Agenda Crypto e receba curadoria dos melhores eventos direto no seu email — antes de qualquer anúncio oficial.",
-    highlight: "Você está pronto para começar!",
+      "Assine a newsletter da Agenda Crypto e acompanhe os principais eventos, oportunidades e movimentos do mercado direto no seu e-mail.",
+    highlight: "Pronto. Agora é só entrar no fluxo do ecossistema.",
   },
 ];
 
@@ -157,12 +157,11 @@ export default function OnboardingWizard() {
               </div>
 
               <h2 className="text-2xl font-black leading-tight tracking-tight text-white sm:text-3xl">
-                Você já conhece a<br />Agenda Crypto?
+                Boas-vindas à<br />Agenda Crypto?
               </h2>
 
               <p className="mt-3 max-w-xs text-sm leading-relaxed text-white/55">
-                Se for sua primeira vez, podemos te mostrar rapidinho tudo que
-                você pode fazer por aqui.
+                 Um tour rápido para você descobrir como acompanhar eventos, montar sua rota e entrar no radar do ecossistema.
               </p>
 
               <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row">
@@ -170,13 +169,13 @@ export default function OnboardingWizard() {
                   onClick={handleAlreadyKnows}
                   className="flex-1 rounded-full border border-white/10 px-5 py-3 text-sm font-semibold text-white/60 transition hover:border-white/20 hover:text-white/90"
                 >
-                  Sim, já conheço
+                  Já conheço
                 </button>
                 <button
                   onClick={handleStartTour}
                   className="flex-1 rounded-full bg-[#FFD600] px-5 py-3 text-sm font-bold text-black transition hover:bg-[#ffe44c] hover:scale-[1.02]"
                 >
-                  Não, me mostre! →
+                  Me mostre! →
                 </button>
               </div>
 

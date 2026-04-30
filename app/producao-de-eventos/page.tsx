@@ -11,19 +11,19 @@ export default function ProducaoDeEventosPage() {
         pageId="producao-de-eventos"
         steps={[
           {
-            title: "Produção de Eventos",
+            title: "Transforme ideia em experiência",
             description:
-              "Veja como a Agenda Crypto pode apoiar seu projeto do conceito à execução.",
+              "Aqui mostramos como a Agenda Crypto apoia marcas, protocolos e comunidades na criação de eventos com linguagem nativa do ecossistema.",
           },
           {
-            title: "Ativação e conteúdo",
+            title: "Do conceito ao pós-evento",
             description:
-              "Unimos produção, comunidade e distribuição para gerar mais resultado para seu evento.",
+              "Unimos estratégia, produção, ativação de comunidade, cobertura e conteúdo para o evento gerar presença antes, durante e depois.",
           },
           {
-            title: "Fale com a gente",
+            title: "Comece pelo formato certo",
             description:
-              "Use o WhatsApp da página para começar a desenhar o formato ideal do seu projeto.",
+              "Fale com a gente pelo WhatsApp para contar o momento do projeto e desenhar uma experiência que faça sentido para sua marca.",
           },
         ]}
       />

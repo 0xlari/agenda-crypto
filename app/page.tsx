@@ -23,21 +23,21 @@ export default async function HomePage() {
         steps={[
           {
             icon: "👋",
-            title: "Bem-vindo à Home da Agenda Crypto",
+            title: "Comece pelo radar do mercado",
             description:
-              "Aqui você encontra os eventos em destaque e acessa rapidamente todas as seções da Agenda Crypto.",
+              "Aqui você encontra os principais caminhos da Agenda Crypto: eventos em destaque, curadoria da semana, divulgação e produção de experiências.",
           },
           {
             icon: "🗓️",
-            title: "Eventos em destaque",
+            title: "Veja o que está movimentando o ecossistema",
             description:
-              "Os cards abaixo mostram os eventos LATAM mais relevantes. Clique em qualquer um para ver os detalhes completos.",
+              "Os cards destacam eventos relevantes para quem quer acompanhar tendências, encontrar comunidades e estar nos encontros certos.",
           },
           {
             icon: "📣",
-            title: "Divulgue seu evento",
+            title: "Leve seu evento para a audiência certa",
             description:
-              'Use o botão "Divulgar evento" para cadastrar sua iniciativa e ganhar visibilidade no ecossistema.',
+              'Use o botão “Divulgar evento” para cadastrar sua iniciativa e colocar seu encontro no radar da comunidade cripto.',
           },
         ]}
       />
@@ -55,13 +55,11 @@ export default async function HomePage() {
               </div>
 
               <h1 className="max-w-5xl text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl">
-                O hub dos eventos mais relevantes do mercado
+                Descubra os eventos que movimentam o ecossistema cripto
               </h1>
 
               <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/68 sm:text-lg">
-                Descubra o que realmente importa, acompanhe as principais datas
-                do ecossistema e encontre eventos, encontros e experiências que
-                valem sua atenção.
+                Descubra eventos, encontros e experiências com curadoria, contexto e visão de comunidade para acompanhar de perto o que movimenta o ecossistema.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -89,13 +87,13 @@ export default async function HomePage() {
               </div>
 
               <p className="text-sm font-semibold text-white">
-                Para quem é a Agenda Crypto?
+                Para quem vive o ecossistema
               </p>
 
               <div className="mt-4 space-y-3 text-sm text-white/65">
-                <p>• Builders, founders e pessoas do ecossistema</p>
-                <p>• Quem quer descobrir side events e encontros relevantes</p>
-                <p>• Marcas e projetos que querem divulgar eventos</p>
+                <p>• Builders, founders e comunidades web3</p>
+                <p>• Pessoas que querem descobrir eventos relevantes</p>
+                <p>• Marcas e projetos s que querem ganhar visibilidade</p>
               </div>
 
               <Link
@@ -124,7 +122,7 @@ export default async function HomePage() {
               Eventos em destaque
             </h2>
             <p className="mt-2 text-sm text-white/55">
-              Uma amostra do que está movimentando a agenda agora.
+              Uma seleção de eventos que estão no radar da comunidade.
             </p>
           </div>
 
@@ -220,11 +218,10 @@ export default async function HomePage() {
               Serviços
             </p>
             <h2 className="mt-3 text-3xl font-black text-white">
-              A Agenda Crypto também cria visibilidade e produz experiências
+              Mais que agenda: visibilidade, curadoria e experiências
             </h2>
             <p className="mt-3 text-white/62">
-              Além da curadoria da agenda, a marca também atua com divulgação e
-              produção de eventos.
+              Além de mapear eventos, a Agenda Crypto ajuda marcas, comunidades e organizadores a se conectarem com a audiência certa.
             </p>
           </div>
 

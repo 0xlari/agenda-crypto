@@ -14,21 +14,21 @@ export default async function AgendaPage() {
         steps={[
           {
             icon: "🔍",
-            title: "Busca inteligente",
+            title: "Busque no radar do ecossistema",
             description:
-              "Digite o nome de um evento, cidade ou categoria na barra de busca para filtrar a lista em tempo real.",
+              "Digite nome, cidade, categoria ou tema para encontrar os eventos que estão movimentando o mercado cripto.",
           },
           {
             icon: "🏷️",
-            title: "Filtros por tag",
+            title: "Navegue pelos movimentos do mercado",
             description:
-              "Clique nas pills coloridas (side events, builders…) para filtrar os eventos por tema de interesse.",
+              "Use as tags para filtrar eventos por assunto, formato ou interesse e descobrir onde vale prestar atenção.",
           },
           {
             icon: "📌",
-            title: "Marcando presença",
+            title: "Monte sua rota pela Agenda",
             description:
-              'Use os botões "Vou" e "Não vou" em cada card. Eventos marcados aparecem na sua Minha Agenda.',
+              "Salve eventos, marque onde você pretende ir e acompanhe tudo depois na sua Minha Agenda.",
           },
         ]}
       />

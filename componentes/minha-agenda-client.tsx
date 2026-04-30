@@ -263,7 +263,7 @@ export default function MinhaAgendaClient() {
             </p>
             <h1 className="mt-3 text-4xl font-black">Minha Agenda</h1>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-white/65">
-              Seus eventos salvos, presença confirmada e novas oportunidades para acompanhar o mercado.
+              Organize eventos, presenças e passes em um só lugar.
             </p>
           </div>
 
@@ -295,7 +295,7 @@ export default function MinhaAgendaClient() {
             </p>
 
             <h2 className="mt-3 text-2xl font-black text-white">
-              Descobertas com base no seu comportamento
+              Novos encontros que podem entrar no seu radar.
             </h2>
 
             <p className="mt-2 max-w-2xl text-sm leading-7 text-white/65">
@@ -345,10 +345,10 @@ export default function MinhaAgendaClient() {
         <section className="mb-12">
           <div className="mb-5">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#19B5C9]">
-              Presença confirmada
+              Eventos com presença confirmada
             </p>
             <h2 className="mt-2 text-2xl font-black text-white">
-              Eventos que você confirmou presença
+              Suas próximas presenças no ecossistema.
             </h2>
           </div>
 
@@ -447,10 +447,10 @@ export default function MinhaAgendaClient() {
         <section className="mb-12">
           <div className="mb-5">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#FFD600]">
-              Seus passes
+              Agenda Pass
             </p>
             <h2 className="mt-2 text-2xl font-black text-white">
-              Agenda Pass
+              Sua coleção de presenças confirmadas.
             </h2>
           </div>
 
@@ -494,10 +494,10 @@ export default function MinhaAgendaClient() {
         <section>
           <div className="mb-5">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#FFD600]">
-              Interesse salvo
+              Eventos salvos
             </p>
             <h2 className="mt-2 text-2xl font-black text-white">
-              Salvos
+              Eventos que você guardou para acompanhar depois.
             </h2>
           </div>
 

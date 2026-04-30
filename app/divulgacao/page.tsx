@@ -12,14 +12,14 @@ export default function DivulgacaoPage() {
         pageId="divulgacao"
         steps={[
           {
-            title: "Divulgue seu evento",
+            title: "Coloque seu evento no radar",
             description:
-              "Esta página mostra como colocar seu evento na Agenda Crypto e ampliar seu alcance.",
+              "Preencha o formulário para enviar seu evento para a curadoria da Agenda Crypto e aparecer para quem acompanha o ecossistema de perto.",
           },
           {
-            title: "Escolha o formato",
+            title: "Escolha como quer divulgar",
             description:
-              "Você pode cadastrar gratuitamente ou conversar sobre formatos de destaque e divulgação.",
+              "Você pode cadastrar seu evento gratuitamente ou sinalizar interesse em formatos de destaque, conteúdo, cobertura e distribuição.",
           },
         ]}
       />
@@ -31,24 +31,23 @@ export default function DivulgacaoPage() {
             </p>
 
             <h1 className="mt-4 text-2xl font-black leading-tight sm:text-4xl md:text-6xl">
-              Coloque seu evento no radar do ecossistema
+             Coloque seu evento no radar de quem acompanha o mercado cripto de perto.
             </h1>
 
             <p className="mt-5 max-w-2xl text-sm leading-7 text-white/65 sm:mt-6 sm:text-base">
-              Na Agenda Crypto, a listagem do seu evento na plataforma é gratuita.
-              Se você quiser ir além da presença na agenda e ampliar alcance com
-              destaque, conteúdo e cobertura, também temos formatos de divulgação.
+              Na Agenda Crypto, a listagem do seu evento na plataforma é gratuita. 
+              Se você quiser ampliar o alcance com destaque, conteúdo e cobertura, 
+              também temos formatos de divulgação.
             </p>
 
             <div className="mt-8 grid gap-4 sm:mt-10 sm:gap-5">
               <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5 transition sm:p-6 hover:border-[#19B5C9]/35 hover:bg-[#19B5C9]/8">
                 <h2 className="text-lg font-bold text-white sm:text-xl">
-                  Listagem gratuita na plataforma
+                  Cadastre seu evento gratuitamente
                 </h2>
                 <p className="mt-3 text-sm leading-6 text-white/65">
-                  Cadastre seu evento sem custo para entrar na Agenda Crypto e
-                  aparecer para quem acompanha o mercado e busca as próximas datas
-                  relevantes do ecossistema.
+                  Envie as informações do seu evento para entrar na curadoria da Agenda Crypto. 
+                  Se quiser entender melhor o pacote de divulgação, sinalize isso no formulário.
                 </p>
               </div>
 

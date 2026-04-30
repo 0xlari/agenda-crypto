@@ -8,17 +8,23 @@ export default async function MinhaAgendaPage() {
         pageId="minha-agenda"
         steps={[
           {
-            title: "Seus eventos salvos",
+            title: "Sua rota pelo ecossistema",
             description:
-              'Aqui aparecem todos os eventos em que você clicou "Vou" na agenda. É a sua lista personalizada.',
+              "Aqui ficam os eventos que você salvou ou marcou como “Vou”, organizados para acompanhar sua jornada pelo mercado cripto.",
           },
           {
-            title: "Acompanhe as datas",
+            title: "Confirme presença e não perca a data",
             description:
-              "Consulte esta página para não perder nenhuma data. Você pode remover eventos a qualquer momento.",
+              "Veja detalhes do evento, adicione ao Google Calendar e confirme presença quando chegar a hora de registrar sua participação.",
+          },
+          {
+            title: "Colecione seus Agenda Pass",
+            description:
+              "Ao confirmar presença, você desbloqueia um Agenda Pass: um registro visual dos eventos que participou para guardar na sua trajetória.",
           },
         ]}
       />
+
       <MinhaAgendaClient />
     </>
   );
