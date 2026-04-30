@@ -46,17 +46,17 @@ export default async function EventPage({
                 </span>
 
                 {event.audience && (
-                  <span className="max-w-full break-words rounded-full border border-[#EC4899]/25 bg-[#EC4899]/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#EC4899] sm:max-w-[520px]">
+                  <span className="max-w-full break-all rounded-full border border-[#EC4899]/25 bg-[#EC4899]/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#EC4899] sm:max-w-[520px] sm:break-words">
                     {event.audience}
                   </span>
                 )}
               </div>
 
-              <h1 className="max-w-full break-words text-[42px] font-black leading-[0.98] tracking-[-0.04em] text-white sm:max-w-4xl sm:text-5xl lg:text-6xl">
+              <h1 className="max-w-full break-words text-[34px] font-black leading-[1.02] tracking-[-0.04em] text-white sm:max-w-4xl sm:text-5xl lg:text-6xl">
                 {event.title}
               </h1>
 
-              <p className="mt-4 max-w-2xl break-words text-base leading-relaxed text-white/68 sm:text-lg">
+              <p className="mt-4 max-w-full break-words text-base leading-8 text-white/68 sm:max-w-2xl sm:text-lg">
                 {event.short_description ||
                   "Confira os detalhes do evento e acesse as informações principais."}
               </p>
@@ -86,7 +86,7 @@ export default async function EventPage({
               </div>
             </div>
 
-            <div className="w-full rounded-[32px] border border-white/10 bg-white/[0.03] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] lg:justify-self-end">
+            <div className="w-full overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.03] p-5 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] sm:rounded-[32px] sm:p-6 lg:justify-self-end">
               <div className="mb-4 flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full bg-[#19B5C9]" />
                 <span className="h-2.5 w-2.5 rounded-full bg-[#FFD600]" />
@@ -130,7 +130,7 @@ export default async function EventPage({
                 {event.audience && (
                   <div>
                     <p className="text-white/35">Público</p>
-                    <p className="mt-1 text-white">{event.audience}</p>
+                    <p className="mt-1 break-all text-white">{event.audience}</p>
                   </div>
                 )}
 
