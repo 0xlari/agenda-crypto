@@ -248,7 +248,7 @@ export default function MinhaAgendaClient() {
   if (!isLogged) {
     return (
       <main className="min-h-screen bg-[#212121] px-6 py-10 text-white">
-        <div className="mx-auto max-w-7xl">Você precisa estar logada.</div>
+        <div className="mx-auto max-w-7xl">Entre com seu gmail para ter acesso a sua agenda!</div>
       </main>
     );
   }
