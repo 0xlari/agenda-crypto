@@ -157,11 +157,11 @@ export default function OnboardingWizard() {
               </div>
 
               <h2 className="text-2xl font-black leading-tight tracking-tight text-white sm:text-3xl">
-                Boas-vindas à<br />Agenda Crypto?
+                Boas-vindas à<br />Agenda Crypto
               </h2>
 
               <p className="mt-3 max-w-xs text-sm leading-relaxed text-white/55">
-                 Um tour rápido para você descobrir como acompanhar eventos, montar sua rota e entrar no radar do ecossistema.
+                 Em menos de um minuto, veja como descobrir eventos, montar sua rota e acompanhar onde o mercado acontece.
               </p>
 
               <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row">
