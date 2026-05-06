@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase/client";
 import AgendaPass from "@/componentes/agenda-pass";
 import ConfirmPresenceButton from "@/componentes/confirm-presence-button";
 import PassDropModal from "./pass-drop-modal";
+import { MascotCard } from "@/componentes/mascot/MascotCard";
 
 type EventData = {
   id: string;
@@ -210,10 +211,15 @@ export default function MinhaAgendaClient() {
           return row.events;
         };
 
-        const savedEvents = rows
-          .filter((row) => row.type === "save")
-          .map(normalizeEvent)
-          .filter(Boolean) as EventData[];
+        const savedEvents = Array.from(
+          new Map(
+            rows
+              .filter((row) => row.type === "save")
+              .map(normalizeEvent)
+              .filter((event): event is EventData => event !== null)
+              .map((event) => [event.id, event])
+          ).values()
+        ) as EventData[];
 
         const goingEvents = Array.from(
           new Map(
@@ -286,7 +292,11 @@ export default function MinhaAgendaClient() {
               </p>
             </div>
           </div>
-        </div>
+                </div>
+
+        <section className="mb-12">
+          <MascotCard />
+        </section>
 
         <section className="mb-12">
           <div className="rounded-[32px] border border-white/10 bg-[#2A2A2A] p-6 md:p-8">
