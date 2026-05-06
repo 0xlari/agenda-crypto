@@ -88,11 +88,11 @@ export function getInitialTraits(vibe: MascotVibe) {
     minimal: {
       background: "/mascot/background/background-07.png",
       body: "/mascot/body/body-07.png",
-      eyes: "/mascot/eyes/eyes-16.png",
-      mouth: "/mascot/mouth/mouth-10.png",
-      hair: "/mascot/hair/hair-07.png",
-      hands: "/mascot/hands/hands-06.png",
-      shoes: "/mascot/shoes/shoes-06.png",
+      eyes: "/mascot/eyes/eyes-04.png",
+      mouth: "/mascot/mouth/mouth-01.png",
+      hair: "/mascot/hair/hair-12.png",
+      hands: "/mascot/hands/hands-01.png",
+      shoes: "/mascot/shoes/shoes-05.png",
     },
   };
 
