@@ -189,8 +189,6 @@ export default function EventResponse({ eventId }: Props) {
       {loginModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-5 backdrop-blur-sm">
           <div className="relative w-full max-w-[420px] overflow-hidden rounded-[32px] border border-white/10 bg-[#212121] p-6 text-white shadow-[0_20px_100px_rgba(0,0,0,0.55)]">
-            <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-[#19B5C9]/10 blur-3xl" />
-            <div className="absolute bottom-0 left-0 h-40 w-40 rounded-full bg-[#EC4899]/10 blur-3xl" />
 
             <div className="relative z-10">
               <div className="mb-5 flex items-center gap-2">

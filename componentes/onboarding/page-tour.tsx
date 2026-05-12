@@ -21,19 +21,39 @@ export default function PageTour({ pageId, steps }: PageTourProps) {
   const [minimized, setMinimized] = useState(false);
   const [leaving, setLeaving] = useState(false);
 
+  const storageKey = `agenda-tour-${pageId}`;
+
   useEffect(() => {
-    // Show the page tour only after wizard is done and this tour hasn't been seen
-    if (isMounted && wizardCompleted && !tourSeen[pageId]) {
+    if (!isMounted || !wizardCompleted) return;
+
+    const localSeen =
+      typeof window !== "undefined"
+        ? localStorage.getItem(storageKey) === "true"
+        : false;
+
+    const contextSeen = Boolean(tourSeen[pageId]);
+
+    if (!localSeen && !contextSeen) {
       const t = setTimeout(() => setVisible(true), 600);
       return () => clearTimeout(t);
     }
-  }, [isMounted, wizardCompleted, tourSeen, pageId]);
+  }, [isMounted, wizardCompleted, tourSeen, pageId, storageKey]);
 
   if (!isMounted || !visible) return null;
 
   const total = steps.length;
   const current = steps[currentStep];
   const isLast = currentStep === total - 1;
+
+  function finishTour() {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(storageKey, "true");
+    }
+
+    markTourSeen(pageId);
+    setVisible(false);
+    setLeaving(false);
+  }
 
   function handleNext() {
     if (isLast) {
@@ -45,9 +65,9 @@ export default function PageTour({ pageId, steps }: PageTourProps) {
 
   function handleClose() {
     setLeaving(true);
+
     setTimeout(() => {
-      setVisible(false);
-      markTourSeen(pageId);
+      finishTour();
     }, 300);
   }
 
@@ -59,23 +79,31 @@ export default function PageTour({ pageId, steps }: PageTourProps) {
 
   return (
     <div className="fixed bottom-6 right-4 z-9000 sm:bottom-8 sm:right-6">
-      <div className={`${containerClass} overflow-hidden rounded-2xl border border-white/10 bg-[#1A1A1A] shadow-[0_16px_48px_rgba(0,0,0,0.5)]`}>
+      <div
+        className={`${containerClass} overflow-hidden rounded-2xl border border-white/10 bg-[#1A1A1A] shadow-[0_16px_48px_rgba(0,0,0,0.5)]`}
+      >
         {minimized ? (
-          /* Minimized state */
           <button
             onClick={() => setMinimized(false)}
             className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1A1A1A] text-[#19B5C9] transition hover:bg-[#19B5C9]/10"
             aria-label="Abrir dica"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <circle cx="12" cy="12" r="10" />
               <path d="M12 16v-4M12 8h.01" />
             </svg>
           </button>
         ) : (
-          /* Expanded state */
           <>
-            {/* Top bar */}
             <div className="flex items-center justify-between border-b border-white/6 px-4 py-2.5">
               <div className="flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#19B5C9]" />
@@ -86,44 +114,61 @@ export default function PageTour({ pageId, steps }: PageTourProps) {
                   {currentStep + 1}/{total}
                 </span>
               </div>
+
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => setMinimized(true)}
                   className="flex h-6 w-6 items-center justify-center rounded-md text-white/30 transition hover:bg-white/6 hover:text-white/60"
                   aria-label="Minimizar"
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  >
                     <path d="M5 12h14" />
                   </svg>
                 </button>
+
                 <button
                   onClick={handleClose}
                   className="flex h-6 w-6 items-center justify-center rounded-md text-white/30 transition hover:bg-white/6 hover:text-white/60"
                   aria-label="Fechar"
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  >
                     <path d="M18 6L6 18M6 6l12 12" />
                   </svg>
                 </button>
               </div>
             </div>
 
-            {/* Content */}
             <div className="px-4 py-3.5">
               <div className="mb-2 flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-[#19B5C9]" />
                 <span className="h-2 w-2 rounded-full bg-[#FFD600]" />
                 <span className="h-2 w-2 rounded-full bg-[#EC4899]" />
-                <h4 className="ml-1 text-sm font-bold text-white leading-tight">
+                <h4 className="ml-1 text-sm font-bold leading-tight text-white">
                   {current.title}
                 </h4>
               </div>
+
               <p className="text-xs leading-relaxed text-white/55">
                 {current.description}
               </p>
             </div>
 
-            {/* Progress bar */}
             <div className="px-4 pb-1">
               <div className="h-0.5 w-full overflow-hidden rounded-full bg-white/6">
                 <div
@@ -133,7 +178,6 @@ export default function PageTour({ pageId, steps }: PageTourProps) {
               </div>
             </div>
 
-            {/* Footer */}
             <div className="flex items-center justify-between px-4 py-3">
               <button
                 onClick={handleClose}
@@ -141,6 +185,7 @@ export default function PageTour({ pageId, steps }: PageTourProps) {
               >
                 Pular tour
               </button>
+
               <button
                 onClick={handleNext}
                 className="rounded-full bg-[#19B5C9] px-4 py-1.5 text-[11px] font-bold text-white transition hover:bg-[#149caf]"
