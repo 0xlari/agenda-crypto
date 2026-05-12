@@ -340,13 +340,13 @@ export default function MinhaAgendaClient() {
               Você ainda não marcou presença em nenhum evento.
             </p>
           ) : (
-            <div className="grid gap-4">
+            <div className="grid gap-4 md:grid-cols-2">
               {going.map((event, index) => (
                 <div
                   key={`going-${event.id}-${index}`}
                   className="group relative overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,#2A2A2A,#232323)] p-5 transition hover:border-[#19B5C9]/30 hover:bg-[#262626]"
                 >
-                  <div className="grid gap-5 lg:grid-cols-[110px_1fr_220px] lg:items-center">
+                  <div className="grid gap-4 lg:grid-cols-[90px_1fr]">
                     <div className="relative flex h-[100px] flex-col items-center justify-center rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(25,181,201,0.12),rgba(236,72,153,0.06),rgba(255,214,0,0.12))]">
                       <div className="absolute top-0 h-5 w-full border-b border-white/10 bg-white/[0.04]" />
 
@@ -398,7 +398,7 @@ export default function MinhaAgendaClient() {
                       </div>
                     </div>
 
-                    <div className="flex flex-col gap-2 md:min-w-[210px]">
+                    <div className="mt-4 grid grid-cols-3 gap-2 lg:col-span-2">
                       <Link
                         href={`/agenda/${event.slug}`}
                         className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-white transition hover:border-[#19B5C9]/30 hover:bg-[#19B5C9]/10 hover:text-[#19B5C9]"
