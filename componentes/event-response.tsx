@@ -164,13 +164,7 @@ export default function EventResponse({ eventId }: Props) {
 
   return (
   <div className="mt-5 space-y-3">
-    <div className="grid grid-cols-3 gap-2">
-      <a
-        href={`/agenda/${eventId}`}
-        className="inline-flex h-11 items-center justify-center rounded-full bg-white text-xs font-bold text-black transition hover:scale-[1.02]"
-      >
-        Ver evento
-      </a>
+    <div className="grid grid-cols-2 gap-2">
 
       <button
         onClick={() => handleResponse("going")}
@@ -195,14 +189,6 @@ export default function EventResponse({ eventId }: Props) {
       >
         {saved ? "Salvo" : "Salvar"}
       </button>
-    </div>
-
-    <div className="flex items-center justify-between text-[10px] text-white/35">
-      <span>Vou ao evento: {goingCount}</span>
-
-      <span>
-        “Vou” = presença • “Salvar” = acompanhar
-      </span>
     </div>
 
     {feedback && (
