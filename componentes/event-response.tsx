@@ -163,55 +163,62 @@ export default function EventResponse({ eventId }: Props) {
   }, [eventId]);
 
   return (
-    <div className="mt-5 space-y-3">
-      <div className="grid grid-cols-2 gap-3">
-        <button
-          onClick={() => handleResponse("going")}
-          disabled={loading}
-          className={`inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-bold transition disabled:opacity-60 ${
-            selected === "going"
-              ? "bg-[#19B5C9] text-black shadow-[0_0_24px_rgba(25,181,201,0.22)]"
-              : "border border-[#19B5C9]/30 bg-[#19B5C9]/10 text-[#19B5C9] hover:bg-[#19B5C9] hover:text-black"
-          }`}
-        >
-          Vou
-        </button>
+  <div className="mt-5 space-y-3">
+    <div className="grid grid-cols-3 gap-2">
+      <a
+        href={`/agenda/${eventId}`}
+        className="inline-flex h-11 items-center justify-center rounded-full bg-white text-xs font-bold text-black transition hover:scale-[1.02]"
+      >
+        Ver evento
+      </a>
 
-        <button
-          onClick={handleSave}
-          disabled={loading}
-          className={`inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-bold transition disabled:opacity-60 ${
-            saved
-              ? "bg-[#FFD600] text-black shadow-[0_0_24px_rgba(255,214,0,0.18)]"
-              : "border border-[#FFD600]/30 bg-[#FFD600]/10 text-[#FFD600] hover:bg-[#FFD600] hover:text-black"
-          }`}
-        >
-          {saved ? "Salvo" : "Salvar"}
-        </button>
-      </div>
+      <button
+        onClick={() => handleResponse("going")}
+        disabled={loading}
+        className={`inline-flex h-11 items-center justify-center rounded-full text-xs font-bold transition disabled:opacity-60 ${
+          selected === "going"
+            ? "bg-[#19B5C9] text-black"
+            : "border border-[#19B5C9]/30 bg-[#19B5C9]/10 text-[#19B5C9] hover:bg-[#19B5C9] hover:text-black"
+        }`}
+      >
+        Vou
+      </button>
 
-      <p className="text-xs text-white/45">
-        “Vou” marca intenção de presença. “Salvar” guarda o evento para acompanhar depois.
-      </p>
-
-      {feedback && (
-        <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/75">
-          {feedback}
-
-          {feedback.includes("Entre com Google") && (
-            <button
-              onClick={loginWithGoogle}
-              className="mt-3 block rounded-full bg-[#FFD600] px-4 py-2 text-xs font-bold text-black transition hover:scale-[1.01]"
-            >
-              Entrar com Google
-            </button>
-          )}
-        </div>
-      )}
-
-      <p className="text-xs text-white/45">
-        Vão ao evento: {goingCount} pessoas
-      </p>
+      <button
+        onClick={handleSave}
+        disabled={loading}
+        className={`inline-flex h-11 items-center justify-center rounded-full text-xs font-bold transition disabled:opacity-60 ${
+          saved
+            ? "bg-[#FFD600] text-black"
+            : "border border-[#FFD600]/30 bg-[#FFD600]/10 text-[#FFD600] hover:bg-[#FFD600] hover:text-black"
+        }`}
+      >
+        {saved ? "Salvo" : "Salvar"}
+      </button>
     </div>
-  );
+
+    <div className="flex items-center justify-between text-[10px] text-white/35">
+      <span>Vou ao evento: {goingCount}</span>
+
+      <span>
+        “Vou” = presença • “Salvar” = acompanhar
+      </span>
+    </div>
+
+    {feedback && (
+      <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs text-white/70">
+        {feedback}
+
+        {feedback.includes("Entre com Google") && (
+          <button
+            onClick={loginWithGoogle}
+            className="mt-3 block rounded-full bg-[#FFD600] px-4 py-2 text-xs font-bold text-black"
+          >
+            Entrar com Google
+          </button>
+        )}
+      </div>
+    )}
+  </div>
+);
 }
