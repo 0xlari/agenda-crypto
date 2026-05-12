@@ -9,8 +9,32 @@ type Props = {
 
 export default function EventResponse({ eventId }: Props) {
   const [selected, setSelected] = useState<"going" | "not_going" | null>(null);
+  const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [goingCount, setGoingCount] = useState(0);
+  const [feedback, setFeedback] = useState<string | null>(null);
+
+  async function requireLogin() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setFeedback("Faça o login para salvar ou marcar presença na sua agenda.");
+      return null;
+    }
+
+    return user;
+  }
+
+  async function loginWithGoogle() {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.href,
+      },
+    });
+  }
 
   async function loadCounts() {
     try {
@@ -34,19 +58,19 @@ export default function EventResponse({ eventId }: Props) {
     }
   }
 
-  // 🔥 TRACK SAVE
   async function handleSave() {
     try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      setLoading(true);
+      setFeedback(null);
+
+      const user = await requireLogin();
 
       if (!user) {
-        alert("Faça login para salvar eventos.");
+        setLoading(false);
         return;
       }
 
-      await fetch("/api/track-event", {
+      const response = await fetch("/api/track-event", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -58,27 +82,33 @@ export default function EventResponse({ eventId }: Props) {
         }),
       });
 
-      alert("Evento salvo com sucesso!");
-    } catch (error) {
-      console.error("Erro ao salvar evento:", error);
-    }
-  }
-
-  // 🔥 TRACK RSVP
-  async function handleResponse(responseType: "going" | "not_going") {
-    try {
-      setLoading(true);
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        alert("Você precisa estar logada para marcar presença.");
+      if (!response.ok) {
+        setFeedback("Não foi possível salvar este evento agora.");
         return;
       }
 
-      // 👉 salva resposta
+      setSaved(true);
+      setFeedback("Evento salvo na sua Minha Agenda para acompanhar depois.");
+    } catch (error) {
+      console.error("Erro ao salvar evento:", error);
+      setFeedback("Erro ao salvar evento.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleResponse(responseType: "going" | "not_going") {
+    try {
+      setLoading(true);
+      setFeedback(null);
+
+      const user = await requireLogin();
+
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch("/api/respond", {
         method: "POST",
         headers: {
@@ -94,11 +124,10 @@ export default function EventResponse({ eventId }: Props) {
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.error || "Erro ao salvar resposta");
+        setFeedback(data.error || "Erro ao salvar resposta.");
         return;
       }
 
-      // 👉 TRACK (AQUI É O CERTO)
       await fetch("/api/track-event", {
         method: "POST",
         headers: {
@@ -113,9 +142,15 @@ export default function EventResponse({ eventId }: Props) {
 
       setSelected(responseType);
       await loadCounts();
+
+      if (responseType === "going") {
+        setFeedback("Você marcou que vai. Veja este evento na sua Minha Agenda.");
+      } else {
+        setFeedback("Resposta registrada.");
+      }
     } catch (error) {
       console.error("Erro ao responder evento:", error);
-      alert("Erro ao conectar com o servidor");
+      setFeedback("Erro ao conectar com o servidor.");
     } finally {
       setLoading(false);
     }
@@ -128,31 +163,55 @@ export default function EventResponse({ eventId }: Props) {
   }, [eventId]);
 
   return (
-  <div className="mt-4">
-    <div className="flex items-center gap-3">
-      <button
-        onClick={() => handleResponse("going")}
-        disabled={loading}
-        className={`flex-1 rounded-full px-4 py-2 text-xs font-bold transition ${
-          selected === "going"
-            ? "bg-[#19B5C9] text-black"
-            : "bg-[#19B5C9]/15 text-[#19B5C9] hover:bg-[#19B5C9] hover:text-black"
-        }`}
-      >
-        {loading ? "Salvando..." : "Vou"}
-      </button>
+    <div className="mt-5 space-y-3">
+      <div className="grid grid-cols-2 gap-3">
+        <button
+          onClick={() => handleResponse("going")}
+          disabled={loading}
+          className={`inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-bold transition disabled:opacity-60 ${
+            selected === "going"
+              ? "bg-[#19B5C9] text-black shadow-[0_0_24px_rgba(25,181,201,0.22)]"
+              : "border border-[#19B5C9]/30 bg-[#19B5C9]/10 text-[#19B5C9] hover:bg-[#19B5C9] hover:text-black"
+          }`}
+        >
+          Vou
+        </button>
 
-      <button
-        onClick={handleSave}
-        className="flex-1 rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-white transition hover:border-[#FFD600]/30 hover:bg-[#FFD600]/10 hover:text-[#FFD600]"
-      >
-        Salvar
-      </button>
+        <button
+          onClick={handleSave}
+          disabled={loading}
+          className={`inline-flex h-11 items-center justify-center rounded-full px-5 text-sm font-bold transition disabled:opacity-60 ${
+            saved
+              ? "bg-[#FFD600] text-black shadow-[0_0_24px_rgba(255,214,0,0.18)]"
+              : "border border-[#FFD600]/30 bg-[#FFD600]/10 text-[#FFD600] hover:bg-[#FFD600] hover:text-black"
+          }`}
+        >
+          {saved ? "Salvo" : "Salvar"}
+        </button>
+      </div>
+
+      <p className="text-xs text-white/45">
+        “Vou” marca intenção de presença. “Salvar” guarda o evento para acompanhar depois.
+      </p>
+
+      {feedback && (
+        <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-white/75">
+          {feedback}
+
+          {feedback.includes("Entre com Google") && (
+            <button
+              onClick={loginWithGoogle}
+              className="mt-3 block rounded-full bg-[#FFD600] px-4 py-2 text-xs font-bold text-black transition hover:scale-[1.01]"
+            >
+              Entrar com Google
+            </button>
+          )}
+        </div>
+      )}
+
+      <p className="text-xs text-white/45">
+        Vão ao evento: {goingCount} pessoas
+      </p>
     </div>
-
-    <p className="mt-3 text-center text-xs text-white/50">
-      Vão ao evento: {goingCount} pessoas
-    </p>
-  </div>
-);
+  );
 }
