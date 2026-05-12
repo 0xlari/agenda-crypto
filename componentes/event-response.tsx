@@ -183,25 +183,25 @@ export default function EventResponse({ eventId }: Props) {
               </p>
 
               <h2 className="mt-3 text-2xl font-black leading-tight text-white">
-                Faça login para montar sua agenda
-              </h2>
+                  Faça login para montar sua agenda
+                </h2>
 
-              <p className="mt-3 text-sm leading-7 text-white/65">
-                Entre com Google para salvar eventos, marcar presença e acompanhar tudo na área Minha Agenda.
-              </p>
-
-              <div className="mt-6 rounded-[24px] border border-white/10 bg-white/[0.04] p-4">
-                <p className="text-sm font-bold text-white">
-                  Com sua conta, você pode:
+                <p className="mt-3 text-sm leading-7 text-white/65">
+                  Entre com Google para salvar eventos, marcar presença e acompanhar sua rota pelo ecossistema cripto.
                 </p>
 
-                <ul className="mt-3 space-y-2 text-sm text-white/60">
-                  <li>• salvar eventos para ver depois</li>
-                  <li>• marcar onde pretende ir</li>
-                  <li>• confirmar presença e desbloquear Agenda Pass</li>
-                  <li>• evoluir seu mascote com sua participação</li>
-                </ul>
-              </div>
+                <div className="mt-6 rounded-[24px] border border-white/10 bg-white/[0.04] p-4">
+                  <p className="text-sm font-bold text-white">
+                    Com sua conta, você pode:
+                  </p>
+
+                  <ul className="mt-3 space-y-2 text-sm text-white/60">
+                    <li>• salvar eventos para ver depois</li>
+                    <li>• marcar os encontros em que pretende ir</li>
+                    <li>• confirmar presença e desbloquear Agenda Pass</li>
+                    <li>• evoluir seu mascote com sua participação</li>
+                  </ul>
+                </div>
 
               <div className="mt-6 flex flex-col gap-3">
                 <button
