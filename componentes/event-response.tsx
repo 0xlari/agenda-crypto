@@ -9,7 +9,9 @@ type Props = {
 
 export default function EventResponse({ eventId }: Props) {
   const [selected, setSelected] = useState<"going" | "not_going" | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [goingLoading, setGoingLoading] = useState(false);
+  const [saveLoading, setSaveLoading] = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
   const [goingCount, setGoingCount] = useState(0);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
@@ -59,6 +61,9 @@ export default function EventResponse({ eventId }: Props) {
 
   async function handleSave() {
     try {
+      setSaveLoading(true);
+      setFeedback(null);
+
       const user = await openLoginModalIfNeeded();
 
       if (!user) return;
@@ -74,18 +79,26 @@ export default function EventResponse({ eventId }: Props) {
           type: "save",
         }),
       });
+
+      setFeedback("Evento salvo na sua Minha Agenda.");
     } catch (error) {
       console.error("Erro ao salvar evento:", error);
+      setFeedback("Não foi possível salvar o evento.");
+    } finally {
+      setSaveLoading(false);
     }
   }
-
   async function handleResponse(responseType: "going" | "not_going") {
     try {
-      setLoading(true);
+      setGoingLoading(true);
+      setFeedback(null);
 
       const user = await openLoginModalIfNeeded();
 
-      if (!user) return;
+      if (!user) {
+        setGoingLoading(false);
+        return;
+      }
 
       const response = await fetch("/api/respond", {
         method: "POST",
@@ -119,12 +132,14 @@ export default function EventResponse({ eventId }: Props) {
       });
 
       setSelected(responseType);
+      setFeedback("Você marcou que vai neste evento. Ele apareceu na sua Minha Agenda.");
       await loadCounts();
+
     } catch (error) {
       console.error("Erro ao responder evento:", error);
       alert("Erro ao conectar com o servidor");
     } finally {
-      setLoading(false);
+      setGoingLoading(false);
     }
   }
 
@@ -140,29 +155,35 @@ export default function EventResponse({ eventId }: Props) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => handleResponse("going")}
-            disabled={loading}
+            disabled={goingLoading}
             className={`flex-1 rounded-full px-4 py-2.5 text-xs font-bold transition ${
               selected === "going"
                 ? "bg-[#19B5C9] text-black"
                 : "border border-[#19B5C9]/30 bg-[#19B5C9]/10 text-[#19B5C9] hover:bg-[#19B5C9] hover:text-black"
             }`}
           >
-            {loading ? "Salvando..." : "Vou"}
+            {goingLoading ? "Marcando..." : selected === "going" ? "Vou ✓" : "Vou"}
           </button>
 
           <button
             onClick={handleSave}
-            className="flex-1 rounded-full border border-[#FFD600]/30 bg-[#FFD600]/10 px-4 py-2.5 text-xs font-bold text-[#FFD600] transition hover:bg-[#FFD600] hover:text-black"
+            disabled={saveLoading}
+            className="flex-1 rounded-full border border-[#FFD600]/30 bg-[#FFD600]/10 px-4 py-2.5 text-xs font-bold text-[#FFD600] transition hover:bg-[#FFD600] hover:text-black disabled:opacity-60"
           >
-            Salvar
+            {saveLoading ? "Salvando..." : "Salvar"}
           </button>
-        </div>
+                  </div>
 
         <p className="mt-3 text-center text-[11px] font-medium text-white/45">
           {goingCount > 0
             ? `🔥 ${goingCount} ${goingCount === 1 ? "pessoa vai" : "pessoas vão"}`
             : "Seja a primeira pessoa a marcar presença"}
         </p>
+        {feedback && (
+          <div className="mt-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-xs leading-relaxed text-white/70">
+            {feedback}
+          </div>
+        )}
       </div>
 
       {loginModalOpen && (
