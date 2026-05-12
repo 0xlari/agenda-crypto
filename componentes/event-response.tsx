@@ -9,32 +9,9 @@ type Props = {
 
 export default function EventResponse({ eventId }: Props) {
   const [selected, setSelected] = useState<"going" | "not_going" | null>(null);
-  const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
   const [goingCount, setGoingCount] = useState(0);
-  const [feedback, setFeedback] = useState<string | null>(null);
-
-  async function requireLogin() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      setFeedback("Faça o login para salvar ou marcar presença na sua agenda.");
-      return null;
-    }
-
-    return user;
-  }
-
-  async function loginWithGoogle() {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.href,
-      },
-    });
-  }
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   async function loadCounts() {
     try {
@@ -58,19 +35,35 @@ export default function EventResponse({ eventId }: Props) {
     }
   }
 
+  async function openLoginModalIfNeeded() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      setLoginModalOpen(true);
+      return null;
+    }
+
+    return user;
+  }
+
+  async function handleLogin() {
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.href,
+      },
+    });
+  }
+
   async function handleSave() {
     try {
-      setLoading(true);
-      setFeedback(null);
+      const user = await openLoginModalIfNeeded();
 
-      const user = await requireLogin();
+      if (!user) return;
 
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch("/api/track-event", {
+      await fetch("/api/track-event", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -81,33 +74,18 @@ export default function EventResponse({ eventId }: Props) {
           type: "save",
         }),
       });
-
-      if (!response.ok) {
-        setFeedback("Não foi possível salvar este evento agora.");
-        return;
-      }
-
-      setSaved(true);
-      setFeedback("Evento salvo na sua Minha Agenda para acompanhar depois.");
     } catch (error) {
       console.error("Erro ao salvar evento:", error);
-      setFeedback("Erro ao salvar evento.");
-    } finally {
-      setLoading(false);
     }
   }
 
   async function handleResponse(responseType: "going" | "not_going") {
     try {
       setLoading(true);
-      setFeedback(null);
 
-      const user = await requireLogin();
+      const user = await openLoginModalIfNeeded();
 
-      if (!user) {
-        setLoading(false);
-        return;
-      }
+      if (!user) return;
 
       const response = await fetch("/api/respond", {
         method: "POST",
@@ -124,7 +102,7 @@ export default function EventResponse({ eventId }: Props) {
       const data = await response.json();
 
       if (!response.ok) {
-        setFeedback(data.error || "Erro ao salvar resposta.");
+        alert(data.error || "Erro ao salvar resposta");
         return;
       }
 
@@ -142,15 +120,9 @@ export default function EventResponse({ eventId }: Props) {
 
       setSelected(responseType);
       await loadCounts();
-
-      if (responseType === "going") {
-        setFeedback("Você marcou que vai. Veja este evento na sua Minha Agenda.");
-      } else {
-        setFeedback("Resposta registrada.");
-      }
     } catch (error) {
       console.error("Erro ao responder evento:", error);
-      setFeedback("Erro ao conectar com o servidor.");
+      alert("Erro ao conectar com o servidor");
     } finally {
       setLoading(false);
     }
@@ -163,48 +135,93 @@ export default function EventResponse({ eventId }: Props) {
   }, [eventId]);
 
   return (
-  <div className="mt-5 space-y-3">
-    <div className="grid grid-cols-[1fr_72px_82px] gap-2">
-
-      <button
-        onClick={() => handleResponse("going")}
-        disabled={loading}
-        className={`inline-flex h-10 w-[72px] items-center justify-center rounded-full text-xs font-bold transition disabled:opacity-60 ${
-          selected === "going"
-            ? "bg-[#19B5C9] text-black"
-            : "border border-[#19B5C9]/30 bg-[#19B5C9]/10 text-[#19B5C9] hover:bg-[#19B5C9] hover:text-black"
-        }`}
-      >
-        Vou
-      </button>
-
-      <button
-        onClick={handleSave}
-        disabled={loading}
-        className={`inline-flex h-10 w-[82px] items-center justify-center rounded-full text-xs font-bold transition disabled:opacity-60 ${
-          saved
-            ? "bg-[#FFD600] text-black"
-            : "border border-[#FFD600]/30 bg-[#FFD600]/10 text-[#FFD600] hover:bg-[#FFD600] hover:text-black"
-        }`}
-      >
-        Salvar
-      </button>
-    </div>
-
-    {feedback && (
-      <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs text-white/70">
-        {feedback}
-
-        {feedback.includes("Entre com Google") && (
+    <>
+      <div className="mt-5">
+        <div className="flex items-center gap-2">
           <button
-            onClick={loginWithGoogle}
-            className="mt-3 block rounded-full bg-[#FFD600] px-4 py-2 text-xs font-bold text-black"
+            onClick={() => handleResponse("going")}
+            disabled={loading}
+            className={`flex-1 rounded-full px-4 py-2.5 text-xs font-bold transition ${
+              selected === "going"
+                ? "bg-[#19B5C9] text-black"
+                : "border border-[#19B5C9]/30 bg-[#19B5C9]/10 text-[#19B5C9] hover:bg-[#19B5C9] hover:text-black"
+            }`}
           >
-            Entrar com Google
+            {loading ? "Salvando..." : "Vou"}
           </button>
-        )}
+
+          <button
+            onClick={handleSave}
+            className="flex-1 rounded-full border border-[#FFD600]/30 bg-[#FFD600]/10 px-4 py-2.5 text-xs font-bold text-[#FFD600] transition hover:bg-[#FFD600] hover:text-black"
+          >
+            Salvar
+          </button>
+        </div>
+
+        <p className="mt-3 text-center text-[11px] font-medium text-white/45">
+          {goingCount > 0
+            ? `🔥 ${goingCount} ${goingCount === 1 ? "pessoa vai" : "pessoas vão"}`
+            : "Seja a primeira pessoa a marcar presença"}
+        </p>
       </div>
-    )}
-  </div>
-);
+
+      {loginModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-5 backdrop-blur-sm">
+          <div className="relative w-full max-w-[420px] overflow-hidden rounded-[32px] border border-white/10 bg-[#212121] p-6 text-white shadow-[0_20px_100px_rgba(0,0,0,0.55)]">
+            <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-[#19B5C9]/10 blur-3xl" />
+            <div className="absolute bottom-0 left-0 h-40 w-40 rounded-full bg-[#EC4899]/10 blur-3xl" />
+
+            <div className="relative z-10">
+              <div className="mb-5 flex items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-full bg-[#19B5C9]" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[#FFD600]" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[#EC4899]" />
+              </div>
+
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#FFD600]">
+                Agenda Pass
+              </p>
+
+              <h2 className="mt-3 text-2xl font-black leading-tight text-white">
+                Faça login para montar sua agenda
+              </h2>
+
+              <p className="mt-3 text-sm leading-7 text-white/65">
+                Entre com Google para salvar eventos, marcar presença e acompanhar tudo na área Minha Agenda.
+              </p>
+
+              <div className="mt-6 rounded-[24px] border border-white/10 bg-white/[0.04] p-4">
+                <p className="text-sm font-bold text-white">
+                  Com sua conta, você pode:
+                </p>
+
+                <ul className="mt-3 space-y-2 text-sm text-white/60">
+                  <li>• salvar eventos para ver depois</li>
+                  <li>• marcar onde pretende ir</li>
+                  <li>• confirmar presença e desbloquear Agenda Pass</li>
+                  <li>• evoluir seu mascote com sua participação</li>
+                </ul>
+              </div>
+
+              <div className="mt-6 flex flex-col gap-3">
+                <button
+                  onClick={handleLogin}
+                  className="rounded-full bg-[#FFD600] px-5 py-3 text-sm font-black text-black transition hover:scale-[1.01] hover:bg-[#ffe44c]"
+                >
+                  Entrar com Google
+                </button>
+
+                <button
+                  onClick={() => setLoginModalOpen(false)}
+                  className="text-sm font-medium text-white/45 transition hover:text-white"
+                >
+                  Agora não
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
 }
