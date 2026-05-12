@@ -165,17 +165,11 @@ export default function EventResponse({ eventId }: Props) {
   return (
   <div className="mt-5 space-y-3">
     <div className="grid grid-cols-[1fr_72px_82px] gap-2">
-      <a
-        href={`/agenda/${eventId}`}
-        className="inline-flex h-10 items-center justify-center rounded-full bg-white px-4 text-xs font-bold text-black transition hover:scale-[1.02]"
-      >
-        Ver evento
-      </a>
 
       <button
         onClick={() => handleResponse("going")}
         disabled={loading}
-        className={`inline-flex h-10 items-center justify-center rounded-full text-xs font-bold transition disabled:opacity-60 ${
+        className={`inline-flex h-10 w-[72px] items-center justify-center rounded-full text-xs font-bold transition disabled:opacity-60 ${
           selected === "going"
             ? "bg-[#19B5C9] text-black"
             : "border border-[#19B5C9]/30 bg-[#19B5C9]/10 text-[#19B5C9] hover:bg-[#19B5C9] hover:text-black"
@@ -187,15 +181,30 @@ export default function EventResponse({ eventId }: Props) {
       <button
         onClick={handleSave}
         disabled={loading}
-        className={`inline-flex h-10 items-center justify-center rounded-full text-xs font-bold transition disabled:opacity-60 ${
+        className={`inline-flex h-10 w-[82px] items-center justify-center rounded-full text-xs font-bold transition disabled:opacity-60 ${
           saved
             ? "bg-[#FFD600] text-black"
             : "border border-[#FFD600]/30 bg-[#FFD600]/10 text-[#FFD600] hover:bg-[#FFD600] hover:text-black"
         }`}
       >
-        {saved ? "Salvo" : "Salvar"}
+        Salvar
       </button>
     </div>
+
+    {feedback && (
+      <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs text-white/70">
+        {feedback}
+
+        {feedback.includes("Entre com Google") && (
+          <button
+            onClick={loginWithGoogle}
+            className="mt-3 block rounded-full bg-[#FFD600] px-4 py-2 text-xs font-bold text-black"
+          >
+            Entrar com Google
+          </button>
+        )}
+      </div>
+    )}
   </div>
 );
 }
