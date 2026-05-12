@@ -196,21 +196,6 @@ export default function EventResponse({ eventId }: Props) {
         {saved ? "Salvo" : "Salvar"}
       </button>
     </div>
-
-    {feedback && (
-      <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-xs text-white/70">
-        {feedback}
-
-        {feedback.includes("Entre com Google") && (
-          <button
-            onClick={loginWithGoogle}
-            className="mt-3 block rounded-full bg-[#FFD600] px-4 py-2 text-xs font-bold text-black"
-          >
-            Entrar com Google
-          </button>
-        )}
-      </div>
-    )}
   </div>
 );
 }
