@@ -578,60 +578,6 @@ export default function MinhaAgendaClient() {
             )}
           </div>
         </section>
-        <section className="mt-16 border-t border-white/10 pt-12 opacity-90">
-          <div className="rounded-[32px] border border-white/10 bg-[#2A2A2A] p-6 md:p-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#EC4899]">
-              Recomendados pra você
-            </p>
-
-            <h2 className="mt-3 text-2xl font-black text-white">
-              Novos encontros que podem entrar no seu radar.
-            </h2>
-
-            <p className="mt-2 max-w-2xl text-sm leading-7 text-white/65">
-              Eventos futuros relacionados aos temas, formatos e cidades com os quais você mais interage.
-            </p>
-
-            {recommended.length === 0 ? (
-              <p className="mt-6 text-white/60">
-                Conforme você interagir mais com eventos, vamos recomendar melhores opções aqui.
-              </p>
-            ) : (
-              <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {recommended.map((event) => (
-                  <Link
-                    key={`recommended-${event.id}`}
-                    href={`/agenda/${event.slug}`}
-                    className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5 transition hover:border-[#EC4899]/30 hover:bg-[#EC4899]/10"
-                  >
-                    <div className="mb-2 flex flex-wrap gap-2">
-                      {event.category && (
-                        <span className="rounded-full border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#19B5C9]">
-                          {event.category}
-                        </span>
-                      )}
-
-                      {event.event_type && (
-                        <span className="text-xs text-white/50 uppercase">
-                          {event.event_type}
-                        </span>
-                      )}
-                    </div>
-
-                    <h3 className="mt-3 text-lg font-bold text-white">
-                      {event.title}
-                    </h3>
-
-                    <p className="mt-2 text-sm text-white/60">
-                      {event.city || "Online"}
-                    </p>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-        </section>
-        
       </div>
       <PassDropModal
       open={dropModalOpen}
