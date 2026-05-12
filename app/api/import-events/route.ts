@@ -133,7 +133,7 @@ export async function POST(request: Request) {
         featured: parseBool(row.featured),
         is_online: parseBool(row.is_online),
         source_url: row.source_url?.trim() || null,
-        event_type: row.event_type?.trim() || "main_event",
+        event_type: row.event_type?.trim() || (parseBool(row.is_side_event) ? "side_event" : "main_event"),
         level: row.level?.trim() || null,
         intent: (row.intent || row.Intent)?.trim() || null,
         is_big_event: parseBool(row.is_big_event),
