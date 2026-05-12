@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getPublishedEvents } from "@/lib/supabase/queries";
 import NewsletterSignup from "@/componentes/newsletter-signup";
 import AgendaBrowser from "@/componentes/agenda/agenda-browser";
