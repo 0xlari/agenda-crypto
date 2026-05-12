@@ -80,7 +80,7 @@ export default function EventResponse({ eventId }: Props) {
         }),
       });
 
-      setFeedback("Evento salvo na sua Minha Agenda.");
+      setFeedback("Evento salvo na área Minha Agenda.");
     } catch (error) {
       console.error("Erro ao salvar evento:", error);
       setFeedback("Não foi possível salvar o evento.");
@@ -132,7 +132,7 @@ export default function EventResponse({ eventId }: Props) {
       });
 
       setSelected(responseType);
-      setFeedback("Você marcou que vai neste evento. Ele apareceu na sua Minha Agenda.");
+      setFeedback("Você marcou que vai neste evento. Ele apareceu na área Minha Agenda.");
       await loadCounts();
 
     } catch (error) {
