@@ -307,7 +307,7 @@ export default function MinhaAgendaClient() {
                 Comece sua jornada
               </p>
 
-              <h2 className="mt-3 text-2xl font-black text-white">
+              <h2 className="mt-3 text-xl font-bold text-white">
                 Sua agenda ainda está vazia.
               </h2>
 
@@ -340,18 +340,21 @@ export default function MinhaAgendaClient() {
               Você ainda não marcou presença em nenhum evento.
             </p>
           ) : (
-            <div className="space-y-3">
+            <div className="grid gap-4">
               {going.map((event, index) => (
                 <div
                   key={`going-${event.id}-${index}`}
-                  className="rounded-[24px] border border-white/10 bg-[#2A2A2A] px-4 py-4 md:px-5"
+                  className="group relative overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(180deg,#2A2A2A,#232323)] p-5 transition hover:border-[#19B5C9]/30 hover:bg-[#262626]"
                 >
-                  <div className="grid gap-4 md:grid-cols-[90px_1fr_auto] md:items-center">
-                    <div className="flex h-[84px] flex-col items-center justify-center rounded-[20px] bg-[linear-gradient(135deg,rgba(25,181,201,0.16),rgba(236,72,153,0.08),rgba(255,214,0,0.14))]">
-                      <p className="text-2xl font-black text-white">
+                  <div className="grid gap-5 lg:grid-cols-[110px_1fr_220px] lg:items-center">
+                    <div className="relative flex h-[100px] flex-col items-center justify-center rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(25,181,201,0.12),rgba(236,72,153,0.06),rgba(255,214,0,0.12))]">
+                      <div className="absolute top-0 h-5 w-full border-b border-white/10 bg-white/[0.04]" />
+
+                      <p className="mt-2 text-3xl font-black text-white">
                         {getDay(event.start_date)}
                       </p>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70">
+
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#19B5C9]">
                         {getMonth(event.start_date)}
                       </p>
                     </div>
@@ -522,7 +525,7 @@ export default function MinhaAgendaClient() {
             </div>
           )}
         </section>
-        <section className="mb-12">
+        <section className="mt-24 border-t border-white/10 pt-14 opacity-90">
           <div className="rounded-[32px] border border-white/10 bg-[#2A2A2A] p-6 md:p-8">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#EC4899]">
               Recomendados pra você
@@ -575,6 +578,60 @@ export default function MinhaAgendaClient() {
             )}
           </div>
         </section>
+        <section className="mt-16 border-t border-white/10 pt-12 opacity-90">
+          <div className="rounded-[32px] border border-white/10 bg-[#2A2A2A] p-6 md:p-8">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#EC4899]">
+              Recomendados pra você
+            </p>
+
+            <h2 className="mt-3 text-2xl font-black text-white">
+              Novos encontros que podem entrar no seu radar.
+            </h2>
+
+            <p className="mt-2 max-w-2xl text-sm leading-7 text-white/65">
+              Eventos futuros relacionados aos temas, formatos e cidades com os quais você mais interage.
+            </p>
+
+            {recommended.length === 0 ? (
+              <p className="mt-6 text-white/60">
+                Conforme você interagir mais com eventos, vamos recomendar melhores opções aqui.
+              </p>
+            ) : (
+              <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {recommended.map((event) => (
+                  <Link
+                    key={`recommended-${event.id}`}
+                    href={`/agenda/${event.slug}`}
+                    className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5 transition hover:border-[#EC4899]/30 hover:bg-[#EC4899]/10"
+                  >
+                    <div className="mb-2 flex flex-wrap gap-2">
+                      {event.category && (
+                        <span className="rounded-full border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#19B5C9]">
+                          {event.category}
+                        </span>
+                      )}
+
+                      {event.event_type && (
+                        <span className="text-xs text-white/50 uppercase">
+                          {event.event_type}
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 className="mt-3 text-lg font-bold text-white">
+                      {event.title}
+                    </h3>
+
+                    <p className="mt-2 text-sm text-white/60">
+                      {event.city || "Online"}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+        
       </div>
       <PassDropModal
       open={dropModalOpen}
