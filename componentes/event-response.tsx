@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { supabase } from "@/lib/supabase/client";
 
 type Props = {
@@ -14,6 +15,7 @@ export default function EventResponse({ eventId }: Props) {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [goingCount, setGoingCount] = useState(0);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   async function loadCounts() {
     try {
@@ -43,6 +45,8 @@ export default function EventResponse({ eventId }: Props) {
     } = await supabase.auth.getUser();
 
     if (!user) {
+      setGoingLoading(false);
+      setSaveLoading(false);
       setLoginModalOpen(true);
       return null;
     }
@@ -149,6 +153,10 @@ export default function EventResponse({ eventId }: Props) {
     }
   }, [eventId]);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <>
       <div className="mt-5">
@@ -186,27 +194,31 @@ export default function EventResponse({ eventId }: Props) {
         )}
       </div>
 
-      {loginModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-5 backdrop-blur-sm">
-          <div className="relative w-full max-w-[420px] overflow-hidden rounded-[32px] border border-white/10 bg-[#212121] p-6 text-white shadow-[0_20px_100px_rgba(0,0,0,0.55)]">
+      {mounted &&
+        loginModalOpen &&
+        createPortal(
+          <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/75 px-5 backdrop-blur-sm">
+            <div className="relative w-full max-w-[420px] overflow-hidden rounded-[32px] border border-white/10 bg-[#212121] p-6 text-white shadow-[0_20px_100px_rgba(0,0,0,0.75)]">
+              <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-[#19B5C9]/10 blur-3xl" />
+              <div className="absolute bottom-0 left-0 h-40 w-40 rounded-full bg-[#EC4899]/10 blur-3xl" />
 
-            <div className="relative z-10">
-              <div className="mb-5 flex items-center gap-2">
-                <span className="h-2.5 w-2.5 rounded-full bg-[#19B5C9]" />
-                <span className="h-2.5 w-2.5 rounded-full bg-[#FFD600]" />
-                <span className="h-2.5 w-2.5 rounded-full bg-[#EC4899]" />
-              </div>
+              <div className="relative z-10">
+                <div className="mb-5 flex items-center gap-2">
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#19B5C9]" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#FFD600]" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#EC4899]" />
+                </div>
 
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#FFD600]">
-                Agenda Pass
-              </p>
+                <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#FFD600]">
+                  Agenda Pass
+                </p>
 
-              <h2 className="mt-3 text-2xl font-black leading-tight text-white">
-                  Faça login para montar sua agenda
+                <h2 className="mt-3 text-2xl font-black leading-tight text-white">
+                  Comece sua coleção no ecossistema.
                 </h2>
 
                 <p className="mt-3 text-sm leading-7 text-white/65">
-                  Entre com Google para salvar eventos, marcar presença e acompanhar sua rota pelo ecossistema cripto.
+                  Entre com Google para salvar eventos, marcar presença e acompanhar sua rota pela Agenda Crypto.
                 </p>
 
                 <div className="mt-6 rounded-[24px] border border-white/10 bg-white/[0.04] p-4">
@@ -222,25 +234,26 @@ export default function EventResponse({ eventId }: Props) {
                   </ul>
                 </div>
 
-              <div className="mt-6 flex flex-col gap-3">
-                <button
-                  onClick={handleLogin}
-                  className="rounded-full bg-[#FFD600] px-5 py-3 text-sm font-black text-black transition hover:scale-[1.01] hover:bg-[#ffe44c]"
-                >
-                  Entrar com Google
-                </button>
+                <div className="mt-6 flex flex-col gap-3">
+                  <button
+                    onClick={handleLogin}
+                    className="rounded-full bg-[#FFD600] px-5 py-3 text-sm font-black text-black transition hover:scale-[1.01] hover:bg-[#ffe44c]"
+                  >
+                    Entrar com Google
+                  </button>
 
-                <button
-                  onClick={() => setLoginModalOpen(false)}
-                  className="text-sm font-medium text-white/45 transition hover:text-white"
-                >
-                  Agora não
-                </button>
+                  <button
+                    onClick={() => setLoginModalOpen(false)}
+                    className="text-sm font-medium text-white/45 transition hover:text-white"
+                  >
+                    Agora não
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </>
   );
 }
