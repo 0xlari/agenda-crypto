@@ -228,7 +228,7 @@ export default function EventResponse({ eventId }: Props) {
 
                     <ul className="mt-3 space-y-2 text-sm text-white/60">
                       <li>• salvar eventos para ver depois</li>
-                      <li>• marcar os encontros em que pretende ir</li>
+                      <li>• marcar os eventos em que pretende ir</li>
                       <li>• confirmar presença e desbloquear Agenda Pass</li>
                       <li>• evoluir seu mascote com sua participação</li>
                     </ul>
