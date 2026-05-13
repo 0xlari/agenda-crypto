@@ -5,6 +5,7 @@ import NewsletterSignup from "@/componentes/newsletter-signup";
 import EventResponse from "@/componentes/event-response";
 import EventViewTracker from "@/componentes/event_view_tracker";
 import { getRelatedEvents } from "@/lib/supabase/queries";
+import RegistrationClickButton from "@/componentes/registration-click-button";
 
 function formatDate(dateString: string) {
   return new Date(`${dateString}T00:00:00`).toLocaleDateString("pt-BR", {
@@ -63,16 +64,11 @@ export default async function EventPage({
 
               <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row">
                 {event.registration_url && (
-                  <a
-                    href={event.registration_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex w-full items-center justify-center rounded-full bg-[#FFD600] px-6 py-3 text-sm font-bold text-black transition hover:scale-[1.01] hover:bg-[#ffe44c] sm:w-auto"
-                  >
-                    Inscrever-se no evento
-                  </a>
+                  <RegistrationClickButton
+                    eventId={event.id}
+                    url={event.registration_url}
+                  />
                 )}
-
                 {event.source_url && (
                   <a
                     href={event.source_url}

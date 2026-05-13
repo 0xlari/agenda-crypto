@@ -86,7 +86,8 @@ function SignalCard({
 }
 
 export default async function AdminDashboardPage() {
-  const { overview, hotEvents } = await getAdminDashboardData();
+  const { overview, hotEvents, topCities, topCategories } =
+  await getAdminDashboardData();
 
   const funnelMax = Math.max(
     overview.totalViews,
@@ -134,6 +135,24 @@ export default async function AdminDashboardPage() {
           />
 
           <MetricCard
+            title="Usuários ativos"
+            value={overview.totalActiveUsers}
+            description="Usuários únicos logados que fizeram alguma interação na Agenda."
+          />
+
+          <MetricCard
+            title="Interações logadas"
+            value={overview.totalLoggedInteractions}
+            description="Total de ações realizadas por usuários autenticados."
+          />
+
+          <MetricCard
+            title="Logados com view"
+            value={overview.totalUniqueLoggedViews}
+            description="Usuários logados únicos que visualizaram páginas de eventos."
+          />
+
+          <MetricCard
             title="Views totais"
             value={overview.totalViews}
             description="Total de visualizações registradas nas páginas de eventos."
@@ -166,16 +185,41 @@ export default async function AdminDashboardPage() {
             />
 
             <MetricCard
-            title="Intenção entre logados"
-            value={`${overview.loggedUserIntentRate}%`}
-            description="Saves + Vou em relação aos usuários logados únicos."
-            highlight
+              title="Ações por usuário logado"
+              value={overview.actionsPerLoggedUser}
+              description="Média de ações de intenção por usuário logado: saves + vou."
+              highlight
             />
 
           <MetricCard
             title="Taxa de presença"
             value={`${overview.showUpRate}%`}
             description="Check-ins validados em relação ao Vou."
+            highlight
+          />
+          <MetricCard
+            title="Interações logadas"
+            value={overview.totalLoggedInteractions}
+            description="Total de ações feitas por usuários autenticados."
+          />
+
+          <MetricCard
+            title="Usuários com Pass"
+            value={overview.totalUsersWithPass}
+            description="Usuários únicos que já receberam pelo menos um Agenda Pass."
+          />
+
+          <MetricCard
+            title="CTR de inscrição"
+            value={`${overview.registrationCtr}%`}
+            description="Cliques em inscrição em relação às views totais."
+            highlight
+          />
+
+          <MetricCard
+            title="Save → Vou"
+            value={`${overview.saveToGoingRate}%`}
+            description="Relação entre eventos salvos e marcações de presença."
             highlight
           />
         </section>
@@ -262,6 +306,45 @@ export default async function AdminDashboardPage() {
           </div>
         </section>
 
+        <section className="mt-8 grid gap-6 lg:grid-cols-2">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+            <h2 className="text-xl font-semibold">Cidades mais fortes</h2>
+            <p className="mt-2 text-sm text-zinc-400">
+              Cidades com mais eventos publicados na Agenda.
+            </p>
+
+            <div className="mt-6 space-y-3">
+              {topCities.map((item) => (
+                <div
+                  key={item.city}
+                  className="flex items-center justify-between rounded-xl border border-white/10 bg-black/20 px-4 py-3"
+                >
+                  <span className="text-sm text-zinc-300">{item.city}</span>
+                  <strong className="text-blue-300">{item.total}</strong>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+            <h2 className="text-xl font-semibold">Categorias mais fortes</h2>
+            <p className="mt-2 text-sm text-zinc-400">
+              Narrativas com mais eventos publicados.
+            </p>
+
+            <div className="mt-6 space-y-3">
+              {topCategories.map((item) => (
+                <div
+                  key={item.category}
+                  className="flex items-center justify-between rounded-xl border border-white/10 bg-black/20 px-4 py-3"
+                >
+                  <span className="text-sm text-zinc-300">{item.category}</span>
+                  <strong className="text-blue-300">{item.total}</strong>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
         <section className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04] p-6">
           <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
             <div>
