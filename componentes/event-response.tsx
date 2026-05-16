@@ -10,6 +10,7 @@ type Props = {
 
 export default function EventResponse({ eventId }: Props) {
   const [selected, setSelected] = useState<"going" | "not_going" | null>(null);
+  const [saved, setSaved] = useState(false);
   const [goingLoading, setGoingLoading] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -85,6 +86,7 @@ export default function EventResponse({ eventId }: Props) {
       });
 
       setFeedback("Evento salvo na área Minha Agenda.");
+      setSaved(true);
     } catch (error) {
       console.error("Erro ao salvar evento:", error);
       setFeedback("Não foi possível salvar o evento.");
@@ -161,24 +163,48 @@ export default function EventResponse({ eventId }: Props) {
     <>
       <div className="mt-5">
         <div className="flex items-center gap-2">
-          <button
+         <button
             onClick={() => handleResponse("going")}
             disabled={goingLoading}
-            className={`flex-1 rounded-full px-4 py-2.5 text-xs font-bold transition ${
-              selected === "going"
-                ? "bg-[#19B5C9] text-black"
-                : "border border-[#19B5C9]/30 bg-[#19B5C9]/10 text-[#19B5C9] hover:bg-[#19B5C9] hover:text-black"
-            }`}
+            className={`
+              flex-1 rounded-full px-4 py-2.5 text-xs font-black
+              transition-all duration-200
+              active:scale-[0.98]
+              disabled:opacity-60
+              ${
+                selected === "going"
+                  ? "bg-[#19B5C9] text-black shadow-[0_0_18px_rgba(25,181,201,0.35)]"
+                  : "bg-[#19B5C9] text-black hover:brightness-110"
+              }
+            `}
           >
-            {goingLoading ? "Marcando..." : selected === "going" ? "Vou ✓" : "Vou"}
+            {goingLoading
+              ? "Marcando..."
+              : selected === "going"
+              ? "Vou ✓"
+              : "Vou"}
           </button>
 
           <button
             onClick={handleSave}
             disabled={saveLoading}
-            className="flex-1 rounded-full border border-[#FFD600]/30 bg-[#FFD600]/10 px-4 py-2.5 text-xs font-bold text-[#FFD600] transition hover:bg-[#FFD600] hover:text-black disabled:opacity-60"
+            className={`
+              flex-1 rounded-full px-4 py-2.5 text-xs font-black
+              transition-all duration-200
+              active:scale-[0.98]
+              disabled:opacity-60
+              ${
+                saved
+                  ? "bg-[#FFD600] text-black shadow-[0_0_18px_rgba(255,214,0,0.35)]"
+                  : "bg-[#FFD600] text-black hover:brightness-110"
+              }
+            `}
           >
-            {saveLoading ? "Salvando..." : "Salvar"}
+            {saveLoading
+              ? "Salvando..."
+              : saved
+              ? "Salvo ✓"
+              : "Salvar"}
           </button>
                   </div>
 
