@@ -256,33 +256,6 @@ export default function EventResponse({
             {feedback}
           </div>
         )}
-        {showCalendarPrompt && (
-  <div className="mt-3 rounded-2xl border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-4 py-3 text-center text-xs leading-relaxed text-white/75">
-    <p className="font-medium text-white">
-      Você marcou que vai. Quer adicionar este evento ao Google Calendar?
-    </p>
-
-    <div className="mt-3 flex items-center justify-center gap-2">
-      {getGoogleCalendarUrl() && (
-        <a
-          href={getGoogleCalendarUrl()!}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded-full bg-[#FFD600] px-4 py-2 text-[11px] font-black text-black transition hover:brightness-110"
-        >
-          Adicionar
-        </a>
-      )}
-
-      <button
-        onClick={() => setShowCalendarPrompt(false)}
-        className="rounded-full border border-white/10 px-4 py-2 text-[11px] font-bold text-white/60 transition hover:text-white"
-      >
-        Depois
-      </button>
-    </div>
-  </div>
-)}
       </div>
 
       {mounted &&
@@ -345,6 +318,47 @@ export default function EventResponse({
           </div>,
           document.body
         )}
+        {mounted &&
+  showCalendarPrompt &&
+  createPortal(
+    <div className="fixed inset-0 z-[99998] flex items-center justify-center bg-black/60 px-5 backdrop-blur-sm">
+      <div className="w-full max-w-[380px] rounded-[28px] border border-[#19B5C9]/20 bg-[#212121] p-6 text-center text-white shadow-[0_20px_80px_rgba(0,0,0,0.65)]">
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#19B5C9]/15 text-2xl">
+          📅
+        </div>
+
+        <h3 className="text-xl font-black">
+          Você marcou que vai.
+        </h3>
+
+        <p className="mt-3 text-sm leading-7 text-white/65">
+          Quer adicionar este evento ao Google Calendar agora?
+        </p>
+
+        <div className="mt-6 flex flex-col gap-3">
+          {getGoogleCalendarUrl() && (
+            <a
+              href={getGoogleCalendarUrl()!}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setShowCalendarPrompt(false)}
+              className="rounded-full bg-[#FFD600] px-5 py-3 text-sm font-black text-black transition hover:brightness-110"
+            >
+              Adicionar ao Google Calendar
+            </a>
+          )}
+
+          <button
+            onClick={() => setShowCalendarPrompt(false)}
+            className="rounded-full border border-white/10 px-5 py-3 text-sm font-bold text-white/60 transition hover:text-white"
+          >
+            Depois
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  )}
     </>
   );
 }
