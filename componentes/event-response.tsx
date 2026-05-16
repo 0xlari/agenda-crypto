@@ -332,7 +332,7 @@ export default function EventResponse({
         </h3>
 
         <p className="mt-3 text-sm leading-7 text-white/65">
-          Quer adicionar este evento ao Google Calendar agora?
+          Quer adicionar este evento ao seu Google Calendar agora?
         </p>
 
         <div className="mt-6 flex flex-col gap-3">
