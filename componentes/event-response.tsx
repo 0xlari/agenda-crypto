@@ -6,9 +6,23 @@ import { supabase } from "@/lib/supabase/client";
 
 type Props = {
   eventId: string;
+  title?: string;
+  startDate?: string;
+  endDate?: string | null;
+  eventTime?: string | null;
+  city?: string | null;
+  venue?: string | null;
 };
 
-export default function EventResponse({ eventId }: Props) {
+export default function EventResponse({
+  eventId,
+  title,
+  startDate,
+  endDate,
+  eventTime,
+  city,
+  venue,
+}: Props) {
   const [selected, setSelected] = useState<"going" | "not_going" | null>(null);
   const [saved, setSaved] = useState(false);
   const [goingLoading, setGoingLoading] = useState(false);
@@ -17,6 +31,7 @@ export default function EventResponse({ eventId }: Props) {
   const [goingCount, setGoingCount] = useState(0);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [showCalendarPrompt, setShowCalendarPrompt] = useState(false);
 
   async function loadCounts() {
     try {
@@ -139,6 +154,7 @@ export default function EventResponse({ eventId }: Props) {
 
       setSelected(responseType);
       setFeedback("Você marcou que vai neste evento. Ele apareceu na área Minha Agenda.");
+      setShowCalendarPrompt(true);
       await loadCounts();
 
     } catch (error) {
@@ -159,15 +175,37 @@ export default function EventResponse({ eventId }: Props) {
     setMounted(true);
   }, []);
 
+  function getGoogleCalendarUrl() {
+  if (!title || !startDate) return null;
+
+  const start = new Date(`${startDate}T${eventTime || "09:00"}`);
+  const end = endDate
+    ? new Date(`${endDate}T${eventTime || "18:00"}`)
+    : new Date(start.getTime() + 2 * 60 * 60 * 1000);
+
+  const format = (date: Date) =>
+    date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: title,
+    dates: `${format(start)}/${format(end)}`,
+    details: "Evento salvo pela Agenda Crypto.",
+    location: [venue, city].filter(Boolean).join(", "),
+  });
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
   return (
     <>
       <div className="mt-5">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-end gap-2">
          <button
             onClick={() => handleResponse("going")}
             disabled={goingLoading}
             className={`
-              w-[88px] rounded-full px-4 py-2.5 text-xs font-black
+              w-[84px] shrink-0 rounded-full py-2.5 text-xs font-black
               transition-all duration-200
               active:scale-[0.98]
               disabled:opacity-60
@@ -189,7 +227,7 @@ export default function EventResponse({ eventId }: Props) {
             onClick={handleSave}
             disabled={saveLoading}
             className={`
-              w-[96px] rounded-full px-4 py-2.5 text-xs font-black
+             w-[92px] shrink-0 rounded-full py-2.5 text-xs font-black
               transition-all duration-200
               active:scale-[0.98]
               disabled:opacity-60
@@ -218,6 +256,33 @@ export default function EventResponse({ eventId }: Props) {
             {feedback}
           </div>
         )}
+        {showCalendarPrompt && (
+  <div className="mt-3 rounded-2xl border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-4 py-3 text-center text-xs leading-relaxed text-white/75">
+    <p className="font-medium text-white">
+      Você marcou que vai. Quer adicionar este evento ao Google Calendar?
+    </p>
+
+    <div className="mt-3 flex items-center justify-center gap-2">
+      {getGoogleCalendarUrl() && (
+        <a
+          href={getGoogleCalendarUrl()!}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-full bg-[#FFD600] px-4 py-2 text-[11px] font-black text-black transition hover:brightness-110"
+        >
+          Adicionar
+        </a>
+      )}
+
+      <button
+        onClick={() => setShowCalendarPrompt(false)}
+        className="rounded-full border border-white/10 px-4 py-2 text-[11px] font-bold text-white/60 transition hover:text-white"
+      >
+        Depois
+      </button>
+    </div>
+  </div>
+)}
       </div>
 
       {mounted &&
