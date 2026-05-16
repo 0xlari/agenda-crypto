@@ -167,7 +167,7 @@ export default function EventResponse({ eventId }: Props) {
             onClick={() => handleResponse("going")}
             disabled={goingLoading}
             className={`
-              flex-1 rounded-full px-4 py-2.5 text-xs font-black
+              w-[88px] rounded-full px-4 py-2.5 text-xs font-black
               transition-all duration-200
               active:scale-[0.98]
               disabled:opacity-60
@@ -189,7 +189,7 @@ export default function EventResponse({ eventId }: Props) {
             onClick={handleSave}
             disabled={saveLoading}
             className={`
-              flex-1 rounded-full px-4 py-2.5 text-xs font-black
+              w-[96px] rounded-full px-4 py-2.5 text-xs font-black
               transition-all duration-200
               active:scale-[0.98]
               disabled:opacity-60
