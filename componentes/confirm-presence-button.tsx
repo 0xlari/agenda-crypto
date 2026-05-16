@@ -72,8 +72,8 @@ export default function ConfirmPresenceButton({ eventId, onSuccess }: Props) {
           onClick={() => setConfirmModalOpen(true)}
           disabled={loading || confirmed}
           className={`
-            inline-flex min-w-[180px] items-center justify-center rounded-full px-4 py-2.5
-            text-sm font-bold transition active:scale-[0.98] disabled:opacity-70
+            flex min-h-[52px] w-full items-center justify-center rounded-full px-4 py-3
+            text-center text-sm font-black transition active:scale-[0.98] disabled:opacity-70
             ${
               confirmed
                 ? "border border-[#19B5C9]/30 bg-[#19B5C9] text-black"
@@ -81,7 +81,7 @@ export default function ConfirmPresenceButton({ eventId, onSuccess }: Props) {
             }
           `}
         >
-          {confirmed ? "Presença confirmada ✓" : "Confirmar presença"}
+          {confirmed ? "Você esteve aqui ✓" : "Confirmar presença"}
         </button>
 
         {message && (

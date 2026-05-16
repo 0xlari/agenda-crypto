@@ -233,8 +233,25 @@ export default function MinhaAgendaClient() {
           ).values()
         ) as EventData[];
 
-        setSaved(savedEvents);
-        setGoing(goingEvents);
+        const today = new Date();
+          today.setHours(0, 0, 0, 0);
+
+          const upcomingSavedEvents = savedEvents.filter((event) => {
+            if (!event.start_date) return false;
+
+            const eventDate = new Date(`${event.start_date}T00:00:00`);
+            return eventDate >= today;
+          });
+
+          const upcomingGoingEvents = goingEvents.filter((event) => {
+            if (!event.start_date) return false;
+
+            const eventDate = new Date(`${event.start_date}T00:00:00`);
+            return eventDate >= today;
+          });
+
+          setSaved(upcomingSavedEvents);
+          setGoing(upcomingGoingEvents);
       } catch (error) {
         console.error("Erro ao carregar minha agenda:", error);
       } finally {
@@ -398,22 +415,22 @@ export default function MinhaAgendaClient() {
                       </div>
                     </div>
 
-                    <div className="mt-4 grid grid-cols-3 gap-2 lg:col-span-2">
+                    <div className="mt-4 flex flex-col gap-3 sm:grid sm:grid-cols-3 lg:col-span-2">
                       <Link
                         href={`/agenda/${event.slug}`}
-                        className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-white transition hover:border-[#19B5C9]/30 hover:bg-[#19B5C9]/10 hover:text-[#19B5C9]"
+                        className="flex min-h-[52px] w-full items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-sm font-semibold text-white transition hover:border-[#19B5C9]/30 hover:bg-[#19B5C9]/10 hover:text-[#19B5C9]"
                       >
                         Ver evento
                       </Link>
 
                       <a
-                        href={buildGoogleCalendarUrl(event)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm font-semibold text-white transition hover:border-[#FFD600]/30 hover:bg-[#FFD600]/10 hover:text-[#FFD600]"
-                      >
-                        Google Calendar
-                      </a>
+                      href={buildGoogleCalendarUrl(event)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex min-h-[52px] w-full items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-sm font-semibold text-white transition hover:border-[#FFD600]/30 hover:bg-[#FFD600]/10 hover:text-[#FFD600]"
+                    >
+                      Google Calendar
+                    </a>
 
                       <ConfirmPresenceButton
                         eventId={event.id}
@@ -580,13 +597,13 @@ export default function MinhaAgendaClient() {
         </section>
       </div>
       <PassDropModal
-      open={dropModalOpen}
-      event={droppedEvent}
-      onClose={() => {
-        setDropModalOpen(false);
-        window.location.reload();
-      }}
-    />
+        open={dropModalOpen}
+        event={droppedEvent}
+        onClose={() => {
+          setDropModalOpen(false);
+          window.location.reload();
+        }}
+      />
     </main>
   );
 }
