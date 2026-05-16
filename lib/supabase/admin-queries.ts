@@ -184,13 +184,6 @@ export async function getAdminDashboardData() {
         )
       : 0;
 
-  const saveToGoingRate =
-    totalSaves > 0
-      ? Number(
-          ((totalGoing / totalSaves) * 100).toFixed(2)
-        )
-      : 0;
-
   return {
     overview: {
       activeEvents: overviewData?.active_events ?? 0,
@@ -236,8 +229,6 @@ export async function getAdminDashboardData() {
       showUpRate,
 
       registrationCtr,
-
-      saveToGoingRate,
     },
 
     hotEvents: hotEvents ?? [],

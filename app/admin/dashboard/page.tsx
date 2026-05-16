@@ -185,7 +185,7 @@ export default async function AdminDashboardPage() {
             />
 
             <MetricCard
-              title="Ações por usuário logado"
+              title="Engajamento por usuário"
               value={overview.actionsPerLoggedUser}
               description="Média de ações de intenção por usuário logado: saves + vou."
               highlight
@@ -196,11 +196,6 @@ export default async function AdminDashboardPage() {
             value={`${overview.showUpRate}%`}
             description="Check-ins validados em relação ao Vou."
             highlight
-          />
-          <MetricCard
-            title="Interações logadas"
-            value={overview.totalLoggedInteractions}
-            description="Total de ações feitas por usuários autenticados."
           />
 
           <MetricCard
@@ -217,9 +212,9 @@ export default async function AdminDashboardPage() {
           />
 
           <MetricCard
-            title="Save → Vou"
-            value={`${overview.saveToGoingRate}%`}
-            description="Relação entre eventos salvos e marcações de presença."
+            title="Conversão para presença"
+            value={`${overview.showUpRate}%`}
+            description="Check-ins validados em relação às marcações de Vou."
             highlight
           />
         </section>
@@ -454,7 +449,7 @@ export default async function AdminDashboardPage() {
           <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
             <h2 className="text-xl font-semibold">Cliques em inscrição</h2>
             <p className="mt-2 text-sm text-zinc-400">
-              Próxima métrica comercial a ser instrumentada.
+              Total de Cliques no botão de inscrição.
             </p>
 
             <strong className="mt-6 block text-3xl font-semibold text-white">
