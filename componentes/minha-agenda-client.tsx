@@ -433,12 +433,14 @@ export default function MinhaAgendaClient() {
                     </a>
 
                       <ConfirmPresenceButton
-                        eventId={event.id}
-                        onSuccess={() => {
-                          setDroppedEvent(event);
-                          setDropModalOpen(true);
-                        }}
-                      />
+                      eventId={event.id}
+                      startDate={event.start_date}
+                      endDate={event.end_date}
+                      onSuccess={() => {
+                        setDroppedEvent(event);
+                        setDropModalOpen(true);
+                      }}
+                    />
                     </div>
                   </div>
                 </div>
