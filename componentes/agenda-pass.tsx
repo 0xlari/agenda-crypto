@@ -1,5 +1,7 @@
 "use client";
 
+import { useRef } from "react";
+import { toPng } from "html-to-image";
 import { motion } from "framer-motion";
 
 type AgendaPassProps = {
@@ -9,10 +11,12 @@ type AgendaPassProps = {
   passType?: "conference" | "side_event" | "online" | "happy_hour";
   verified?: boolean;
   serial?: string;
+  eventSlug?: string;
 };
 
 function formatDate(dateString: string) {
   if (!dateString) return "";
+
   return new Date(`${dateString}T00:00:00`).toLocaleDateString("pt-BR", {
     day: "2-digit",
     month: "short",
@@ -28,6 +32,8 @@ export default function AgendaPass({
   verified = true,
   serial = "000001",
 }: AgendaPassProps) {
+  const passRef = useRef<HTMLDivElement>(null);
+
   const safePassType =
     passType === "conference" ||
     passType === "side_event" ||
@@ -45,6 +51,7 @@ export default function AgendaPass({
       text: "text-[#FFD600]",
       chip: "border-[#FFD600]/20 bg-[#FFD600]/10 text-[#FFD600]",
     },
+
     side_event: {
       label: "SIDE EVENT",
       border: "border-[#19B5C9]/25",
@@ -53,6 +60,7 @@ export default function AgendaPass({
       text: "text-[#19B5C9]",
       chip: "border-[#19B5C9]/20 bg-[#19B5C9]/10 text-[#19B5C9]",
     },
+
     online: {
       label: "ONLINE",
       border: "border-violet-400/30",
@@ -61,6 +69,7 @@ export default function AgendaPass({
       text: "text-violet-300",
       chip: "border-violet-400/20 bg-violet-400/10 text-violet-300",
     },
+
     happy_hour: {
       label: "HAPPY HOUR",
       border: "border-[#EC4899]/30",
@@ -73,6 +82,77 @@ export default function AgendaPass({
 
   const styles = stylesMap[safePassType];
 
+  async function generateImage() {
+    if (!passRef.current) return null;
+
+    return await toPng(passRef.current, {
+      cacheBust: true,
+      pixelRatio: 2,
+      backgroundColor: "#0B0B0B",
+    });
+  }
+
+  async function handleShareImage() {
+    try {
+      const dataUrl = await generateImage();
+
+      if (!dataUrl) return;
+
+      const response = await fetch(dataUrl);
+      const blob = await response.blob();
+
+      const file = new File([blob], `agenda-pass-${serial}.png`, {
+        type: "image/png",
+      });
+
+      if (
+        navigator.canShare &&
+        navigator.canShare({ files: [file] })
+      ) {
+        await navigator.share({
+          title: "Agenda Pass",
+          text: `Acabei de desbloquear meu Agenda Pass no evento "${title}" pela Agenda Crypto 🎟️🔥`,
+          files: [file],
+        });
+
+        return;
+      }
+
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = `agenda-pass-${serial}.png`;
+      link.click();
+    } catch (error) {
+      console.error("Erro ao compartilhar imagem:", error);
+    }
+  }
+
+  async function handleDownloadImage() {
+    try {
+      const dataUrl = await generateImage();
+
+      if (!dataUrl) return;
+
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = `agenda-pass-${serial}.png`;
+      link.click();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function handleCopyText() {
+    const text = `Acabei de desbloquear meu Agenda Pass no evento "${title}" pela Agenda Crypto 🎟️🔥`;
+
+    try {
+      await navigator.clipboard.writeText(text);
+      alert("Texto copiado.");
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 24, scale: 0.94, rotateX: 10 }}
@@ -82,10 +162,13 @@ export default function AgendaPass({
       className="flex w-full justify-center"
     >
       <div
+        ref={passRef}
         className={`relative w-full max-w-[340px] overflow-hidden rounded-[28px] border ${styles.border} bg-[#0B0B0B] shadow-[0_20px_80px_rgba(0,0,0,0.45)] sm:rounded-[32px]`}
       >
         <div className={`absolute inset-0 ${styles.glow}`} />
+
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.035),transparent_34%,rgba(0,0,0,0.16)_100%)]" />
+
         <div className="absolute inset-0 rounded-[28px] border border-white/5 sm:rounded-[32px]" />
 
         <div className="relative z-10 flex min-h-[410px] flex-col p-5 text-white sm:min-h-[460px] sm:p-6">
@@ -96,6 +179,7 @@ export default function AgendaPass({
               >
                 Agenda Pass
               </p>
+
               <p className="mt-2 text-[9px] font-medium uppercase tracking-[0.22em] text-white/35 sm:text-[10px] sm:tracking-[0.24em]">
                 Agenda Crypto
               </p>
@@ -120,7 +204,10 @@ export default function AgendaPass({
             </h2>
 
             <div className="mt-5 space-y-2 sm:mt-6">
-              <p className="text-sm font-medium text-white/70">{city}</p>
+              <p className="text-sm font-medium text-white/70">
+                {city}
+              </p>
+
               <p className={`text-sm font-semibold ${styles.text}`}>
                 {formatDate(date)}
               </p>
@@ -132,6 +219,7 @@ export default function AgendaPass({
               <p className="text-[9px] uppercase tracking-[0.22em] text-white/30 sm:text-[10px] sm:tracking-[0.24em]">
                 Proof of Presence
               </p>
+
               <p className="mt-2 break-words text-[11px] font-semibold uppercase tracking-[0.22em] text-white/85 sm:text-xs sm:tracking-[0.24em]">
                 {styles.label}
               </p>
@@ -158,6 +246,29 @@ export default function AgendaPass({
               <span className="h-2.5 w-2.5 rounded-full bg-[#FFD600]" />
               <span className="h-2.5 w-2.5 rounded-full bg-[#EC4899]" />
             </div>
+          </div>
+
+          <div className="mt-5 grid grid-cols-2 gap-2">
+            <button
+              onClick={handleShareImage}
+              className="flex items-center justify-center rounded-full bg-[#FFD600] px-4 py-2.5 text-xs font-black text-black transition hover:brightness-110"
+            >
+              Compartilhar
+            </button>
+
+            <button
+              onClick={handleDownloadImage}
+              className="flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs font-bold text-white transition hover:border-white/20"
+            >
+              Baixar imagem
+            </button>
+
+            <button
+              onClick={handleCopyText}
+              className="col-span-2 flex items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs font-bold text-white transition hover:border-[#19B5C9]/30 hover:bg-[#19B5C9]/10"
+            >
+              Copiar texto para LinkedIn/X
+            </button>
           </div>
         </div>
       </div>

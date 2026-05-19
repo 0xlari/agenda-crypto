@@ -7,6 +7,8 @@ import AgendaPass from "@/componentes/agenda-pass";
 import ConfirmPresenceButton from "@/componentes/confirm-presence-button";
 import PassDropModal from "./pass-drop-modal";
 import { MascotCard } from "@/componentes/mascot/MascotCard";
+import { useRef } from "react";
+import { toPng } from "html-to-image";
 
 type EventData = {
   id: string;
@@ -476,6 +478,7 @@ export default function MinhaAgendaClient() {
                   <div key={pass.id} className="flex flex-col items-center gap-3">
                     <AgendaPass
                       title={event.title}
+                      eventSlug={event.slug}
                       city={event.city || "Online"}
                       date={event.start_date || ""}
                       passType={pass.pass_type}
