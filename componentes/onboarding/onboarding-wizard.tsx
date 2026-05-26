@@ -72,13 +72,19 @@ export default function OnboardingWizard() {
   const [animating, setAnimating] = useState(false);
   const [direction, setDirection] = useState<"next" | "prev">("next");
 
+  // Mostrar wizard apenas uma vez: quando isMounted === true E wizardCompleted === false
+  // Se wizardCompleted já é true (restaurado do localStorage), não mostra nada
   useEffect(() => {
     if (isMounted && !wizardCompleted) {
       setVisible(true);
+    } else if (isMounted && wizardCompleted) {
+      // Garantir que visible fica false se wizard foi completado
+      setVisible(false);
     }
   }, [isMounted, wizardCompleted]);
 
-  if (!visible) return null;
+  // Nunca renderizar se wizard foi completado
+  if (!visible || wizardCompleted) return null;
 
   const current = STEPS[step];
   const isLast = step === STEPS.length - 1;
@@ -262,7 +268,7 @@ export default function OnboardingWizard() {
                 <button
                   onClick={handleBack}
                   disabled={step === 0}
-                  className="rounded-full border border-white/10 px-4 py-2.5 text-sm font-semibold text-white/50 transition hover:border-white/20 hover:text-white/80 disabled:opacity-0 disabled:pointer-events-none"
+                  className="rounded-full border border-white/10 px-4 py-2.5 text-sm font-semibold text-white/50 transition hover:border-white/20 hover:text-white/80 disabled:opacity-0 disabled:p[...]
                 >
                   ← Anterior
                 </button>
