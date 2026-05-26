@@ -64,8 +64,14 @@ const BADGE_COLORS: Record<string, string> = {
 };
 
 export default function OnboardingWizard() {
-  const { wizardCompleted, completeWizard, skipWizard, isMounted } =
-    useOnboarding();
+  const {
+    isInitialized,
+    isMounted,
+    wizardCompleted,
+    completeWizard,
+    skipWizard,
+  } = useOnboarding();
+
   const [phase, setPhase] = useState<"question" | "tour">("question");
   const [step, setStep] = useState(0);
   const [visible, setVisible] = useState(false);
@@ -73,11 +79,16 @@ export default function OnboardingWizard() {
   const [direction, setDirection] = useState<"next" | "prev">("next");
 
   useEffect(() => {
-    if (isMounted && !wizardCompleted) {
-      setVisible(true);
-    }
-  }, [isMounted, wizardCompleted]);
+    if (!isInitialized || !isMounted) return;
 
+    if (!wizardCompleted) {
+      setVisible(true);
+    } else {
+      setVisible(false);
+    }
+  }, [isInitialized, isMounted, wizardCompleted]);
+
+  if (!isInitialized || wizardCompleted) return null;
   if (!visible) return null;
 
   const current = STEPS[step];
