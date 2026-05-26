@@ -200,12 +200,12 @@ export default function EventResponse({
   return (
     <>
       <div className="mt-5">
-        <div className="flex items-center justify-end gap-2">
+        <div className="grid w-full grid-cols-2 gap-3">
          <button
             onClick={() => handleResponse("going")}
             disabled={goingLoading}
             className={`
-              w-[84px] shrink-0 rounded-full py-2.5 text-xs font-black
+              flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-black text-center
               transition-all duration-200
               active:scale-[0.98]
               disabled:opacity-60
@@ -215,19 +215,23 @@ export default function EventResponse({
                   : "bg-[#19B5C9] text-black hover:brightness-110"
               }
             `}
+
           >
-            {goingLoading
-              ? "Marcando..."
-              : selected === "going"
-              ? "Vou ✓"
-              : "Vou"}
+            {goingLoading ? (
+              "Marcando..."
+            ) : (
+              <>
+                <span className="text-base leading-none">✓</span>
+                <span>{selected === "going" ? "Vou" : "Vou"}</span>
+              </>
+            )}
           </button>
 
           <button
             onClick={handleSave}
             disabled={saveLoading}
             className={`
-             w-[92px] shrink-0 rounded-full py-2.5 text-xs font-black
+              flex min-h-[52px] w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-black text-center
               transition-all duration-200
               active:scale-[0.98]
               disabled:opacity-60
@@ -238,15 +242,18 @@ export default function EventResponse({
               }
             `}
           >
-            {saveLoading
-              ? "Salvando..."
-              : saved
-              ? "Salvo ✓"
-              : "Salvar"}
+            {saveLoading ? (
+              "Salvando..."
+            ) : (
+              <>
+                <span className="text-base leading-none">✦</span>
+                <span>{saved ? "Salvo" : "Salvar"}</span>
+              </>
+            )}
           </button>
                   </div>
 
-        <p className="mt-3 text-center text-[11px] font-medium text-white/45">
+        <p className="mt-2 text-center text-[12px] font-medium text-white/40">
           {goingCount > 0
             ? `🔥 ${goingCount} ${goingCount === 1 ? "pessoa vai" : "pessoas vão"}`
             : "Seja a primeira pessoa a marcar presença"}

@@ -428,26 +428,25 @@ export default function AgendaBrowser({
                       </div>
                     )}
 
-                    <div className="mt-6 flex items-center gap-3">
-                    <Link
-                      href={`/agenda/${event.slug}`}
-                      className="shrink-0 rounded-full bg-white px-4 py-2.5 text-xs font-black text-black transition hover:scale-[1.02]"
-                    >
-                      Ver evento
-                    </Link>
+                   <div className="mt-6 space-y-3">
+                  <Link
+                    href={`/agenda/${event.slug}`}
+                    className="flex min-h-[52px] w-full items-center justify-center gap-3 rounded-full bg-white px-5 py-3 text-center text-sm font-black text-black transition hover:scale-[1.01]"
+                  >
+                    <span>Ver evento</span>
+                    <span className="text-xl leading-none">→</span>
+                  </Link>
 
-                    <div className="min-w-0 flex-1">
-                      <EventResponse
-                        eventId={event.id}
-                        title={event.title}
-                        startDate={event.start_date}
-                        endDate={event.end_date}
-                        eventTime={event.event_time}
-                        city={event.city}
-                        venue={event.venue}
-                      />
-                    </div>
-                  </div>
+                  <EventResponse
+                    eventId={event.id}
+                    title={event.title}
+                    startDate={event.start_date}
+                    endDate={event.end_date}
+                    eventTime={event.event_time}
+                    city={event.city}
+                    venue={event.venue}
+                  />
+                </div>
                   </div>
                 </article>
               );
