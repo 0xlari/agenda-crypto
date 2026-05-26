@@ -10,6 +10,7 @@ import {
 } from "react";
 
 type OnboardingContextValue = {
+  isInitialized: boolean;
   wizardCompleted: boolean;
   tourSeen: Record<string, boolean>;
   completeWizard: () => void;
@@ -24,48 +25,39 @@ const OnboardingContext = createContext<OnboardingContextValue | null>(null);
 const WIZARD_STORAGE_KEY = "agenda-wizard-completed";
 const TOURS_STORAGE_KEY = "agenda-tours-seen";
 
-/**
- * Função helper para ler estado inicial do localStorage
- * Executada ANTES do render, durante a inicialização
- */
-function getInitialState(): {
-  wizardCompleted: boolean;
-  tourSeen: Record<string, boolean>;
-} {
-  if (typeof window === "undefined") {
-    return { wizardCompleted: false, tourSeen: {} };
-  }
-
-  const savedWizardCompleted = localStorage.getItem(WIZARD_STORAGE_KEY) === "true";
-  
-  let savedToursSeen: Record<string, boolean> = {};
-  const toursData = localStorage.getItem(TOURS_STORAGE_KEY);
-  if (toursData) {
-    try {
-      savedToursSeen = JSON.parse(toursData);
-    } catch {
-      savedToursSeen = {};
-    }
-  }
-
-  return { wizardCompleted: savedWizardCompleted, tourSeen: savedToursSeen };
-}
-
 export function OnboardingProvider({ children }: { children: ReactNode }) {
   const [isMounted, setIsMounted] = useState(false);
-  
-  // Inicializar com estado do localStorage IMEDIATAMENTE
-  const initialState = getInitialState();
-  const [wizardCompleted, setWizardCompleted] = useState(initialState.wizardCompleted);
-  const [tourSeen, setTourSeen] = useState<Record<string, boolean>>(initialState.tourSeen);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [wizardCompleted, setWizardCompleted] = useState(false);
+  const [tourSeen, setTourSeen] = useState<Record<string, boolean>>({});
 
-  // Apenas marca como mounted, sem resetar o estado
   useEffect(() => {
     setIsMounted(true);
+
+    if (typeof window === "undefined") {
+      setIsInitialized(true);
+      return;
+    }
+
+    const storedWizardCompleted = localStorage.getItem(WIZARD_STORAGE_KEY);
+    const storedToursSeen = localStorage.getItem(TOURS_STORAGE_KEY);
+
+    setWizardCompleted(storedWizardCompleted === "true");
+
+    if (storedToursSeen) {
+      try {
+        setTourSeen(JSON.parse(storedToursSeen));
+      } catch {
+        setTourSeen({});
+      }
+    }
+
+    setIsInitialized(true);
   }, []);
 
   const completeWizard = useCallback(() => {
     setWizardCompleted(true);
+
     if (typeof window !== "undefined") {
       localStorage.setItem(WIZARD_STORAGE_KEY, "true");
     }
@@ -73,6 +65,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
 
   const skipWizard = useCallback(() => {
     setWizardCompleted(true);
+
     if (typeof window !== "undefined") {
       localStorage.setItem(WIZARD_STORAGE_KEY, "true");
     }
@@ -81,10 +74,11 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   const markTourSeen = useCallback((pageId: string) => {
     setTourSeen((prev) => {
       const updated = { ...prev, [pageId]: true };
-      // Persistir no localStorage
+
       if (typeof window !== "undefined") {
         localStorage.setItem(TOURS_STORAGE_KEY, JSON.stringify(updated));
       }
+
       return updated;
     });
   }, []);
@@ -92,6 +86,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   const resetOnboarding = useCallback(() => {
     setWizardCompleted(false);
     setTourSeen({});
+
     if (typeof window !== "undefined") {
       localStorage.removeItem(WIZARD_STORAGE_KEY);
       localStorage.removeItem(TOURS_STORAGE_KEY);
@@ -101,6 +96,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   return (
     <OnboardingContext.Provider
       value={{
+        isInitialized,
         wizardCompleted,
         tourSeen,
         completeWizard,
@@ -117,6 +113,9 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
 
 export function useOnboarding() {
   const ctx = useContext(OnboardingContext);
-  if (!ctx) throw new Error("useOnboarding must be used inside OnboardingProvider");
+  if (!ctx) {
+    throw new Error("useOnboarding must be used inside OnboardingProvider");
+  }
+
   return ctx;
 }

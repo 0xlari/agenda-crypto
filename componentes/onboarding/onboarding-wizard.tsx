@@ -64,27 +64,32 @@ const BADGE_COLORS: Record<string, string> = {
 };
 
 export default function OnboardingWizard() {
-  const { wizardCompleted, completeWizard, skipWizard, isMounted } =
-    useOnboarding();
+  const {
+    isInitialized,
+    isMounted,
+    wizardCompleted,
+    completeWizard,
+    skipWizard,
+  } = useOnboarding();
+
   const [phase, setPhase] = useState<"question" | "tour">("question");
   const [step, setStep] = useState(0);
   const [visible, setVisible] = useState(false);
   const [animating, setAnimating] = useState(false);
   const [direction, setDirection] = useState<"next" | "prev">("next");
 
-  // Mostrar wizard apenas uma vez: quando isMounted === true E wizardCompleted === false
-  // Se wizardCompleted já é true (restaurado do localStorage), não mostra nada
-  useEffect(() => {
-    if (isMounted && !wizardCompleted) {
+    useEffect(() => {
+    if (!isInitialized || !isMounted) return;
+
+    if (!wizardCompleted) {
       setVisible(true);
-    } else if (isMounted && wizardCompleted) {
-      // Garantir que visible fica false se wizard foi completado
+    } else {
       setVisible(false);
     }
-  }, [isMounted, wizardCompleted]);
+  }, [isInitialized, isMounted, wizardCompleted]);
 
-  // Nunca renderizar se wizard foi completado
-  if (!visible || wizardCompleted) return null;
+  if (!isInitialized || wizardCompleted) return null;
+  if (!visible) return null;
 
   const current = STEPS[step];
   const isLast = step === STEPS.length - 1;
@@ -268,7 +273,7 @@ export default function OnboardingWizard() {
                 <button
                   onClick={handleBack}
                   disabled={step === 0}
-                  className="rounded-full border border-white/10 px-4 py-2.5 text-sm font-semibold text-white/50 transition hover:border-white/20 hover:text-white/80 disabled:opacity-0 disabled:p[...]
+                  className="rounded-full border border-white/10 px-4 py-2.5 text-sm font-semibold text-white/50 transition hover:border-white/20 hover:text-white/80 disabled:opacity-0 disabled:pointer-events-none"
                 >
                   ← Anterior
                 </button>
@@ -298,3 +303,4 @@ export default function OnboardingWizard() {
     </>
   );
 }
+
