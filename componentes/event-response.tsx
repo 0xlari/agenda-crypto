@@ -176,19 +176,36 @@ export default function EventResponse({
   }, []);
 
   function getGoogleCalendarUrl() {
-  if (!title || !startDate) return null;
+  const safeTitle = title || "Evento Agenda Crypto";
 
-  const start = new Date(`${startDate}T${eventTime || "09:00"}`);
-  const end = endDate
-    ? new Date(`${endDate}T${eventTime || "18:00"}`)
-    : new Date(start.getTime() + 2 * 60 * 60 * 1000);
+  const safeStartDate =
+    startDate && /^\d{4}-\d{2}-\d{2}$/.test(startDate)
+      ? startDate
+      : new Date().toISOString().split("T")[0];
+
+  const safeEndDate =
+    endDate && /^\d{4}-\d{2}-\d{2}$/.test(endDate)
+      ? endDate
+      : safeStartDate;
+
+  const safeTime =
+    eventTime && /^\d{2}:\d{2}$/.test(eventTime)
+      ? eventTime
+      : "09:00";
+
+  const start = new Date(`${safeStartDate}T${safeTime}:00`);
+  const end = new Date(`${safeEndDate}T${safeTime}:00`);
+
+  if (end <= start) {
+    end.setHours(start.getHours() + 2);
+  }
 
   const format = (date: Date) =>
     date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
 
   const params = new URLSearchParams({
     action: "TEMPLATE",
-    text: title,
+    text: safeTitle,
     dates: `${format(start)}/${format(end)}`,
     details: "Evento salvo pela Agenda Crypto.",
     location: [venue, city].filter(Boolean).join(", "),
@@ -343,17 +360,15 @@ export default function EventResponse({
         </p>
 
         <div className="mt-6 flex flex-col gap-3">
-          {getGoogleCalendarUrl() && (
-            <a
-              href={getGoogleCalendarUrl()!}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setShowCalendarPrompt(false)}
-              className="rounded-full bg-[#FFD600] px-5 py-3 text-sm font-black text-black transition hover:brightness-110"
-            >
-              Adicionar ao Google Calendar
-            </a>
-          )}
+          <a
+            href={getGoogleCalendarUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={() => setShowCalendarPrompt(false)}
+            className="rounded-full bg-[#FFD600] px-5 py-3 text-sm font-black text-black transition hover:brightness-110"
+          >
+            Adicionar ao Google Calendar
+          </a>
 
           <button
             onClick={() => setShowCalendarPrompt(false)}
