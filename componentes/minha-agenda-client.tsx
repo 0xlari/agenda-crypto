@@ -450,7 +450,7 @@ export default function MinhaAgendaClient() {
                     <EventResponse
                       eventId={event.id}
                       title={event.title}
-                      startDate={event.start_date}
+                      startDate={event.start_date || undefined}
                       endDate={event.end_date}
                       eventTime={event.event_time}
                       city={event.city}
