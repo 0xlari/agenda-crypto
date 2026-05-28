@@ -216,29 +216,26 @@ export default function EventResponse({
 
     if (!user) return;
 
-    const { data: saveData } = await supabase
-      .from("event_interactions")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("event_id", eventId)
-      .eq("type", "save")
-      .limit(1);
+    const response = await fetch("/api/event-user-state", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: user.id,
+        eventId,
+      }),
+    });
 
-    if (saveData && saveData.length > 0) {
-      setSaved(true);
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error(data.error);
+      return;
     }
 
-    const { data: responseData } = await supabase
-      .from("event_responses")
-      .select("response")
-      .eq("user_id", user.id)
-      .eq("event_id", eventId)
-      .eq("response", "going")
-      .maybeSingle();
-
-    if (responseData?.response === "going") {
-      setSelected("going");
-    }
+    setSaved(data.saved);
+    setSelected(data.going ? "going" : null);
   }
 
   if (eventId) {
