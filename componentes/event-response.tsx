@@ -239,7 +239,7 @@ export default function EventResponse({
             ) : (
               <>
                 <span className="text-base leading-none">✓</span>
-                <span>{selected === "going" ? "Vou" : "Vou"}</span>
+                <span>{selected === "going" ? "Indo" : "Vou"}</span>
               </>
             )}
           </button>
@@ -263,7 +263,7 @@ export default function EventResponse({
               "Salvando..."
             ) : (
               <>
-                <span className="text-base leading-none">✦</span>
+                <span className="text-base leading-none">{saved ? "✓" : "✦"}</span>
                 <span>{saved ? "Salvo" : "Salvar"}</span>
               </>
             )}
