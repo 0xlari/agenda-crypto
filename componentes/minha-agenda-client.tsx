@@ -9,6 +9,7 @@ import PassDropModal from "./pass-drop-modal";
 import { MascotCard } from "@/componentes/mascot/MascotCard";
 import { useRef } from "react";
 import { toPng } from "html-to-image";
+import EventResponse from "@/componentes/event-response";
 
 type EventData = {
   id: string;
@@ -417,7 +418,8 @@ export default function MinhaAgendaClient() {
                       </div>
                     </div>
 
-                    <div className="mt-4 flex flex-col gap-3 sm:grid sm:grid-cols-3 lg:col-span-2">
+                    <div className="mt-4 flex flex-col gap-3 lg:col-span-2">
+                    <div className="grid gap-3 sm:grid-cols-3">
                       <Link
                         href={`/agenda/${event.slug}`}
                         className="flex min-h-[52px] w-full items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-sm font-semibold text-white transition hover:border-[#19B5C9]/30 hover:bg-[#19B5C9]/10 hover:text-[#19B5C9]"
@@ -426,24 +428,35 @@ export default function MinhaAgendaClient() {
                       </Link>
 
                       <a
-                      href={buildGoogleCalendarUrl(event)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex min-h-[52px] w-full items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-sm font-semibold text-white transition hover:border-[#FFD600]/30 hover:bg-[#FFD600]/10 hover:text-[#FFD600]"
-                    >
-                      Google Calendar
-                    </a>
+                        href={buildGoogleCalendarUrl(event)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex min-h-[52px] w-full items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-sm font-semibold text-white transition hover:border-[#FFD600]/30 hover:bg-[#FFD600]/10 hover:text-[#FFD600]"
+                      >
+                        Google Calendar
+                      </a>
 
                       <ConfirmPresenceButton
+                        eventId={event.id}
+                        startDate={event.start_date}
+                        endDate={event.end_date}
+                        onSuccess={() => {
+                          setDroppedEvent(event);
+                          setDropModalOpen(true);
+                        }}
+                      />
+                    </div>
+
+                    <EventResponse
                       eventId={event.id}
+                      title={event.title}
                       startDate={event.start_date}
                       endDate={event.end_date}
-                      onSuccess={() => {
-                        setDroppedEvent(event);
-                        setDropModalOpen(true);
-                      }}
+                      eventTime={event.event_time}
+                      city={event.city}
+                      venue={event.venue}
                     />
-                    </div>
+                  </div>
                   </div>
                 </div>
               ))}
