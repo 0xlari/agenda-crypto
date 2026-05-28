@@ -88,6 +88,25 @@ export default function EventResponse({
 
       if (!user) return;
 
+      if (saved) {
+        await fetch("/api/untrack-event", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: user.id,
+            eventId,
+            type: "save",
+          }),
+        });
+
+        setSaved(false);
+        setFeedback("Evento removido da Minha Agenda.");
+        return;
+      }
+
+
       await fetch("/api/track-event", {
         method: "POST",
         headers: {
@@ -118,6 +137,24 @@ export default function EventResponse({
 
       if (!user) {
         setGoingLoading(false);
+        return;
+      }
+
+      if (selected === "going") {
+        await fetch("/api/unrespond", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            event_id: eventId,
+            user_id: user.id,
+          }),
+        });
+
+        setSelected(null);
+        setFeedback("Você removeu sua presença neste evento.");
+        await loadCounts();
         return;
       }
 
