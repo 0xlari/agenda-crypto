@@ -216,6 +216,151 @@ export default async function EventPage({
       )}
       </section>
 
+      {sideEvents.length > 0 && (
+  <section className="mx-auto max-w-7xl overflow-hidden px-5 pb-10 sm:px-6 md:pb-12">
+    <div className="relative overflow-hidden rounded-[36px] border border-[#19B5C9]/20 bg-[linear-gradient(135deg,rgba(25,181,201,0.14),rgba(42,42,42,0.96),rgba(236,72,153,0.10))] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.28)] md:p-8">
+      <div className="pointer-events-none absolute right-0 top-0 h-56 w-56 rounded-full bg-[#19B5C9]/10 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 left-0 h-56 w-56 rounded-full bg-[#EC4899]/10 blur-3xl" />
+
+      <div className="relative z-10">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#19B5C9]">
+              Ecossistema ao redor
+            </p>
+
+            <h2 className="mt-3 text-3xl font-black tracking-[-0.03em] text-white md:text-4xl">
+              Mapa de side events
+            </h2>
+
+            <p className="mt-3 max-w-3xl text-sm leading-7 text-white/68 md:text-base">
+              A Agenda conecta o evento principal aos encontros paralelos que movimentam o ecossistema durante a semana.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">
+              Eventos conectados
+            </p>
+            <p className="mt-1 text-2xl font-black text-[#FFD600]">
+              {sideEvents.length}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-wrap gap-2">
+          <span className="rounded-full border border-[#FFD600]/20 bg-[#FFD600]/10 px-4 py-2 text-xs font-semibold text-[#FFD600]">
+            {sideEvents.length} side events mapeados
+          </span>
+
+          <span className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-white/70">
+            Semana do evento
+          </span>
+
+          <span className="rounded-full border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-4 py-2 text-xs font-semibold text-[#19B5C9]">
+            Networking, founders e comunidade
+          </span>
+
+          {event.city && (
+            <span className="rounded-full border border-[#EC4899]/20 bg-[#EC4899]/10 px-4 py-2 text-xs font-semibold text-[#EC4899]">
+              {event.city}
+            </span>
+          )}
+        </div>
+
+        <div className="mt-7 grid gap-5 md:grid-cols-2">
+          {sideEvents.map((item: any) => (
+            <a
+              key={item.id}
+              href={`/agenda/${item.slug}`}
+              className="group overflow-hidden rounded-[28px] border border-white/10 bg-[#1F1F1F]/90 transition hover:-translate-y-1 hover:border-[#19B5C9]/35 hover:bg-[#252525]"
+            >
+              <div className="relative h-48 w-full overflow-hidden bg-[linear-gradient(135deg,rgba(25,181,201,0.18),rgba(236,72,153,0.10),rgba(255,214,0,0.16))]">
+                {item.image_url ? (
+                  <Image
+                    src={item.image_url}
+                    alt={item.title}
+                    fill
+                    unoptimized
+                    className="object-cover transition duration-300 group-hover:scale-[1.04]"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center px-6 text-center">
+                    <div>
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-white/35">
+                        Agenda Crypto
+                      </p>
+                      <h3 className="mt-3 text-xl font-black text-white">
+                        Side event
+                      </h3>
+                    </div>
+                  </div>
+                )}
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+
+                <div className="absolute left-4 top-4 flex flex-wrap gap-2">
+                  <span className="rounded-full bg-[#FFD600] px-3 py-1 text-[11px] font-black uppercase tracking-wide text-black">
+                    Side event
+                  </span>
+
+                  {item.city && (
+                    <span className="rounded-full bg-black/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white backdrop-blur">
+                      {item.city}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="p-5">
+                <div className="flex flex-wrap gap-2">
+                  {item.event_type && (
+                    <span className="rounded-full border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#19B5C9]">
+                      {String(item.event_type).replaceAll("_", " ")}
+                    </span>
+                  )}
+
+                  {item.category && (
+                    <span className="rounded-full border border-[#EC4899]/20 bg-[#EC4899]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#EC4899]">
+                      {item.category}
+                    </span>
+                  )}
+                </div>
+
+                <h3 className="mt-4 text-xl font-black leading-tight text-white">
+                  {item.title}
+                </h3>
+
+                {item.short_description && (
+                  <p className="mt-3 line-clamp-3 text-sm leading-7 text-white/62">
+                    {item.short_description}
+                  </p>
+                )}
+
+                <div className="mt-5 flex flex-col gap-1 text-sm text-white/55">
+                  {item.start_date && (
+                    <p>
+                      {formatDate(item.start_date)}
+                      {item.event_time ? ` • ${item.event_time}` : ""}
+                    </p>
+                  )}
+
+                  {item.venue && <p>{item.venue}</p>}
+                </div>
+
+                <div className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#19B5C9]">
+                  Ver side event
+                  <span aria-hidden="true">→</span>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+)}
+
       {relatedEvents.length > 0 && (
   <section className="mx-auto max-w-7xl overflow-hidden px-5 pb-10 sm:px-6 md:pb-12">
     <div className="rounded-[32px] border border-white/10 bg-[#2A2A2A] p-6 md:p-8">
@@ -272,68 +417,6 @@ export default async function EventPage({
   </section>
 )}
       
-      {sideEvents.length > 0 && (
-        <section className="mx-auto max-w-7xl px-6 pb-12">
-          <div className="rounded-[32px] border border-white/10 bg-[#2A2A2A] p-6 md:p-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#19B5C9]">
-              Agenda paralela
-            </p>
-
-            <h2 className="mt-3 text-2xl font-black text-white">
-              Agenda Paralela
-            </h2>
-
-            <p className="mt-2 max-w-2xl text-sm leading-7 text-white/65">
-              Outros eventos conectados a este momento do mercado e à mesma semana.
-            </p>
-
-            <div className="mt-6 grid gap-4 md:grid-cols-2">
-              {sideEvents.map((item: any) => (
-                <a
-                  key={item.id}
-                  href={`/agenda/${item.slug}`}
-                  className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5 transition hover:border-[#19B5C9]/30 hover:bg-[#19B5C9]/10"
-                >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full border border-[#FFD600]/20 bg-[#FFD600]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#FFD600]">
-                      {item.event_type || "side event"}
-                    </span>
-
-                    {item.city && (
-                      <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/70">
-                        {item.city}
-                      </span>
-                    )}
-                  </div>
-
-                  <h3 className="mt-4 text-xl font-bold text-white">
-                    {item.title}
-                  </h3>
-
-                  {item.short_description && (
-                    <p className="mt-2 text-sm leading-7 text-white/65">
-                      {item.short_description}
-                    </p>
-                  )}
-
-                  <div className="mt-4 text-sm text-white/55">
-                    {item.start_date && (
-                      <p>
-                        {new Date(item.start_date).toLocaleDateString("pt-BR", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })}
-                        {item.event_time ? ` • ${item.event_time}` : ""}
-                      </p>
-                    )}
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* NEWSLETTER */}
       <section className="border-t border-white/10">
