@@ -205,15 +205,33 @@ export default async function EventPage({
           </div>
         </div>
       {event.agenda_highlight && (
-        <section className="mt-8 rounded-[32px] border border-[#19B5C9]/20 bg-[#19B5C9]/10 p-6 md:p-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#19B5C9]">
-            Destaque da Agenda Crypto
-          </p>
-          <p className="mt-3 max-w-3xl text-base leading-8 text-white/80">
-            {event.agenda_highlight}
-          </p>
-        </section>
-      )}
+  <section className="mt-8 rounded-[36px] border border-[#FFD600]/20 bg-[linear-gradient(135deg,rgba(255,214,0,0.12),rgba(42,42,42,0.96),rgba(25,181,201,0.10))] p-6 md:p-8">
+    <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#FFD600]">
+      Por que este evento importa
+    </p>
+
+    <h2 className="mt-3 text-2xl font-black text-white md:text-3xl">
+      A leitura da Agenda sobre este movimento
+    </h2>
+
+    <p className="mt-4 max-w-4xl text-base leading-8 text-white/78">
+      {event.agenda_highlight}
+    </p>
+
+    {sideEvents.length > 0 && (
+      <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4">
+        <p className="text-sm leading-7 text-white/70">
+          A Agenda não mostra só o evento principal. Ela revela tudo que acontece ao redor dele:
+          encontros, ativações, happy hours e side events que movimentam o ecossistema durante a semana.
+        </p>
+
+        <p className="mt-3 text-sm font-bold text-[#FFD600]">
+          {sideEvents.length} eventos conectados foram mapeados ao redor de {event.title}.
+        </p>
+      </div>
+    )}
+  </section>
+)}
       </section>
 
       {sideEvents.length > 0 && (
@@ -226,23 +244,23 @@ export default async function EventPage({
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#19B5C9]">
-              Ecossistema ao redor
+              Mapa do ecossistema
             </p>
 
             <h2 className="mt-3 text-3xl font-black tracking-[-0.03em] text-white md:text-4xl">
-              Mapa de side events
+              Semana {event.title}
             </h2>
 
             <p className="mt-3 max-w-3xl text-sm leading-7 text-white/68 md:text-base">
-              A Agenda conecta o evento principal aos encontros paralelos que movimentam o ecossistema durante a semana.
+              A Agenda identificou os encontros, happy hours, ativações e experiências que acontecem ao redor do evento principal.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+          <div className="rounded-2xl border border-white/10 bg-black/20 px-5 py-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">
-              Eventos conectados
+              Eventos mapeados
             </p>
-            <p className="mt-1 text-2xl font-black text-[#FFD600]">
+            <p className="mt-1 text-3xl font-black text-[#FFD600]">
               {sideEvents.length}
             </p>
           </div>
@@ -250,7 +268,7 @@ export default async function EventPage({
 
         <div className="mt-6 flex flex-wrap gap-2">
           <span className="rounded-full border border-[#FFD600]/20 bg-[#FFD600]/10 px-4 py-2 text-xs font-semibold text-[#FFD600]">
-            {sideEvents.length} side events mapeados
+            {sideEvents.length} side events conectados
           </span>
 
           <span className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-semibold text-white/70">
@@ -268,93 +286,144 @@ export default async function EventPage({
           )}
         </div>
 
-        <div className="mt-7 grid gap-5 md:grid-cols-2">
-          {sideEvents.map((item: any) => (
-            <a
-              key={item.id}
-              href={`/agenda/${item.slug}`}
-              className="group overflow-hidden rounded-[28px] border border-white/10 bg-[#1F1F1F]/90 transition hover:-translate-y-1 hover:border-[#19B5C9]/35 hover:bg-[#252525]"
-            >
-              <div className="relative h-48 w-full overflow-hidden bg-[linear-gradient(135deg,rgba(25,181,201,0.18),rgba(236,72,153,0.10),rgba(255,214,0,0.16))]">
-                {item.image_url ? (
-                  <Image
-                    src={item.image_url}
-                    alt={item.title}
-                    fill
-                    unoptimized
-                    className="object-cover transition duration-300 group-hover:scale-[1.04]"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center px-6 text-center">
-                    <div>
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-white/35">
-                        Agenda Crypto
-                      </p>
-                      <h3 className="mt-3 text-xl font-black text-white">
-                        Side event
-                      </h3>
-                    </div>
+        <div className="mt-8 space-y-7">
+          {Object.entries(
+            sideEvents.reduce((groups: Record<string, any[]>, item: any) => {
+              const key = item.start_date || "Sem data";
+              if (!groups[key]) groups[key] = [];
+              groups[key].push(item);
+              return groups;
+            }, {})
+          )
+            .sort(([dateA], [dateB]) => {
+              if (dateA === "Sem data") return 1;
+              if (dateB === "Sem data") return -1;
+              return new Date(dateA).getTime() - new Date(dateB).getTime();
+            })
+            .map(([date, items]) => (
+              <div key={date} className="relative">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl border border-[#19B5C9]/25 bg-[#19B5C9]/10">
+                    {date === "Sem data" ? (
+                      <span className="text-[10px] font-bold uppercase text-[#19B5C9]">
+                        S/D
+                      </span>
+                    ) : (
+                      <>
+                        <span className="text-xl font-black text-white">
+                          {new Date(`${date}T00:00:00`).toLocaleDateString("pt-BR", {
+                            day: "2-digit",
+                          })}
+                        </span>
+                        <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#19B5C9]">
+                          {new Date(`${date}T00:00:00`).toLocaleDateString("pt-BR", {
+                            month: "short",
+                          })}
+                        </span>
+                      </>
+                    )}
                   </div>
-                )}
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-
-                <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-                  <span className="rounded-full bg-[#FFD600] px-3 py-1 text-[11px] font-black uppercase tracking-wide text-black">
-                    Side event
-                  </span>
-
-                  {item.city && (
-                    <span className="rounded-full bg-black/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white backdrop-blur">
-                      {item.city}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <div className="p-5">
-                <div className="flex flex-wrap gap-2">
-                  {item.event_type && (
-                    <span className="rounded-full border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#19B5C9]">
-                      {String(item.event_type).replaceAll("_", " ")}
-                    </span>
-                  )}
-
-                  {item.category && (
-                    <span className="rounded-full border border-[#EC4899]/20 bg-[#EC4899]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#EC4899]">
-                      {item.category}
-                    </span>
-                  )}
-                </div>
-
-                <h3 className="mt-4 text-xl font-black leading-tight text-white">
-                  {item.title}
-                </h3>
-
-                {item.short_description && (
-                  <p className="mt-3 line-clamp-3 text-sm leading-7 text-white/62">
-                    {item.short_description}
-                  </p>
-                )}
-
-                <div className="mt-5 flex flex-col gap-1 text-sm text-white/55">
-                  {item.start_date && (
-                    <p>
-                      {formatDate(item.start_date)}
-                      {item.event_time ? ` • ${item.event_time}` : ""}
+                  <div>
+                    <p className="text-sm font-bold uppercase tracking-[0.18em] text-white/45">
+                      {date === "Sem data" ? "Eventos sem data definida" : "Dia do circuito"}
                     </p>
-                  )}
-
-                  {item.venue && <p>{item.venue}</p>}
+                    <p className="text-lg font-black text-white">
+                      {items.length} {items.length === 1 ? "evento conectado" : "eventos conectados"}
+                    </p>
+                  </div>
                 </div>
 
-                <div className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-[#19B5C9]">
-                  Ver side event
-                  <span aria-hidden="true">→</span>
+                <div className="relative ml-7 border-l border-[#19B5C9]/25 pl-7">
+                  <div className="space-y-4">
+                    {items.map((item: any) => (
+                      <a
+                        key={item.id}
+                        href={`/agenda/${item.slug}`}
+                        className="group relative block overflow-hidden rounded-[26px] border border-white/10 bg-[#1F1F1F]/90 transition hover:-translate-y-1 hover:border-[#19B5C9]/35 hover:bg-[#252525]"
+                      >
+                        <span className="absolute -left-[35px] top-7 h-3 w-3 rounded-full border border-[#19B5C9] bg-[#19B5C9]" />
+
+                        <div className="grid gap-0 md:grid-cols-[220px_1fr]">
+                          <div className="relative h-44 w-full overflow-hidden bg-[linear-gradient(135deg,rgba(25,181,201,0.18),rgba(236,72,153,0.10),rgba(255,214,0,0.16))] md:h-full">
+                            {item.image_url ? (
+                              <Image
+                                src={item.image_url}
+                                alt={item.title}
+                                fill
+                                unoptimized
+                                className="object-cover transition duration-300 group-hover:scale-[1.04]"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center px-6 text-center">
+                                <div>
+                                  <p className="text-[10px] font-semibold uppercase tracking-[0.32em] text-white/35">
+                                    Agenda Crypto
+                                  </p>
+                                  <h3 className="mt-3 text-lg font-black text-white">
+                                    Side event
+                                  </h3>
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
+
+                            <div className="absolute left-3 top-3 flex flex-wrap gap-2">
+                              <span className="rounded-full bg-[#FFD600] px-3 py-1 text-[10px] font-black uppercase tracking-wide text-black">
+                                Side event
+                              </span>
+
+                              {item.city && (
+                                <span className="rounded-full bg-black/60 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white backdrop-blur">
+                                  {item.city}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="p-5">
+                            <div className="flex flex-wrap gap-2">
+                              {item.event_type && (
+                                <span className="rounded-full border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#19B5C9]">
+                                  {String(item.event_type).replaceAll("_", " ")}
+                                </span>
+                              )}
+
+                              {item.category && (
+                                <span className="rounded-full border border-[#EC4899]/20 bg-[#EC4899]/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-[#EC4899]">
+                                  {item.category}
+                                </span>
+                              )}
+                            </div>
+
+                            <h3 className="mt-3 text-xl font-black leading-tight text-white">
+                              {item.title}
+                            </h3>
+
+                            {item.short_description && (
+                              <p className="mt-2 line-clamp-2 text-sm leading-6 text-white/62">
+                                {item.short_description}
+                              </p>
+                            )}
+
+                            <div className="mt-4 flex flex-col gap-1 text-sm text-white/55">
+                              {item.event_time && <p>{item.event_time}</p>}
+                              {item.venue && <p>{item.venue}</p>}
+                            </div>
+
+                            <div className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-[#19B5C9]">
+                              Ver side event
+                              <span aria-hidden="true">→</span>
+                            </div>
+                          </div>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </a>
-          ))}
+            ))}
         </div>
       </div>
     </div>
