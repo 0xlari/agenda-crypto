@@ -16,15 +16,15 @@ export default async function AgendaPage() {
         steps={[
           {
             icon: "🔍",
-            title: "Busque no radar do ecossistema",
+            title: "Escolha seu país no radar",
             description:
-              "Digite nome, cidade, categoria ou tema para encontrar os eventos que estão movimentando o mercado cripto.",
+              "Use o mapa ou a lista de países para encontrar rapidamente onde estão os próximos eventos.",
           },
           {
             icon: "🏷️",
-            title: "Navegue pelos movimentos do mercado",
+            title: "Refine sua rota",
             description:
-              "Use as tags para filtrar eventos por assunto, formato ou interesse e descobrir onde vale prestar atenção.",
+              "Combine o país com cidade, tema, formato ou nome do evento para chegar ao resultado certo.",
           },
           {
             icon: "📌",
@@ -52,9 +52,8 @@ export default async function AgendaPage() {
               </h1>
 
               <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/68 sm:text-lg">
-                Descubra os eventos mais relevantes do mercado cripto em uma
-                agenda viva, visual e feita para quem quer acompanhar o que
-                realmente importa.
+                Explore os eventos mais relevantes do mercado cripto por país e
+                monte uma rota clara pelo ecossistema latino-americano.
               </p>
             </div>
 

@@ -56,6 +56,7 @@ export async function POST(request: Request) {
       short_description: body.short_description?.trim() || null,
       description: body.description?.trim() || null,
       city: body.city?.trim() || null,
+      country: body.country?.trim() || null,
       venue: body.venue?.trim() || null,
       start_date: body.start_date?.trim() || null,
       end_date: body.end_date?.trim() || null,

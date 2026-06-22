@@ -119,6 +119,7 @@ export async function POST(request: Request) {
         short_description: row.short_description?.trim() || null,
         description: row.description?.trim() || null,
         city: row.city?.trim() || null,
+        country: row.country?.trim() || null,
         venue: row.venue?.trim() || null,
         start_date: row.start_date?.trim() || null,
         end_date: row.end_date?.trim() || null,
