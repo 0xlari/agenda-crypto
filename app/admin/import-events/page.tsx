@@ -45,6 +45,18 @@ export default function AdminPage() {
           Cole o link CSV da planilha para importar eventos para a Agenda Crypto.
         </p>
 
+        <div className="mb-8 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-5 text-sm leading-6 text-amber-100">
+          <p className="font-bold">Colunas obrigatórias</p>
+          <p className="mt-1 font-mono text-xs text-amber-100/80">
+            title, slug, city, country
+          </p>
+          <p className="mt-3 text-amber-100/70">
+            Preencha <strong>country</strong> em todas as linhas presenciais.
+            Use nomes consistentes, como Brazil, Argentina, Colombia, Mexico e
+            Chile. A importação atualiza eventos existentes pelo slug.
+          </p>
+        </div>
+
         <form onSubmit={handleImport} className="flex flex-col gap-4">
           <input
             type="url"

@@ -1,5 +1,11 @@
 import { supabaseServer } from "@/lib/supabase/server";
 import { geocodeAddress } from "@/lib/geocode";
+import {
+  UNKNOWN_COUNTRY,
+  getCountryByCity,
+  getCountryByValue,
+  resolveEventCountry,
+} from "@/lib/event-country";
 
 function parseBool(value?: string) {
   return String(value || "").trim().toLowerCase() === "true";
@@ -50,11 +56,17 @@ export async function POST(request: Request) {
 
     const headers = lines[0].split(",").map((h) => h.trim());
 
-    if (!headers.includes("title") || !headers.includes("slug")) {
+    const requiredHeaders = ["title", "slug", "city", "country"];
+    const missingHeaders = requiredHeaders.filter(
+      (header) => !headers.includes(header)
+    );
+
+    if (missingHeaders.length > 0) {
       return Response.json(
         {
-          error:
-            "A planilha precisa ter pelo menos as colunas 'title' e 'slug'.",
+          error: `A planilha precisa das colunas: ${requiredHeaders.join(
+            ", "
+          )}. Faltando: ${missingHeaders.join(", ")}.`,
         },
         { status: 400 }
       );
@@ -62,6 +74,9 @@ export async function POST(request: Request) {
 
     const events: Record<string, any>[] = [];
     let skipped = 0;
+    let inferredCountries = 0;
+    let correctedCountries = 0;
+    const countryErrors: string[] = [];
 
     for (const line of lines.slice(1)) {
       const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
@@ -98,6 +113,30 @@ export async function POST(request: Request) {
           parentEventId = parentEvent.id;
         }
       }
+
+      const isOnline = parseBool(row.is_online);
+      const cityCountry = getCountryByCity(row.city);
+      const providedCountry = getCountryByValue(row.country);
+      const resolvedCountry = resolveEventCountry({
+        city: row.city,
+        country: row.country,
+        isOnline,
+      });
+
+      if (!isOnline && resolvedCountry.key === UNKNOWN_COUNTRY.key) {
+        countryErrors.push(`${row.title} (${row.city || "sem cidade"})`);
+        continue;
+      }
+
+      if (!row.country?.trim() && resolvedCountry.storageName) {
+        inferredCountries++;
+      } else if (
+        cityCountry &&
+        (!providedCountry || providedCountry.key !== cityCountry.key)
+      ) {
+        correctedCountries++;
+      }
+
       const fullAddress = row.address?.trim() || null;
 
       let lat: number | null = null;
@@ -119,7 +158,7 @@ export async function POST(request: Request) {
         short_description: row.short_description?.trim() || null,
         description: row.description?.trim() || null,
         city: row.city?.trim() || null,
-        country: row.country?.trim() || null,
+        country: resolvedCountry.storageName,
         venue: row.venue?.trim() || null,
         start_date: row.start_date?.trim() || null,
         end_date: row.end_date?.trim() || null,
@@ -132,7 +171,7 @@ export async function POST(request: Request) {
         agenda_highlight: row.agenda_highlight?.trim() || null,
         published: parseBool(row.published),
         featured: parseBool(row.featured),
-        is_online: parseBool(row.is_online),
+        is_online: isOnline,
         source_url: row.source_url?.trim() || null,
         event_type: row.event_type?.trim() || (parseBool(row.is_side_event) ? "side_event" : "main_event"),
         level: row.level?.trim() || null,
@@ -144,6 +183,17 @@ export async function POST(request: Request) {
         lat,
         lng,
       });
+    }
+
+    if (countryErrors.length > 0) {
+      return Response.json(
+        {
+          error: `Preencha a coluna country para: ${countryErrors
+            .slice(0, 5)
+            .join(", ")}${countryErrors.length > 5 ? "..." : ""}.`,
+        },
+        { status: 400 }
+      );
     }
 
     if (events.length === 0) {
@@ -162,7 +212,7 @@ export async function POST(request: Request) {
     }
 
     return Response.json({
-      message: `${events.length} eventos importados. ${skipped} ignorados.`,
+      message: `${events.length} eventos importados. ${skipped} ignorados. ${inferredCountries} países inferidos e ${correctedCountries} corrigidos pela cidade.`,
     });
   } catch (err) {
     console.error("Erro ao importar eventos:", err);

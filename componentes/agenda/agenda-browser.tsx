@@ -8,6 +8,13 @@ import EventResponse from "@/componentes/event-response";
 import CountryExplorer, {
   type CountryStat,
 } from "@/componentes/agenda/country-explorer";
+import {
+  ONLINE_COUNTRY,
+  UNKNOWN_COUNTRY,
+  normalizeText as normalize,
+  resolveEventCountry as resolveLocationCountry,
+  type ResolvedCountry,
+} from "@/lib/event-country";
 
 type EventItem = {
   id: string;
@@ -42,175 +49,11 @@ type Suggestion = {
   countryKey?: string;
 };
 
-type CountryIdentity = {
-  key: string;
-  name: string;
-  aliases: string[];
-  cities: string[];
-  lat: number | null;
-  lng: number | null;
-};
-
-const COUNTRY_DIRECTORY: CountryIdentity[] = [
-  {
-    key: "brasil",
-    name: "Brasil",
-    aliases: ["brasil", "brazil", "br"],
-    cities: [
-      "são paulo",
-      "rio de janeiro",
-      "florianópolis",
-      "são josé do rio preto",
-      "belo horizonte",
-      "brasília",
-      "curitiba",
-      "porto alegre",
-      "recife",
-      "salvador",
-    ],
-    lat: -14.24,
-    lng: -51.93,
-  },
-  {
-    key: "argentina",
-    name: "Argentina",
-    aliases: ["argentina", "ar"],
-    cities: ["buenos aires", "córdoba", "mendoza", "rosario"],
-    lat: -38.42,
-    lng: -63.62,
-  },
-  {
-    key: "colombia",
-    name: "Colômbia",
-    aliases: ["colombia", "colômbia", "co"],
-    cities: ["bogotá", "medellín", "cali", "cartagena"],
-    lat: 4.57,
-    lng: -74.3,
-  },
-  {
-    key: "mexico",
-    name: "México",
-    aliases: ["méxico", "mexico", "mx"],
-    cities: [
-      "ciudad de méxico",
-      "mexico city",
-      "guadalajara",
-      "monterrey",
-    ],
-    lat: 23.63,
-    lng: -102.55,
-  },
-  {
-    key: "chile",
-    name: "Chile",
-    aliases: ["chile", "cl"],
-    cities: ["santiago", "valparaíso", "concepción"],
-    lat: -35.68,
-    lng: -71.54,
-  },
-  {
-    key: "uruguai",
-    name: "Uruguai",
-    aliases: ["uruguai", "uruguay", "uy"],
-    cities: ["montevidéu", "montevideo", "punta del este"],
-    lat: -32.52,
-    lng: -55.77,
-  },
-  {
-    key: "peru",
-    name: "Peru",
-    aliases: ["peru", "perú", "pe"],
-    cities: ["lima", "cusco", "arequipa"],
-    lat: -9.19,
-    lng: -75.02,
-  },
-  {
-    key: "equador",
-    name: "Equador",
-    aliases: ["equador", "ecuador", "ec"],
-    cities: ["quito", "guayaquil"],
-    lat: -1.83,
-    lng: -78.18,
-  },
-  {
-    key: "paraguai",
-    name: "Paraguai",
-    aliases: ["paraguai", "paraguay", "py"],
-    cities: ["assunção", "asunción", "ciudad del este"],
-    lat: -23.44,
-    lng: -58.44,
-  },
-  {
-    key: "bolivia",
-    name: "Bolívia",
-    aliases: ["bolívia", "bolivia", "bo"],
-    cities: ["la paz", "santa cruz de la sierra", "cochabamba"],
-    lat: -16.29,
-    lng: -63.59,
-  },
-  {
-    key: "venezuela",
-    name: "Venezuela",
-    aliases: ["venezuela", "ve"],
-    cities: ["caracas", "maracaibo"],
-    lat: 6.42,
-    lng: -66.59,
-  },
-  {
-    key: "panama",
-    name: "Panamá",
-    aliases: ["panamá", "panama", "pa"],
-    cities: ["cidade do panamá", "panama city", "ciudad de panamá"],
-    lat: 8.54,
-    lng: -80.78,
-  },
-  {
-    key: "costa-rica",
-    name: "Costa Rica",
-    aliases: ["costa rica", "cr"],
-    cities: ["san josé", "san jose"],
-    lat: 9.75,
-    lng: -83.75,
-  },
-];
-
-const ONLINE_COUNTRY: CountryIdentity = {
-  key: "online",
-  name: "Online",
-  aliases: ["online"],
-  cities: [],
-  lat: null,
-  lng: null,
-};
-
-const UNKNOWN_COUNTRY: CountryIdentity = {
-  key: "outros-locais",
-  name: "Outros locais",
-  aliases: [],
-  cities: [],
-  lat: null,
-  lng: null,
-};
-
 function formatEventDate(dateString: string) {
   return new Date(`${dateString}T00:00:00`).toLocaleDateString("pt-BR", {
     day: "2-digit",
     month: "short",
   });
-}
-
-function normalize(text: string) {
-  return text
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "");
-}
-
-function toKey(text: string) {
-  return normalize(text)
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
 }
 
 function toNumber(value: number | string | null | undefined) {
@@ -219,38 +62,12 @@ function toNumber(value: number | string | null | undefined) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function resolveEventCountry(event: EventItem): CountryIdentity {
-  const normalizedCountry = normalize(event.country || "");
-
-  if (normalizedCountry) {
-    const knownCountry = COUNTRY_DIRECTORY.find((country) =>
-      country.aliases.some((alias) => normalize(alias) === normalizedCountry)
-    );
-
-    if (knownCountry) return knownCountry;
-
-    return {
-      key: toKey(event.country || "outros-locais") || UNKNOWN_COUNTRY.key,
-      name: event.country || UNKNOWN_COUNTRY.name,
-      aliases: [event.country || ""],
-      cities: [],
-      lat: null,
-      lng: null,
-    };
-  }
-
-  const normalizedCity = normalize(event.city || "");
-
-  if (normalizedCity) {
-    const inferredCountry = COUNTRY_DIRECTORY.find((country) =>
-      country.cities.some((city) => normalizedCity.includes(normalize(city)))
-    );
-
-    if (inferredCountry) return inferredCountry;
-  }
-
-  if (event.is_online) return ONLINE_COUNTRY;
-  return UNKNOWN_COUNTRY;
+function resolveEventCountry(event: EventItem) {
+  return resolveLocationCountry({
+    city: event.city,
+    country: event.country,
+    isOnline: event.is_online,
+  });
 }
 
 function formatEventTypeLabel(eventType: string | null) {
@@ -288,7 +105,7 @@ function EventCard({
   onTextFilter,
 }: {
   event: EventItem;
-  country: CountryIdentity;
+  country: ResolvedCountry;
   onCountrySelect: (countryKey: string) => void;
   onTextFilter: (value: string) => void;
 }) {

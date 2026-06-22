@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { countryForStorage } from "@/lib/event-country";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -50,13 +51,19 @@ export async function POST(request: Request) {
       );
     }
 
+    const isOnline = parseBool(body.is_online);
+
     const event = {
       title: body.title?.trim(),
       slug: body.slug?.trim(),
       short_description: body.short_description?.trim() || null,
       description: body.description?.trim() || null,
       city: body.city?.trim() || null,
-      country: body.country?.trim() || null,
+      country: countryForStorage({
+        city: body.city,
+        country: body.country,
+        isOnline,
+      }),
       venue: body.venue?.trim() || null,
       start_date: body.start_date?.trim() || null,
       end_date: body.end_date?.trim() || null,
@@ -69,7 +76,7 @@ export async function POST(request: Request) {
       agenda_highlight: body.agenda_highlight?.trim() || null,
       published: parseBool(body.published),
       featured: parseBool(body.featured),
-      is_online: parseBool(body.is_online),
+      is_online: isOnline,
       source_url: body.source_url?.trim() || null,
       event_type: body.event_type?.trim() || "main_event",
       level: body.level?.trim() || null,
