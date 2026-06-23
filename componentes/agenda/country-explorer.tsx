@@ -16,11 +16,94 @@ type CountryExplorerProps = {
 };
 
 const LATAM_BOUNDS = {
-  minLat: -60,
-  maxLat: 35,
-  minLng: -120,
-  maxLng: -30,
+  minLat: -56.5,
+  maxLat: 32.8,
+  minLng: -117.5,
+  maxLng: -34,
 };
+
+const MAP_SIZE = {
+  width: 720,
+  height: 560,
+};
+
+const SOUTH_AMERICA_OUTLINE: [number, number][] = [
+  [-79.8, 12.4],
+  [-74.2, 11.4],
+  [-68.8, 9.2],
+  [-63.2, 7.6],
+  [-58.1, 5.2],
+  [-52.4, 4.1],
+  [-46.7, 1.2],
+  [-41.5, -2.6],
+  [-36.2, -7.4],
+  [-35.2, -11.8],
+  [-38.4, -16.2],
+  [-40.4, -20.5],
+  [-44.0, -23.4],
+  [-47.6, -25.8],
+  [-49.9, -29.6],
+  [-51.6, -34.0],
+  [-54.2, -38.8],
+  [-58.1, -43.2],
+  [-62.6, -48.0],
+  [-66.2, -53.4],
+  [-70.3, -55.6],
+  [-72.9, -51.0],
+  [-71.6, -45.2],
+  [-72.1, -39.6],
+  [-70.2, -34.2],
+  [-70.8, -28.0],
+  [-68.7, -22.5],
+  [-69.8, -17.1],
+  [-73.4, -12.7],
+  [-76.8, -7.0],
+  [-80.4, -1.1],
+  [-78.2, 4.4],
+  [-81.2, 8.6],
+  [-79.8, 12.4],
+];
+
+const MESOAMERICA_OUTLINE: [number, number][] = [
+  [-117.0, 32.2],
+  [-110.6, 31.2],
+  [-105.5, 27.8],
+  [-101.4, 24.2],
+  [-97.0, 21.1],
+  [-92.3, 18.7],
+  [-88.4, 16.6],
+  [-84.9, 12.9],
+  [-80.6, 9.4],
+  [-77.2, 8.4],
+  [-76.2, 10.6],
+  [-80.2, 12.2],
+  [-84.8, 14.5],
+  [-88.2, 16.8],
+  [-92.4, 17.9],
+  [-96.5, 19.8],
+  [-100.3, 22.6],
+  [-104.5, 25.0],
+  [-109.5, 27.7],
+  [-114.0, 30.4],
+  [-117.0, 32.2],
+];
+
+function projectGeoPoint([lng, lat]: [number, number]) {
+  const { minLat, maxLat, minLng, maxLng } = LATAM_BOUNDS;
+  const x = ((lng - minLng) / (maxLng - minLng)) * MAP_SIZE.width;
+  const y = ((maxLat - lat) / (maxLat - minLat)) * MAP_SIZE.height;
+
+  return { x, y };
+}
+
+function geoPath(points: [number, number][]) {
+  return points
+    .map((point, index) => {
+      const { x, y } = projectGeoPoint(point);
+      return `${index === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)}`;
+    })
+    .join(" ");
+}
 
 function toMapPosition(country: CountryStat) {
   if (country.lat === null || country.lng === null) return null;
@@ -40,8 +123,8 @@ function toMapPosition(country: CountryStat) {
   const rawY = ((maxLat - country.lat) / (maxLat - minLat)) * 100;
 
   return {
-    x: Math.min(89, Math.max(11, rawX)),
-    y: Math.min(88, Math.max(12, rawY)),
+    x: Math.min(94, Math.max(6, rawX)),
+    y: Math.min(92, Math.max(8, rawY)),
   };
 }
 
@@ -153,7 +236,7 @@ export default function CountryExplorer({
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_58%_46%,rgba(25,181,201,0.16),transparent_42%),radial-gradient(circle_at_35%_72%,rgba(236,72,153,0.1),transparent_36%)]" />
 
               <svg
-                viewBox="0 0 640 520"
+                viewBox={`0 0 ${MAP_SIZE.width} ${MAP_SIZE.height}`}
                 aria-hidden="true"
                 className="absolute inset-0 h-full w-full opacity-80"
               >
@@ -168,17 +251,37 @@ export default function CountryExplorer({
                   </pattern>
                 </defs>
 
-                <rect width="640" height="520" fill="url(#radar-grid)" />
-                <circle cx="355" cy="260" r="205" fill="none" stroke="#19B5C9" strokeOpacity="0.08" />
-                <circle cx="355" cy="260" r="135" fill="none" stroke="#FFFFFF" strokeOpacity="0.05" />
+                <rect width={MAP_SIZE.width} height={MAP_SIZE.height} fill="url(#radar-grid)" />
+                <circle cx="470" cy="302" r="215" fill="none" stroke="#19B5C9" strokeOpacity="0.08" />
+                <circle cx="470" cy="302" r="142" fill="none" stroke="#FFFFFF" strokeOpacity="0.05" />
                 <path
-                  d="M94 60c38-22 92-20 132-2 33 15 54 41 86 54 37 15 82 10 108 41 21 25 8 58 18 86 10 29 43 45 55 73 11 28-2 59-17 84-18 30-43 55-58 86-15 30-18 65-39 92-13 17-35 32-54 22-21-11-17-42-29-62-19-32-57-49-70-84-12-31 2-65-7-97-10-35-46-57-55-92-8-29 6-60-3-88-10-31-47-47-65-73-12-18-12-45 5-60 13-12 33-8 47-20 13-11 13-31 24-45z"
+                  d={`${geoPath(MESOAMERICA_OUTLINE)} Z`}
                   fill="url(#latam-fill)"
                   stroke="#67D8E6"
-                  strokeOpacity="0.3"
+                  strokeOpacity="0.25"
                   strokeWidth="2"
                 />
-                <path d="M118 145c77 13 129 42 179 94 39 41 69 87 108 128" fill="none" stroke="#FFFFFF" strokeDasharray="5 9" strokeOpacity="0.12" />
+                <path
+                  d={`${geoPath(SOUTH_AMERICA_OUTLINE)} Z`}
+                  fill="url(#latam-fill)"
+                  stroke="#67D8E6"
+                  strokeOpacity="0.36"
+                  strokeWidth="2"
+                />
+                <path
+                  d="M446 103c-5 46 1 91 16 136 21 63 21 121-12 176"
+                  fill="none"
+                  stroke="#FFFFFF"
+                  strokeDasharray="5 9"
+                  strokeOpacity="0.13"
+                />
+                <path
+                  d="M506 87c35 52 47 116 38 182-8 59-3 111 24 157"
+                  fill="none"
+                  stroke="#19B5C9"
+                  strokeDasharray="4 12"
+                  strokeOpacity="0.1"
+                />
               </svg>
 
               <div className="absolute left-6 top-6 flex items-center gap-2 rounded-full border border-white/10 bg-black/35 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-white/50 backdrop-blur-md">
