@@ -83,7 +83,7 @@ export default function Header() {
         </button>
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="/agenda" className="flex items-center gap-3">
           <Image
             src="/images/logo.png"
             alt="Agenda Crypto"
@@ -95,12 +95,6 @@ export default function Header() {
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex">
-          <Link
-            href="/"
-            className="text-sm font-medium text-white/70 transition hover:text-[#19B5C9]"
-          >
-            Home
-          </Link>
           <Link
             href="/agenda"
             className="text-sm font-medium text-white/70 transition hover:text-[#19B5C9]"
@@ -175,7 +169,6 @@ export default function Header() {
       {menuOpen && (
         <div className="border-t border-white/10 bg-[#212121] px-6 pb-4 pt-3 md:hidden">
           <nav className="flex flex-col gap-3">
-            <Link href="/" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-white/70 transition hover:text-[#19B5C9]">Home</Link>
             <Link href="/agenda" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-white/70 transition hover:text-[#19B5C9]">Agenda</Link>
             <Link href="/divulgacao" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-white/70 transition hover:text-[#19B5C9]">Divulgação</Link>
             <Link href="/producao-de-eventos" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-white/70 transition hover:text-[#19B5C9]">Produção de Eventos</Link>

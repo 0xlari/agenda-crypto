@@ -8,7 +8,7 @@ export default function Footer() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {/* Logo + descrição */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <Link href="/" className="inline-block">
+            <Link href="/agenda" className="inline-block">
               <Image
                 src="/images/logo.png"
                 alt="Agenda Crypto"
@@ -32,7 +32,6 @@ export default function Footer() {
               Navegação
             </h4>
             <nav className="mt-2 flex flex-col gap-1.5 font-[family-name:var(--font-inter)]">
-              <Link href="/" className="text-sm text-white/60 transition hover:text-[#19B5C9]">Home</Link>
               <Link href="/agenda" className="text-sm text-white/60 transition hover:text-[#19B5C9]">Agenda</Link>
               <Link href="/minha-agenda" className="text-sm text-white/60 transition hover:text-[#19B5C9]">Minha Agenda</Link>
             </nav>
