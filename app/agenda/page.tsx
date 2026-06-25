@@ -1,16 +1,89 @@
 export const dynamic = "force-dynamic";
 
+import type { Metadata } from "next";
 import { getPublishedEvents } from "@/lib/supabase/queries";
 import NewsletterSignup from "@/componentes/newsletter-signup";
 import AgendaBrowser from "@/componentes/agenda/agenda-browser";
 import Link from "next/link";
 import PageTour from "@/componentes/onboarding/page-tour";
+import { absoluteUrl, SEO_IMAGE, SITE_NAME } from "@/lib/seo";
+
+const AGENDA_TITLE = "Agenda de eventos cripto no Brasil e America Latina";
+const AGENDA_DESCRIPTION =
+  "Explore eventos cripto, web3 e blockchain por pais, cidade e data. Encontre conferencias, meetups, side events e encontros da comunidade na Agenda Crypto.";
+
+export const metadata: Metadata = {
+  title: AGENDA_TITLE,
+  description: AGENDA_DESCRIPTION,
+  alternates: {
+    canonical: "/agenda",
+  },
+  keywords: [
+    "agenda cripto",
+    "eventos cripto",
+    "eventos web3",
+    "eventos blockchain",
+    "eventos bitcoin",
+    "eventos crypto Brasil",
+    "eventos crypto America Latina",
+    "meetups cripto",
+    "conferencias blockchain",
+  ],
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    url: "/agenda",
+    siteName: SITE_NAME,
+    title: AGENDA_TITLE,
+    description: AGENDA_DESCRIPTION,
+    images: [
+      {
+        url: SEO_IMAGE,
+        width: 512,
+        height: 512,
+        alt: SITE_NAME,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary",
+    title: AGENDA_TITLE,
+    description: AGENDA_DESCRIPTION,
+    images: [SEO_IMAGE],
+  },
+};
 
 export default async function AgendaPage() {
   const events = await getPublishedEvents();
+  const agendaJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: AGENDA_TITLE,
+    description: AGENDA_DESCRIPTION,
+    url: absoluteUrl("/agenda"),
+    isPartOf: {
+      "@type": "WebSite",
+      name: SITE_NAME,
+      url: absoluteUrl("/agenda"),
+    },
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: events.slice(0, 24).map((event, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: event.title,
+        url: absoluteUrl(`/agenda/${event.slug}`),
+      })),
+    },
+  };
 
   return (
     <main className="min-h-screen bg-[#212121] text-[#F5F5F5]">
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(agendaJsonLd) }}
+      />
       <PageTour
         pageId="agenda"
         steps={[

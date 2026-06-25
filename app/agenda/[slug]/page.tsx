@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { getEventBySlug, getChildEvents } from "@/lib/supabase/queries";
 import { notFound } from "next/navigation";
 import Image from "next/image";
@@ -6,6 +7,7 @@ import EventResponse from "@/componentes/event-response";
 import EventViewTracker from "@/componentes/event_view_tracker";
 import { getRelatedEvents } from "@/lib/supabase/queries";
 import RegistrationClickButton from "@/componentes/registration-click-button";
+import { absoluteUrl, SEO_IMAGE, SITE_NAME, seoDescription } from "@/lib/seo";
 
 function formatDate(dateString: string) {
   return new Date(`${dateString}T00:00:00`).toLocaleDateString("pt-BR", {
@@ -13,11 +15,99 @@ function formatDate(dateString: string) {
   });
 }
 
+type EventPageProps = {
+  params: Promise<{ slug: string }>;
+};
+
+type EventCardItem = {
+  id: string;
+  slug: string;
+  title: string;
+  short_description?: string | null;
+  image_url?: string | null;
+  city?: string | null;
+  event_type?: string | null;
+  category?: string | null;
+  start_date?: string | null;
+  event_time?: string | null;
+  venue?: string | null;
+};
+
+function schemaDate(dateString: string | null | undefined, eventTime?: string | null) {
+  if (!dateString) return undefined;
+
+  const time = eventTime?.match(/\d{1,2}:\d{2}/)?.[0];
+
+  return time ? `${dateString}T${time}:00-03:00` : dateString;
+}
+
+export async function generateMetadata({
+  params,
+}: EventPageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const event = await getEventBySlug(slug);
+
+  if (!event) {
+    return {
+      title: "Evento nao encontrado",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
+  }
+
+  const description = seoDescription(
+    event.short_description || event.description,
+    `Detalhes de ${event.title} na Agenda Crypto.`
+  );
+  const eventUrl = `/agenda/${event.slug}`;
+  const image = event.image_url || SEO_IMAGE;
+  const keywords = [
+    event.title,
+    event.category,
+    event.event_type,
+    event.city,
+    event.country,
+    ...(event.tags || []),
+  ].filter(
+    (keyword): keyword is string =>
+      typeof keyword === "string" && keyword.trim().length > 0
+  );
+
+  return {
+    title: event.title,
+    description,
+    keywords,
+    alternates: {
+      canonical: eventUrl,
+    },
+    openGraph: {
+      type: "website",
+      locale: "pt_BR",
+      url: eventUrl,
+      siteName: SITE_NAME,
+      title: event.title,
+      description,
+      images: [
+        {
+          url: image,
+          alt: event.title,
+        },
+      ],
+    },
+    twitter: {
+      card: event.image_url ? "summary_large_image" : "summary",
+      title: event.title,
+      description,
+      images: [image],
+    },
+  };
+}
+
 export default async function EventPage({
   params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+}: EventPageProps) {
   const { slug } = await params;
   const event = await getEventBySlug(slug);
   const sideEvents = event ? await getChildEvents(event.id) : [];
@@ -27,8 +117,53 @@ export default async function EventPage({
     return notFound();
   }
 
+  const eventDescription = seoDescription(
+    event.short_description || event.description,
+    `Detalhes de ${event.title} na Agenda Crypto.`
+  );
+  const eventUrl = absoluteUrl(`/agenda/${event.slug}`);
+  const eventImage = event.image_url || absoluteUrl(SEO_IMAGE);
+  const eventJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: event.title,
+    description: eventDescription,
+    url: eventUrl,
+    image: [eventImage],
+    startDate: schemaDate(event.start_date, event.event_time),
+    endDate: schemaDate(event.end_date || event.start_date, event.event_time),
+    eventStatus: "https://schema.org/EventScheduled",
+    eventAttendanceMode: event.is_online
+      ? "https://schema.org/OnlineEventAttendanceMode"
+      : "https://schema.org/OfflineEventAttendanceMode",
+    location: event.is_online
+      ? {
+          "@type": "VirtualLocation",
+          url: event.registration_url || event.source_url || eventUrl,
+        }
+      : {
+          "@type": "Place",
+          name: event.venue || event.city || "Local a confirmar",
+          address: {
+            "@type": "PostalAddress",
+            addressLocality: event.city || undefined,
+            addressCountry: event.country || undefined,
+          },
+        },
+    organizer: {
+      "@type": "Organization",
+      name: SITE_NAME,
+      url: absoluteUrl("/agenda"),
+    },
+  };
+
   return (
     <main className="min-h-screen bg-[#212121] text-[#F5F5F5]">
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd) }}
+      />
       <EventViewTracker eventId={event.id} />
       {/* HERO */}
       <section className="border-b border-white/10">
@@ -287,14 +422,14 @@ export default async function EventPage({
         </div>
 
         <div className="mt-8 space-y-7">
-          {Object.entries(
-            sideEvents.reduce((groups: Record<string, any[]>, item: any) => {
+          {(Object.entries(
+            sideEvents.reduce((groups: Record<string, EventCardItem[]>, item: EventCardItem) => {
               const key = item.start_date || "Sem data";
               if (!groups[key]) groups[key] = [];
               groups[key].push(item);
               return groups;
             }, {})
-          )
+          ) as [string, EventCardItem[]][])
             .sort(([dateA], [dateB]) => {
               if (dateA === "Sem data") return 1;
               if (dateB === "Sem data") return -1;
@@ -336,7 +471,7 @@ export default async function EventPage({
 
                 <div className="relative ml-7 border-l border-[#19B5C9]/25 pl-7">
                   <div className="space-y-4">
-                    {items.map((item: any) => (
+                    {items.map((item: EventCardItem) => (
                       <a
                         key={item.id}
                         href={`/agenda/${item.slug}`}
@@ -446,7 +581,7 @@ export default async function EventPage({
       </p>
 
       <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {relatedEvents.map((item: any) => (
+        {relatedEvents.map((item: EventCardItem) => (
           <a
             key={item.id}
             href={`/agenda/${item.slug}`}
@@ -485,7 +620,7 @@ export default async function EventPage({
     </div>
   </section>
 )}
-      
+
 
       {/* NEWSLETTER */}
       <section className="border-t border-white/10">

@@ -1,7 +1,24 @@
 import { supabaseServer } from "./server";
 
-function nowIso() {
-  return new Date().toISOString();
+type EventRecord = {
+  id: string;
+  title: string;
+  slug: string;
+  city?: string | null;
+  category?: string | null;
+  event_type?: string | null;
+  level?: string | null;
+  parent_event_id?: string | null;
+  [key: string]: unknown;
+};
+
+type InteractionRecord = {
+  event_id: string;
+  events?: Pick<EventRecord, "category" | "city" | "event_type"> | null;
+};
+
+function isString(value: unknown): value is string {
+  return typeof value === "string" && value.length > 0;
 }
 
 export async function getPublishedEvents(tag?: string) {
@@ -57,7 +74,9 @@ export async function getEventBySlug(slug: string) {
       short_description,
       description,
       city,
+      country,
       venue,
+      is_online,
       start_date,
       end_date,
       event_time,
@@ -121,7 +140,7 @@ export async function getUserAgenda(userId: string) {
   return data;
 }
 
-export async function getRelatedEvents(event: any) {
+export async function getRelatedEvents(event: EventRecord | null) {
   if (!event) return [];
 
   const today = new Date().toISOString().split("T")[0];
@@ -139,7 +158,7 @@ export async function getRelatedEvents(event: any) {
     return [];
   }
 
-  const scored = (data || []).map((item: any) => {
+  const scored = ((data || []) as EventRecord[]).map((item) => {
     let score = 0;
 
     if (item.category === event.category) score += 3;
@@ -197,29 +216,29 @@ export async function getRecommendedEvents(userId: string) {
     return [];
   }
 
-  const interactedEventIds = interactions.map((item: any) => item.event_id);
+  const interactedEventIds = (interactions as InteractionRecord[]).map((item) => item.event_id);
 
   const categories = [
     ...new Set(
-      interactions
-        .map((item: any) => item.events?.category)
-        .filter(Boolean)
+      (interactions as InteractionRecord[])
+        .map((item) => item.events?.category)
+        .filter(isString)
     ),
   ];
 
   const cities = [
     ...new Set(
-      interactions
-        .map((item: any) => item.events?.city)
-        .filter(Boolean)
+      (interactions as InteractionRecord[])
+        .map((item) => item.events?.city)
+        .filter(isString)
     ),
   ];
 
   const eventTypes = [
     ...new Set(
-      interactions
-        .map((item: any) => item.events?.event_type)
-        .filter(Boolean)
+      (interactions as InteractionRecord[])
+        .map((item) => item.events?.event_type)
+        .filter(isString)
     ),
   ];
 
@@ -245,12 +264,12 @@ export async function getRecommendedEvents(userId: string) {
     return [];
   }
 
-  const scored = (data || []).map((event: any) => {
+  const scored = ((data || []) as EventRecord[]).map((event) => {
     let score = 0;
 
-    if (categories.includes(event.category)) score += 3;
-    if (eventTypes.includes(event.event_type)) score += 2;
-    if (cities.includes(event.city)) score += 2;
+    if (event.category && categories.includes(event.category)) score += 3;
+    if (event.event_type && eventTypes.includes(event.event_type)) score += 2;
+    if (event.city && cities.includes(event.city)) score += 2;
     if (event.parent_event_id) score += 2;
     if (event.level === "advanced") score += 1;
 
