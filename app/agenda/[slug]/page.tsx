@@ -470,46 +470,61 @@ export default async function EventPage({
                         .map((item: EventCardItem) => (
                           <article
                             key={item.id}
-                            className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5"
+                            className="overflow-hidden rounded-[24px] border border-white/10 bg-white/[0.03]"
                           >
-                            <div className="flex flex-wrap items-center gap-2">
-                              {item.event_time && (
-                                <span className="rounded-full border border-[#FFD600]/20 bg-[#FFD600]/10 px-3 py-1 text-[11px] font-bold text-[#FFD600]">
-                                  {item.event_time}
+                            {item.image_url && (
+                              <div className="relative h-40 w-full overflow-hidden bg-[linear-gradient(135deg,rgba(255,214,0,0.16),rgba(25,181,201,0.10),rgba(236,72,153,0.08))]">
+                                <Image
+                                  src={item.image_url}
+                                  alt={item.title}
+                                  fill
+                                  unoptimized
+                                  className="object-cover"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+                              </div>
+                            )}
+
+                            <div className="p-5">
+                              <div className="flex flex-wrap items-center gap-2">
+                                {item.event_time && (
+                                  <span className="rounded-full border border-[#FFD600]/20 bg-[#FFD600]/10 px-3 py-1 text-[11px] font-bold text-[#FFD600]">
+                                    {item.event_time}
+                                  </span>
+                                )}
+
+                                {item.level && (
+                                  <span className="rounded-full border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#19B5C9]">
+                                    {item.level}
+                                  </span>
+                                )}
+
+                                <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/60">
+                                  Workshop oficial
                                 </span>
+                              </div>
+
+                              <h3 className="mt-4 text-lg font-black leading-tight text-white">
+                                {item.title}
+                              </h3>
+
+                              {item.short_description && (
+                                <p className="mt-2 text-sm leading-6 text-white/62">
+                                  {item.short_description}
+                                </p>
                               )}
 
-                              {item.level && (
-                                <span className="rounded-full border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#19B5C9]">
-                                  {item.level}
-                                </span>
+                              {item.registration_url && (
+                                <a
+                                  href={item.registration_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="mt-4 inline-flex rounded-full bg-white px-4 py-2 text-xs font-black text-black transition hover:bg-[#F3F3F3]"
+                                >
+                                  Inscrever-se
+                                </a>
                               )}
-
-                              <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/60">
-                                Workshop oficial
-                              </span>
                             </div>
-
-                            <h3 className="mt-4 text-lg font-black leading-tight text-white">
-                              {item.title}
-                            </h3>
-
-                            {item.short_description && (
-                              <p className="mt-2 text-sm leading-6 text-white/62">
-                                {item.short_description}
-                              </p>
-                            )}
-
-                            {item.registration_url && (
-                              <a
-                                href={item.registration_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="mt-4 inline-flex rounded-full bg-white px-4 py-2 text-xs font-black text-black transition hover:bg-[#F3F3F3]"
-                              >
-                                Inscrever-se
-                              </a>
-                            )}
                           </article>
                         ))}
                     </div>
