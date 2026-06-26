@@ -42,7 +42,7 @@ export default function AdminPage() {
       <div className="max-w-2xl mx-auto">
         <h1 className="text-4xl font-bold mb-4">Admin</h1>
         <p className="text-zinc-400 mb-10">
-          Cole o link CSV da planilha para importar eventos para a Agenda Crypto.
+          Cole o link da planilha ou CSV para importar eventos para a Agenda Crypto.
         </p>
 
         <div className="mb-8 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-5 text-sm leading-6 text-amber-100">

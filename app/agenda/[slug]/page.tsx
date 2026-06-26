@@ -31,6 +31,9 @@ type EventCardItem = {
   start_date?: string | null;
   event_time?: string | null;
   venue?: string | null;
+  level?: string | null;
+  registration_url?: string | null;
+  is_side_event?: boolean | null;
 };
 
 function schemaDate(dateString: string | null | undefined, eventTime?: string | null) {
@@ -110,7 +113,17 @@ export default async function EventPage({
 }: EventPageProps) {
   const { slug } = await params;
   const event = await getEventBySlug(slug);
-  const sideEvents = event ? await getChildEvents(event.id) : [];
+  const childEvents = event ? await getChildEvents(event.id) : [];
+  const officialProgram = childEvents.filter(
+    (item: EventCardItem) =>
+      !item.is_side_event &&
+      ["official_workshop", "program_item"].includes(
+        String(item.event_type || "").toLowerCase()
+      )
+  );
+  const sideEvents = childEvents.filter(
+    (item: EventCardItem) => item.is_side_event
+  );
   const relatedEvents = await getRelatedEvents(event);
 
   if (!event) {
@@ -353,21 +366,159 @@ export default async function EventPage({
       {event.agenda_highlight}
     </p>
 
-    {sideEvents.length > 0 && (
+    {childEvents.length > 0 && (
       <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4">
         <p className="text-sm leading-7 text-white/70">
-          A Agenda não mostra só o evento principal. Ela revela tudo que acontece ao redor dele:
-          encontros, ativações, happy hours e side events que movimentam o ecossistema durante a semana.
+          A Agenda não mostra só o evento principal. Ela organiza a programação oficial e também os encontros paralelos
+          que movimentam o ecossistema durante a semana.
         </p>
 
         <p className="mt-3 text-sm font-bold text-[#FFD600]">
-          {sideEvents.length} eventos conectados foram mapeados ao redor de {event.title}.
+          {officialProgram.length} itens de programação oficial
+          {sideEvents.length > 0 ? ` e ${sideEvents.length} side events` : ""} foram mapeados para {event.title}.
         </p>
       </div>
     )}
   </section>
 )}
       </section>
+
+      {officialProgram.length > 0 && (
+        <section className="mx-auto max-w-7xl overflow-hidden px-5 pb-10 sm:px-6 md:pb-12">
+          <div className="rounded-[32px] border border-[#FFD600]/20 bg-[#2A2A2A] p-6 md:p-8">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[#FFD600]">
+                  Programação oficial
+                </p>
+
+                <h2 className="mt-3 text-2xl font-black text-white md:text-3xl">
+                  Workshops do {event.title}
+                </h2>
+
+                <p className="mt-2 max-w-3xl text-sm leading-7 text-white/65">
+                  Sessões oficiais conectadas ao evento principal, organizadas por dia e horário.
+                </p>
+              </div>
+
+              <div className="rounded-2xl border border-white/10 bg-black/20 px-5 py-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/40">
+                  Itens de programação
+                </p>
+                <p className="mt-1 text-3xl font-black text-[#FFD600]">
+                  {officialProgram.length}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-7 space-y-6">
+              {(Object.entries(
+                officialProgram.reduce((groups: Record<string, EventCardItem[]>, item: EventCardItem) => {
+                  const key = item.start_date || "Sem data";
+                  if (!groups[key]) groups[key] = [];
+                  groups[key].push(item);
+                  return groups;
+                }, {})
+              ) as [string, EventCardItem[]][])
+                .sort(([dateA], [dateB]) => {
+                  if (dateA === "Sem data") return 1;
+                  if (dateB === "Sem data") return -1;
+                  return new Date(dateA).getTime() - new Date(dateB).getTime();
+                })
+                .map(([date, items]) => (
+                  <div key={date}>
+                    <div className="mb-4 flex items-center gap-3">
+                      <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-2xl border border-[#FFD600]/25 bg-[#FFD600]/10">
+                        {date === "Sem data" ? (
+                          <span className="text-[10px] font-bold uppercase text-[#FFD600]">
+                            S/D
+                          </span>
+                        ) : (
+                          <>
+                            <span className="text-lg font-black text-white">
+                              {new Date(`${date}T00:00:00`).toLocaleDateString("pt-BR", {
+                                day: "2-digit",
+                              })}
+                            </span>
+                            <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#FFD600]">
+                              {new Date(`${date}T00:00:00`).toLocaleDateString("pt-BR", {
+                                month: "short",
+                              })}
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/40">
+                          {date === "Sem data" ? "Data a confirmar" : "Dia de workshops"}
+                        </p>
+                        <p className="text-lg font-black text-white">
+                          {items.length} {items.length === 1 ? "sessão oficial" : "sessões oficiais"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {items
+                        .sort((a, b) =>
+                          `${a.event_time || ""}${a.title}`.localeCompare(
+                            `${b.event_time || ""}${b.title}`,
+                            "pt-BR"
+                          )
+                        )
+                        .map((item: EventCardItem) => (
+                          <article
+                            key={item.id}
+                            className="rounded-[24px] border border-white/10 bg-white/[0.03] p-5"
+                          >
+                            <div className="flex flex-wrap items-center gap-2">
+                              {item.event_time && (
+                                <span className="rounded-full border border-[#FFD600]/20 bg-[#FFD600]/10 px-3 py-1 text-[11px] font-bold text-[#FFD600]">
+                                  {item.event_time}
+                                </span>
+                              )}
+
+                              {item.level && (
+                                <span className="rounded-full border border-[#19B5C9]/20 bg-[#19B5C9]/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-[#19B5C9]">
+                                  {item.level}
+                                </span>
+                              )}
+
+                              <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white/60">
+                                Workshop oficial
+                              </span>
+                            </div>
+
+                            <h3 className="mt-4 text-lg font-black leading-tight text-white">
+                              {item.title}
+                            </h3>
+
+                            {item.short_description && (
+                              <p className="mt-2 text-sm leading-6 text-white/62">
+                                {item.short_description}
+                              </p>
+                            )}
+
+                            {item.registration_url && (
+                              <a
+                                href={item.registration_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-4 inline-flex rounded-full bg-white px-4 py-2 text-xs font-black text-black transition hover:bg-[#F3F3F3]"
+                              >
+                                Inscrever-se
+                              </a>
+                            )}
+                          </article>
+                        ))}
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {sideEvents.length > 0 && (
   <section className="mx-auto max-w-7xl overflow-hidden px-5 pb-10 sm:px-6 md:pb-12">

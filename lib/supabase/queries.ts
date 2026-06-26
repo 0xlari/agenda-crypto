@@ -9,6 +9,7 @@ type EventRecord = {
   event_type?: string | null;
   level?: string | null;
   parent_event_id?: string | null;
+  is_side_event?: boolean | null;
   [key: string]: unknown;
 };
 
@@ -29,6 +30,7 @@ export async function getPublishedEvents(tag?: string) {
     .select("*")
     .eq("published", true)
     .or(`end_date.gte.${today},and(end_date.is.null,start_date.gte.${today})`)
+    .or("parent_event_id.is.null,is_side_event.eq.true")
     .order("start_date", { ascending: true });
 
   if (tag) {
@@ -54,6 +56,7 @@ export async function getFeaturedEvents() {
     .eq("published", true)
     .eq("featured", true)
     .or(`end_date.gte.${today},and(end_date.is.null,start_date.gte.${today})`)
+    .or("parent_event_id.is.null,is_side_event.eq.true")
     .order("start_date", { ascending: true });
 
   if (error) {
@@ -151,6 +154,7 @@ export async function getRelatedEvents(event: EventRecord | null) {
     .neq("id", event.id)
     .eq("published", true)
     .or(`end_date.gte.${today},and(end_date.is.null,start_date.gte.${today})`)
+    .or("parent_event_id.is.null,is_side_event.eq.true")
     .limit(20);
 
   if (error) {
@@ -247,6 +251,7 @@ export async function getRecommendedEvents(userId: string) {
     .select("*")
     .eq("published", true)
     .or(`end_date.gte.${today},and(end_date.is.null,start_date.gte.${today})`)
+    .or("parent_event_id.is.null,is_side_event.eq.true")
     .limit(30);
 
   if (interactedEventIds.length > 0) {

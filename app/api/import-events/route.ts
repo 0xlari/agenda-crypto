@@ -19,6 +19,75 @@ function parseTags(value?: string) {
     .filter(Boolean);
 }
 
+function normalizeHeader(value: string) {
+  return value.replace(/^\uFEFF/, "").trim().toLowerCase();
+}
+
+function toCsvUrl(sheetUrl: string) {
+  try {
+    const url = new URL(sheetUrl);
+    const sheetId = url.pathname.match(/\/spreadsheets\/d\/([^/]+)/)?.[1];
+
+    if (!sheetId) return sheetUrl;
+
+    const gid = url.searchParams.get("gid") || url.hash.match(/gid=(\d+)/)?.[1];
+    const csvUrl = new URL(
+      `https://docs.google.com/spreadsheets/d/${sheetId}/export`
+    );
+
+    csvUrl.searchParams.set("format", "csv");
+    if (gid) csvUrl.searchParams.set("gid", gid);
+
+    return csvUrl.toString();
+  } catch {
+    return sheetUrl;
+  }
+}
+
+function parseCsv(text: string) {
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = "";
+  let inQuotes = false;
+
+  for (let index = 0; index < text.length; index++) {
+    const char = text[index];
+    const next = text[index + 1];
+
+    if (char === '"') {
+      if (inQuotes && next === '"') {
+        field += '"';
+        index++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+      continue;
+    }
+
+    if (char === "," && !inQuotes) {
+      row.push(field);
+      field = "";
+      continue;
+    }
+
+    if ((char === "\n" || char === "\r") && !inQuotes) {
+      if (char === "\r" && next === "\n") index++;
+      row.push(field);
+      if (row.some((value) => value.trim())) rows.push(row);
+      row = [];
+      field = "";
+      continue;
+    }
+
+    field += char;
+  }
+
+  row.push(field);
+  if (row.some((value) => value.trim())) rows.push(row);
+
+  return rows;
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -31,7 +100,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const response = await fetch(sheetUrl);
+    const csvUrl = toCsvUrl(sheetUrl);
+    const response = await fetch(csvUrl);
 
     if (!response.ok) {
       return Response.json(
@@ -42,19 +112,26 @@ export async function POST(request: Request) {
 
     const csvText = await response.text();
 
-    const lines = csvText
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
+    if (/^\s*</.test(csvText)) {
+      return Response.json(
+        {
+          error:
+            "O link informado retornou uma pagina HTML, nao um CSV. Confira se a planilha esta acessivel/publicada ou use o link de exportacao CSV.",
+        },
+        { status: 400 }
+      );
+    }
 
-    if (lines.length < 2) {
+    const rows = parseCsv(csvText);
+
+    if (rows.length < 2) {
       return Response.json(
         { error: "A planilha está vazia ou inválida." },
         { status: 400 }
       );
     }
 
-    const headers = lines[0].split(",").map((h) => h.trim());
+    const headers = rows[0].map(normalizeHeader);
 
     const requiredHeaders = ["title", "slug", "city", "country"];
     const missingHeaders = requiredHeaders.filter(
@@ -78,13 +155,11 @@ export async function POST(request: Request) {
     let correctedCountries = 0;
     const countryErrors: string[] = [];
 
-    for (const line of lines.slice(1)) {
-      const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-
+    for (const values of rows.slice(1)) {
       const row: Record<string, string> = {};
 
       headers.forEach((header, index) => {
-        row[header] = values[index]?.trim().replace(/^"|"$/g, "") || "";
+        row[header] = values[index]?.trim() || "";
       });
 
       if (!row.title || !row.slug) {
