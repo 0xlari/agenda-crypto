@@ -2,8 +2,15 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
+import {
+  agendaHref,
+  getDictionary,
+  languageSwitchHref,
+  localeFromPathname,
+} from "@/lib/i18n";
 
 type AuthUser = {
   id: string;
@@ -16,6 +23,10 @@ type AuthUser = {
 };
 
 export default function Header() {
+  const pathname = usePathname();
+  const locale = localeFromPathname(pathname);
+  const nav = getDictionary(locale).nav;
+  const agendaPath = agendaHref(locale);
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -48,7 +59,10 @@ export default function Header() {
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: "http://localhost:3000",
+        redirectTo:
+          typeof window !== "undefined"
+            ? `${window.location.origin}${agendaPath}`
+            : "http://localhost:3000",
       },
     });
   };
@@ -62,18 +76,17 @@ export default function Header() {
     user?.user_metadata?.full_name ||
     user?.user_metadata?.name ||
     user?.email ||
-    "Minha conta";
+    nav.account;
 
   const avatarUrl = user?.user_metadata?.avatar_url;
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-[#212121]/80 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
-        {/* Hamburguer mobile - lado esquerdo */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="flex h-9 w-9 items-center justify-center rounded-lg text-white/70 transition hover:bg-white/10 md:hidden"
-          aria-label="Menu"
+          aria-label={nav.menuAria}
         >
           {menuOpen ? (
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -82,8 +95,7 @@ export default function Header() {
           )}
         </button>
 
-        {/* Logo */}
-        <Link href="/agenda" className="flex items-center gap-3">
+        <Link href={agendaPath} className="flex items-center gap-3">
           <Image
             src="/images/logo.png"
             alt="Agenda Crypto"
@@ -96,36 +108,43 @@ export default function Header() {
 
         <nav className="hidden items-center gap-6 md:flex">
           <Link
-            href="/agenda"
+            href={agendaPath}
             className="text-sm font-medium text-white/70 transition hover:text-[#19B5C9]"
           >
-            Agenda
+            {nav.agenda}
           </Link>
           <Link
             href="/divulgacao"
             className="text-sm font-medium text-white/70 transition hover:text-[#19B5C9]"
           >
-            Divulgação
+            {nav.promotion}
           </Link>
           <Link
             href="/producao-de-eventos"
             className="text-sm font-medium text-white/70 transition hover:text-[#19B5C9]"
           >
-            Produção de Eventos
+            {nav.production}
           </Link>
           <Link
             href="/minha-agenda"
             className="text-sm font-medium text-white/70 transition hover:text-[#19B5C9]"
           >
-            Minha Agenda
+            {nav.myAgenda}
           </Link>
         </nav>
 
-        {/* Botões desktop */}
         <div className="hidden items-center gap-3 md:flex">
+          <Link
+            href={languageSwitchHref(locale)}
+            aria-label={nav.languageLabel}
+            className="rounded-full border border-white/10 px-3 py-2 text-xs font-black text-white/60 transition hover:border-[#19B5C9]/40 hover:text-white"
+          >
+            {nav.languageShort}
+          </Link>
+
           {loadingAuth ? (
             <div className="rounded-full border border-white/10 px-4 py-2 text-sm text-white/60">
-              Carregando...
+              {nav.loading}
             </div>
           ) : user ? (
             <>
@@ -151,7 +170,7 @@ export default function Header() {
                 onClick={handleLogout}
                 className="rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
               >
-                Sair
+                {nav.logout}
               </button>
             </>
           ) : (
@@ -159,25 +178,25 @@ export default function Header() {
               onClick={handleGoogleLogin}
               className="rounded-full bg-[#FFD600] px-4 py-2 text-sm font-bold text-black transition hover:scale-[1.02]"
             >
-              Entrar com Google
+              {nav.loginGoogle}
             </button>
           )}
         </div>
       </div>
 
-      {/* Menu mobile dropdown */}
       {menuOpen && (
         <div className="border-t border-white/10 bg-[#212121] px-6 pb-4 pt-3 md:hidden">
           <nav className="flex flex-col gap-3">
-            <Link href="/agenda" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-white/70 transition hover:text-[#19B5C9]">Agenda</Link>
-            <Link href="/divulgacao" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-white/70 transition hover:text-[#19B5C9]">Divulgação</Link>
-            <Link href="/producao-de-eventos" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-white/70 transition hover:text-[#19B5C9]">Produção de Eventos</Link>
-            <Link href="/minha-agenda" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-white/70 transition hover:text-[#19B5C9]">Minha Agenda</Link>
+            <Link href={agendaPath} onClick={() => setMenuOpen(false)} className="text-sm font-medium text-white/70 transition hover:text-[#19B5C9]">{nav.agenda}</Link>
+            <Link href="/divulgacao" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-white/70 transition hover:text-[#19B5C9]">{nav.promotion}</Link>
+            <Link href="/producao-de-eventos" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-white/70 transition hover:text-[#19B5C9]">{nav.production}</Link>
+            <Link href="/minha-agenda" onClick={() => setMenuOpen(false)} className="text-sm font-medium text-white/70 transition hover:text-[#19B5C9]">{nav.myAgenda}</Link>
+            <Link href={languageSwitchHref(locale)} onClick={() => setMenuOpen(false)} className="text-sm font-black text-[#19B5C9] transition hover:text-white">{nav.languageShort}</Link>
           </nav>
 
           <div className="mt-4 border-t border-white/10 pt-4">
             {loadingAuth ? (
-              <div className="text-sm text-white/60">Carregando...</div>
+              <div className="text-sm text-white/60">{nav.loading}</div>
             ) : user ? (
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-3">
@@ -194,7 +213,7 @@ export default function Header() {
                   onClick={() => { handleLogout(); setMenuOpen(false); }}
                   className="w-full rounded-full border border-white/10 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
-                  Sair
+                  {nav.logout}
                 </button>
               </div>
             ) : (
@@ -202,7 +221,7 @@ export default function Header() {
                 onClick={() => { handleGoogleLogin(); setMenuOpen(false); }}
                 className="w-full rounded-full bg-[#FFD600] py-2.5 text-sm font-bold text-black transition hover:bg-[#ffe44c]"
               >
-                Entrar com Google
+                {nav.loginGoogle}
               </button>
             )}
           </div>

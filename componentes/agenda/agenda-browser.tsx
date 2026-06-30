@@ -15,6 +15,11 @@ import {
   resolveEventCountry as resolveLocationCountry,
   type ResolvedCountry,
 } from "@/lib/event-country";
+import {
+  getDictionary,
+  localizeCountryName,
+  type Locale,
+} from "@/lib/i18n";
 
 type EventItem = {
   id: string;
@@ -45,15 +50,20 @@ type EventItem = {
 type Suggestion = {
   label: string;
   value: string;
-  type: "cidade" | "categoria" | "tag" | "evento" | "tipo" | "país";
+  type: "city" | "category" | "tag" | "event" | "type" | "country";
   countryKey?: string;
 };
 
-function formatEventDate(dateString: string) {
-  return new Date(`${dateString}T00:00:00`).toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "short",
-  });
+type AgendaBrowserCopy = ReturnType<typeof getDictionary>["agendaBrowser"];
+
+function formatEventDate(dateString: string, locale: Locale) {
+  return new Date(`${dateString}T00:00:00`).toLocaleDateString(
+    locale === "es" ? "es-419" : "pt-BR",
+    {
+      day: "2-digit",
+      month: "short",
+    }
+  );
 }
 
 function toNumber(value: number | string | null | undefined) {
@@ -70,30 +80,30 @@ function resolveEventCountry(event: EventItem) {
   });
 }
 
-function formatEventTypeLabel(eventType: string | null) {
+function formatEventTypeLabel(eventType: string | null, copy: AgendaBrowserCopy) {
   if (!eventType) return null;
 
   const normalized = normalize(eventType);
 
   if (normalized === "side_event" || normalized === "side event") {
-    return "Side Event";
+    return copy.eventTypes.sideEvent;
   }
 
   if (normalized === "conference" || normalized === "conferencia") {
-    return "Conference";
+    return copy.eventTypes.conference;
   }
 
-  if (normalized === "meetup") return "Meetup";
+  if (normalized === "meetup") return copy.eventTypes.meetup;
 
   if (normalized === "main_event" || normalized === "main event") {
-    return "Evento Principal";
+    return copy.eventTypes.mainEvent;
   }
 
-  if (normalized === "networking") return "Networking";
-  if (normalized === "institucional") return "Institucional";
-  if (normalized === "tecnico" || normalized === "technical") return "Técnico";
-  if (normalized === "community") return "Comunidade";
-  if (normalized === "business") return "Negócios";
+  if (normalized === "networking") return copy.eventTypes.networking;
+  if (normalized === "institucional") return copy.eventTypes.institutional;
+  if (normalized === "tecnico" || normalized === "technical") return copy.eventTypes.technical;
+  if (normalized === "community") return copy.eventTypes.community;
+  if (normalized === "business") return copy.eventTypes.business;
 
   return eventType.replaceAll("_", " ");
 }
@@ -103,14 +113,18 @@ function EventCard({
   country,
   onCountrySelect,
   onTextFilter,
+  locale,
+  copy,
 }: {
   event: EventItem;
   country: ResolvedCountry;
   onCountrySelect: (countryKey: string) => void;
   onTextFilter: (value: string) => void;
+  locale: Locale;
+  copy: AgendaBrowserCopy;
 }) {
   const shouldReduceMotion = useReducedMotion();
-  const eventTypeLabel = formatEventTypeLabel(event.event_type);
+  const eventTypeLabel = formatEventTypeLabel(event.event_type, copy);
   const normalizedType = normalize(event.event_type || "");
   const eventTypeClass =
     normalizedType === "side_event" || normalizedType === "side event"
@@ -182,7 +196,7 @@ function EventCard({
         <button
           type="button"
           onClick={() => onCountrySelect(country.key)}
-          aria-label={`Ver eventos em ${country.name}`}
+          aria-label={`${copy.card.viewEventsIn} ${country.name}`}
           className="absolute bottom-4 left-4 right-4 flex w-[calc(100%-2rem)] items-center gap-2 rounded-2xl border border-white/10 bg-black/65 px-3.5 py-2.5 text-left text-xs font-semibold text-white backdrop-blur-md transition hover:border-[#19B5C9]/40 hover:bg-black/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#19B5C9]"
         >
           <svg
@@ -210,12 +224,12 @@ function EventCard({
       <div className="flex flex-1 flex-col p-6">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <p className="text-sm font-bold text-[#19B5C9]">
-            {formatEventDate(event.start_date)}
+            {formatEventDate(event.start_date, locale)}
           </p>
 
           {event.end_date && event.end_date !== event.start_date && (
             <p className="text-sm text-white/40">
-              até {formatEventDate(event.end_date)}
+              {copy.card.until} {formatEventDate(event.end_date, locale)}
             </p>
           )}
 
@@ -231,7 +245,7 @@ function EventCard({
         </h3>
 
         <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-white/60">
-          {event.short_description || "Confira os detalhes deste evento."}
+          {event.short_description || copy.card.fallbackDescription}
         </p>
 
         {event.tags && event.tags.length > 0 && (
@@ -262,7 +276,7 @@ function EventCard({
             href={`/agenda/${event.slug}`}
             className="flex min-h-[52px] w-full items-center justify-center gap-3 rounded-full bg-white px-5 py-3 text-center text-sm font-black text-black transition hover:scale-[1.01] hover:bg-[#F3F3F3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#19B5C9]"
           >
-            <span>Ver evento</span>
+            <span>{copy.card.viewEvent}</span>
             <span className="text-xl leading-none">→</span>
           </Link>
 
@@ -274,6 +288,7 @@ function EventCard({
             eventTime={event.event_time}
             city={event.city}
             venue={event.venue}
+            locale={locale}
           />
         </div>
       </div>
@@ -281,7 +296,14 @@ function EventCard({
   );
 }
 
-export default function AgendaBrowser({ events }: { events: EventItem[] }) {
+export default function AgendaBrowser({
+  events,
+  locale = "pt",
+}: {
+  events: EventItem[];
+  locale?: Locale;
+}) {
+  const copy = getDictionary(locale).agendaBrowser;
   useEffect(() => {
     fetch("/api/page-view", {
       method: "POST",
@@ -312,7 +334,7 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
       const country = eventCountries.get(event.id) || UNKNOWN_COUNTRY;
       const current = stats.get(country.key) || {
         key: country.key,
-        name: country.name,
+        name: localizeCountryName(country, locale),
         count: 0,
         lat: country.lat,
         lng: country.lng,
@@ -345,7 +367,7 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
     return Array.from(stats.values())
       .map((country) => ({
         key: country.key,
-        name: country.name,
+        name: localizeCountryName(country, locale),
         count: country.count,
         lat:
           country.coordinateCount > 0
@@ -359,15 +381,15 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
       .sort((a, b) => {
         if (a.key === ONLINE_COUNTRY.key) return 1;
         if (b.key === ONLINE_COUNTRY.key) return -1;
-        return b.count - a.count || a.name.localeCompare(b.name, "pt-BR");
+        return b.count - a.count || a.name.localeCompare(b.name, locale === "es" ? "es" : "pt-BR");
       });
-  }, [eventCountries, events]);
+  }, [eventCountries, events, locale]);
 
   const searchableBase = useMemo(() => {
     const suggestions: Suggestion[] = countryStats.map((country) => ({
       label: country.name,
       value: country.name,
-      type: "país",
+      type: "country",
       countryKey: country.key,
     }));
 
@@ -385,25 +407,25 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
       suggestions.push({
         label: event.title,
         value: event.title,
-        type: "evento",
+        type: "event",
       });
     });
 
     cities.forEach((city) =>
-      suggestions.push({ label: city, value: city, type: "cidade" })
+      suggestions.push({ label: city, value: city, type: "city" })
     );
     categories.forEach((category) =>
       suggestions.push({
         label: category,
         value: category,
-        type: "categoria",
+        type: "category",
       })
     );
     eventTypes.forEach((eventType) =>
       suggestions.push({
-        label: formatEventTypeLabel(eventType) || eventType,
+        label: formatEventTypeLabel(eventType, copy) || eventType,
         value: eventType,
-        type: "tipo",
+        type: "type",
       })
     );
     tags.forEach((tag) =>
@@ -419,7 +441,7 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
             candidate.type === item.type
         )
     );
-  }, [countryStats, events]);
+  }, [countryStats, events, copy]);
 
   const filteredEvents = useMemo(() => {
     const normalizedQuery = normalize(query);
@@ -495,10 +517,10 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
   const resultsTitle = activeCountry
     ? query
       ? `${activeCountry.name}: “${query}”`
-      : `Eventos em ${activeCountry.name}`
+      : `${copy.results.eventsIn} ${activeCountry.name}`
     : query
-      ? `Resultados para “${query}”`
-      : "Próximos eventos";
+      ? `${copy.results.resultsFor} “${query}”`
+      : copy.results.upcoming;
 
   return (
     <>
@@ -507,6 +529,7 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
         selectedCountry={selectedCountry}
         totalEvents={events.length}
         onSelect={selectCountry}
+        locale={locale}
       />
 
       <section id="agenda-filters" className="border-b border-white/10">
@@ -515,10 +538,10 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
             <div className="grid gap-4 md:grid-cols-[0.42fr_1fr] md:items-center">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#FFD600]">
-                  Refine sua rota
+                  {copy.filters.refineTitle}
                 </p>
                 <p className="mt-1 text-sm leading-6 text-white/50">
-                  Busque por cidade, tema, formato ou evento.
+                  {copy.filters.refineDescription}
                 </p>
               </div>
 
@@ -588,7 +611,7 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
                         setActiveSuggestionIndex(-1);
                       }
                     }}
-                    placeholder="Ex.: Brasil, Bogotá, Bitcoin ou meetup"
+                    placeholder={copy.filters.placeholder}
                     className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/30"
                   />
 
@@ -598,7 +621,7 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
                       onClick={() => setQuery("")}
                       className="ml-3 rounded-full px-2 py-1 text-xs font-bold text-white/40 transition hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#19B5C9]"
                     >
-                      Limpar
+                      {copy.filters.clear}
                     </button>
                   )}
                 </div>
@@ -628,7 +651,7 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
                           {item.label}
                         </span>
                         <span className="ml-4 shrink-0 text-[10px] font-bold uppercase tracking-[0.12em] text-white/35">
-                          {item.type}
+                          {copy.suggestions[item.type]}
                         </span>
                       </button>
                     ))}
@@ -640,7 +663,7 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
             {(activeCountry || query) && (
               <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-white/8 pt-4">
                 <span className="mr-1 text-xs font-medium text-white/35">
-                  Filtros ativos:
+                  {copy.filters.activeFilters}
                 </span>
 
                 {activeCountry && (
@@ -648,7 +671,7 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
                     type="button"
                     onClick={() => setSelectedCountry(null)}
                     className="inline-flex items-center gap-2 rounded-full border border-[#FFD600]/25 bg-[#FFD600]/10 px-3 py-1.5 text-xs font-bold text-[#FFE766] transition hover:bg-[#FFD600]/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FFD600]"
-                    aria-label={`Remover filtro ${activeCountry.name}`}
+                    aria-label={`${copy.filters.removeFilter} ${activeCountry.name}`}
                   >
                     {activeCountry.name}
                     <span aria-hidden="true">×</span>
@@ -660,7 +683,7 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
                     type="button"
                     onClick={() => setQuery("")}
                     className="inline-flex items-center gap-2 rounded-full border border-[#19B5C9]/25 bg-[#19B5C9]/10 px-3 py-1.5 text-xs font-bold text-[#67D8E6] transition hover:bg-[#19B5C9]/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#19B5C9]"
-                    aria-label={`Remover busca ${query}`}
+                    aria-label={`${copy.filters.removeSearch} ${query}`}
                   >
                     {query}
                     <span aria-hidden="true">×</span>
@@ -672,7 +695,7 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
                   onClick={clearAllFilters}
                   className="ml-auto text-xs font-bold text-white/40 transition hover:text-white focus-visible:outline-none focus-visible:text-white"
                 >
-                  Limpar tudo
+                  {copy.filters.clearAll}
                 </button>
               </div>
             )}
@@ -684,15 +707,15 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#EC4899]">
-              Agenda em ordem cronológica
+              {copy.results.chronological}
             </p>
             <h2 className="mt-2 text-3xl font-black tracking-tight text-white">
               {resultsTitle}
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-white/50">
               {activeCountry
-                ? `Uma seleção dos próximos encontros em ${activeCountry.name}.`
-                : "Descubra os próximos encontros da comunidade pela América Latina."}
+                ? `${copy.results.selectionIn} ${activeCountry.name}.`
+                : copy.results.defaultDescription}
             </p>
           </div>
 
@@ -702,8 +725,10 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
             className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-2 text-xs font-bold text-white/55"
           >
             <span className="h-2 w-2 rounded-full bg-[#19B5C9]" />
-            {filteredEvents.length} evento
-            {filteredEvents.length === 1 ? "" : "s"}
+            {filteredEvents.length}{" "}
+            {filteredEvents.length === 1
+              ? copy.results.eventSingular
+              : copy.results.eventPlural}
           </div>
         </div>
 
@@ -723,18 +748,17 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
               </svg>
             </div>
             <h3 className="mt-5 text-xl font-black text-white">
-              Nenhum evento nessa rota
+              {copy.results.emptyTitle}
             </h3>
             <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-white/50">
-              Tente outro país ou remova a busca para voltar a explorar todos os
-              próximos eventos.
+              {copy.results.emptyDescription}
             </p>
             <button
               type="button"
               onClick={clearAllFilters}
               className="mt-6 rounded-full bg-[#FFD600] px-5 py-2.5 text-sm font-black text-black transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
-              Ver todos os eventos
+              {copy.results.showAll}
             </button>
           </div>
         ) : (
@@ -750,6 +774,8 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
                   country={eventCountries.get(event.id) || UNKNOWN_COUNTRY}
                   onCountrySelect={selectCountry}
                   onTextFilter={applyTextFilter}
+                  locale={locale}
+                  copy={copy}
                 />
               ))}
             </AnimatePresence>

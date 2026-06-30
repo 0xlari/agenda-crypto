@@ -1,18 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import { getDictionary, type Locale } from "@/lib/i18n";
 
 type NewsletterSignupProps = {
   title?: string;
   description?: string;
   compact?: boolean;
+  locale?: Locale;
 };
 
 export default function NewsletterSignup({
-  title = "Receba a curadoria da semana",
-  description = "Entre na lista da Agenda Crypto para acompanhar eventos, oportunidades e movimentos relevantes do ecossistema.",
+  title,
+  description,
   compact = false,
+  locale = "pt",
 }: NewsletterSignupProps) {
+  const dict = getDictionary(locale).newsletter;
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -35,17 +39,17 @@ export default function NewsletterSignup({
 
       if (!response.ok) {
         if (data.error?.includes("duplicate key")) {
-          setMessage("Esse email já está inscrito.");
+          setMessage(dict.duplicate);
         } else {
-          setMessage(data.error || "Erro ao realizar inscrição.");
+          setMessage(data.error || dict.error);
         }
         return;
       }
 
-      setMessage("Inscrição realizada com sucesso.");
+      setMessage(dict.success);
       setEmail("");
     } catch {
-      setMessage("Erro ao conectar com o servidor.");
+      setMessage(dict.connectionError);
     } finally {
       setLoading(false);
     }
@@ -62,15 +66,15 @@ export default function NewsletterSignup({
           </div>
 
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[#19B5C9]">
-            Newsletter
+            {dict.eyebrow}
           </p>
 
           <h3 className="mt-3 max-w-xl text-3xl font-black leading-tight text-white">
-            {title}
+            {title || dict.title}
           </h3>
 
           <p className="mt-3 max-w-2xl text-white/62">
-            {description}
+            {description || dict.description}
           </p>
 
           <form
@@ -79,7 +83,7 @@ export default function NewsletterSignup({
           >
             <input
               type="email"
-              placeholder="Seu melhor email"
+              placeholder={dict.placeholder}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full flex-1 rounded-full border border-white/10 bg-[#212121] px-5 py-3 text-white outline-none placeholder:text-white/35 sm:px-6"
@@ -91,7 +95,7 @@ export default function NewsletterSignup({
               disabled={loading}
               className="w-full min-w-45 rounded-full bg-[#FFD600] px-6 py-3 font-bold text-black transition hover:bg-[#ffe44c] disabled:opacity-60 sm:w-auto"
             >
-              {loading ? "Entrando..." : "Entrar na lista"}
+              {loading ? dict.loading : dict.cta}
             </button>
           </form>
 
@@ -109,10 +113,10 @@ export default function NewsletterSignup({
             </div>
             <div className="absolute bottom-10 left-8 max-w-xs">
               <p className="text-sm font-medium text-white/55">
-                Se tem data, tá na agenda.
+                {dict.visualTagline}
               </p>
               <p className="mt-3 text-2xl font-black leading-tight text-white">
-                Curadoria viva para quem quer estar onde o mercado acontece.
+                {dict.visualTitle}
               </p>
             </div>
           </div>

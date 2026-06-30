@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { supabase } from "@/lib/supabase/client";
+import { getDictionary, type Locale } from "@/lib/i18n";
 
 type Props = {
   eventId: string;
@@ -12,6 +13,7 @@ type Props = {
   eventTime?: string | null;
   city?: string | null;
   venue?: string | null;
+  locale?: Locale;
 };
 
 export default function EventResponse({
@@ -22,7 +24,9 @@ export default function EventResponse({
   eventTime,
   city,
   venue,
+  locale = "pt",
 }: Props) {
+  const copy = getDictionary(locale).eventResponse;
   const [selected, setSelected] = useState<"going" | "not_going" | null>(null);
   const [saved, setSaved] = useState(false);
   const [goingLoading, setGoingLoading] = useState(false);
@@ -102,10 +106,9 @@ export default function EventResponse({
         });
 
         setSaved(false);
-        setFeedback("Evento removido da Minha Agenda.");
+        setFeedback(copy.removedFromAgenda);
         return;
       }
-
 
       await fetch("/api/track-event", {
         method: "POST",
@@ -119,15 +122,16 @@ export default function EventResponse({
         }),
       });
 
-      setFeedback("Evento salvo na área Minha Agenda.");
+      setFeedback(copy.savedToAgenda);
       setSaved(true);
     } catch (error) {
       console.error("Erro ao salvar evento:", error);
-      setFeedback("Não foi possível salvar o evento.");
+      setFeedback(copy.saveError);
     } finally {
       setSaveLoading(false);
     }
   }
+
   async function handleResponse(responseType: "going" | "not_going") {
     try {
       setGoingLoading(true);
@@ -153,7 +157,7 @@ export default function EventResponse({
         });
 
         setSelected(null);
-        setFeedback("Você removeu sua presença neste evento.");
+        setFeedback(copy.removedPresence);
         await loadCounts();
         return;
       }
@@ -173,7 +177,7 @@ export default function EventResponse({
       const data = await response.json();
 
       if (!response.ok) {
-        alert(data.error || "Erro ao salvar resposta");
+        alert(data.error || copy.responseError);
         return;
       }
 
@@ -190,13 +194,12 @@ export default function EventResponse({
       });
 
       setSelected(responseType);
-      setFeedback("Você marcou que vai neste evento. Ele apareceu na área Minha Agenda.");
+      setFeedback(copy.markedGoing);
       setShowCalendarPrompt(true);
       await loadCounts();
-
     } catch (error) {
       console.error("Erro ao responder evento:", error);
-      alert("Erro ao conectar com o servidor");
+      alert(copy.connectionError);
     } finally {
       setGoingLoading(false);
     }
@@ -207,90 +210,88 @@ export default function EventResponse({
       loadCounts();
     }
   }, [eventId]);
-  
+
   useEffect(() => {
-  async function loadUserState() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    async function loadUserState() {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-    if (!user) return;
+      if (!user) return;
 
-    const response = await fetch("/api/event-user-state", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId: user.id,
-        eventId,
-      }),
-    });
+      const response = await fetch("/api/event-user-state", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          eventId,
+        }),
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (!response.ok) {
-      console.error(data.error);
-      return;
+      if (!response.ok) {
+        console.error(data.error);
+        return;
+      }
+
+      setSaved(data.saved);
+      setSelected(data.going ? "going" : null);
     }
 
-    setSaved(data.saved);
-    setSelected(data.going ? "going" : null);
-  }
-
-  if (eventId) {
-    loadUserState();
-  }
-}, [eventId]);
+    if (eventId) {
+      loadUserState();
+    }
+  }, [eventId]);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   function getGoogleCalendarUrl() {
-  const safeTitle = title || "Evento Agenda Crypto";
+    const safeTitle = title || "Evento Agenda Crypto";
 
-  const safeStartDate =
-    startDate && /^\d{4}-\d{2}-\d{2}$/.test(startDate)
-      ? startDate
-      : new Date().toISOString().split("T")[0];
+    const safeStartDate =
+      startDate && /^\d{4}-\d{2}-\d{2}$/.test(startDate)
+        ? startDate
+        : new Date().toISOString().split("T")[0];
 
-  const safeEndDate =
-    endDate && /^\d{4}-\d{2}-\d{2}$/.test(endDate)
-      ? endDate
-      : safeStartDate;
+    const safeEndDate =
+      endDate && /^\d{4}-\d{2}-\d{2}$/.test(endDate)
+        ? endDate
+        : safeStartDate;
 
-  const safeTime =
-    eventTime && /^\d{2}:\d{2}$/.test(eventTime)
-      ? eventTime
-      : "09:00";
+    const safeTime =
+      eventTime && /^\d{2}:\d{2}$/.test(eventTime) ? eventTime : "09:00";
 
-  const start = new Date(`${safeStartDate}T${safeTime}:00`);
-  const end = new Date(`${safeEndDate}T${safeTime}:00`);
+    const start = new Date(`${safeStartDate}T${safeTime}:00`);
+    const end = new Date(`${safeEndDate}T${safeTime}:00`);
 
-  if (end <= start) {
-    end.setHours(start.getHours() + 2);
+    if (end <= start) {
+      end.setHours(start.getHours() + 2);
+    }
+
+    const format = (date: Date) =>
+      date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+
+    const params = new URLSearchParams({
+      action: "TEMPLATE",
+      text: safeTitle,
+      dates: `${format(start)}/${format(end)}`,
+      details: copy.calendarDetails,
+      location: [venue, city].filter(Boolean).join(", "),
+    });
+
+    return `https://calendar.google.com/calendar/render?${params.toString()}`;
   }
-
-  const format = (date: Date) =>
-    date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
-
-  const params = new URLSearchParams({
-    action: "TEMPLATE",
-    text: safeTitle,
-    dates: `${format(start)}/${format(end)}`,
-    details: "Evento salvo pela Agenda Crypto.",
-    location: [venue, city].filter(Boolean).join(", "),
-  });
-
-  return `https://calendar.google.com/calendar/render?${params.toString()}`;
-}
 
   return (
     <>
       <div className="mt-5">
         <div className="grid w-full grid-cols-2 gap-3">
-         <button
+          <button
             onClick={() => handleResponse("going")}
             disabled={goingLoading}
             className={`
@@ -304,14 +305,13 @@ export default function EventResponse({
                   : "bg-[#19B5C9] text-black hover:brightness-110"
               }
             `}
-
           >
             {goingLoading ? (
-              "Marcando..."
+              copy.marking
             ) : (
               <>
                 <span className="text-base leading-none">✓</span>
-                <span>{selected === "going" ? "Indo" : "Vou"}</span>
+                <span>{selected === "going" ? copy.goingSelected : copy.going}</span>
               </>
             )}
           </button>
@@ -332,20 +332,20 @@ export default function EventResponse({
             `}
           >
             {saveLoading ? (
-              "Salvando..."
+              copy.saving
             ) : (
               <>
                 <span className="text-base leading-none">{saved ? "✓" : "✦"}</span>
-                <span>{saved ? "Salvo" : "Salvar"}</span>
+                <span>{saved ? copy.savedSelected : copy.save}</span>
               </>
             )}
           </button>
-                  </div>
+        </div>
 
         <p className="mt-2 text-center text-[12px] font-medium text-white/40">
           {goingCount > 0
-            ? `🔥 ${goingCount} ${goingCount === 1 ? "pessoa vai" : "pessoas vão"}`
-            : "Seja a primeira pessoa a marcar presença"}
+            ? `🔥 ${goingCount} ${goingCount === 1 ? copy.personGoing : copy.peopleGoing}`
+            : copy.firstPresence}
         </p>
         {feedback && (
           <div className="mt-3 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-center text-xs leading-relaxed text-white/70">
@@ -373,40 +373,39 @@ export default function EventResponse({
                   Agenda Pass
                 </p>
 
-               <h2 className="mt-3 text-2xl font-black leading-tight text-white">
-                    Faça login para montar sua agenda
-                  </h2>
+                <h2 className="mt-3 text-2xl font-black leading-tight text-white">
+                  {copy.loginTitle}
+                </h2>
 
-                  <p className="mt-3 text-sm leading-7 text-white/65">
-                    Entre com Google para salvar eventos, marcar presença e acompanhar sua rota pelo ecossistema cripto.
+                <p className="mt-3 text-sm leading-7 text-white/65">
+                  {copy.loginDescription}
+                </p>
+
+                <div className="mt-6 rounded-[24px] border border-white/10 bg-white/[0.04] p-4">
+                  <p className="text-sm font-bold text-white">
+                    {copy.accountBenefits}
                   </p>
 
-                  <div className="mt-6 rounded-[24px] border border-white/10 bg-white/[0.04] p-4">
-                    <p className="text-sm font-bold text-white">
-                      Com sua conta, você pode:
-                    </p>
-
-                    <ul className="mt-3 space-y-2 text-sm text-white/60">
-                      <li>• salvar eventos para ver depois</li>
-                      <li>• marcar os eventos em que pretende ir</li>
-                      <li>• confirmar presença e desbloquear Agenda Pass</li>
-                      <li>• evoluir seu mascote com sua participação</li>
-                    </ul>
-                  </div>
+                  <ul className="mt-3 space-y-2 text-sm text-white/60">
+                    {copy.benefits.map((benefit) => (
+                      <li key={benefit}>• {benefit}</li>
+                    ))}
+                  </ul>
+                </div>
 
                 <div className="mt-6 flex flex-col gap-3">
                   <button
                     onClick={handleLogin}
                     className="rounded-full bg-[#FFD600] px-5 py-3 text-sm font-black text-black transition hover:scale-[1.01] hover:bg-[#ffe44c]"
                   >
-                    Entrar com Google
+                    {copy.loginGoogle}
                   </button>
 
                   <button
                     onClick={() => setLoginModalOpen(false)}
                     className="text-sm font-medium text-white/45 transition hover:text-white"
                   >
-                    Agora não
+                    {copy.notNow}
                   </button>
                 </div>
               </div>
@@ -414,45 +413,43 @@ export default function EventResponse({
           </div>,
           document.body
         )}
-        {mounted &&
-  showCalendarPrompt &&
-  createPortal(
-    <div className="fixed inset-0 z-[99998] flex items-center justify-center bg-black/60 px-5 backdrop-blur-sm">
-      <div className="w-full max-w-[380px] rounded-[28px] border border-[#19B5C9]/20 bg-[#212121] p-6 text-center text-white shadow-[0_20px_80px_rgba(0,0,0,0.65)]">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#19B5C9]/15 text-2xl">
-          📅
-        </div>
+      {mounted &&
+        showCalendarPrompt &&
+        createPortal(
+          <div className="fixed inset-0 z-[99998] flex items-center justify-center bg-black/60 px-5 backdrop-blur-sm">
+            <div className="w-full max-w-[380px] rounded-[28px] border border-[#19B5C9]/20 bg-[#212121] p-6 text-center text-white shadow-[0_20px_80px_rgba(0,0,0,0.65)]">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#19B5C9]/15 text-2xl">
+                📅
+              </div>
 
-        <h3 className="text-xl font-black">
-          Você marcou que vai.
-        </h3>
+              <h3 className="text-xl font-black">{copy.calendarTitle}</h3>
 
-        <p className="mt-3 text-sm leading-7 text-white/65">
-          Quer adicionar este evento ao seu Google Calendar agora?
-        </p>
+              <p className="mt-3 text-sm leading-7 text-white/65">
+                {copy.calendarDescription}
+              </p>
 
-        <div className="mt-6 flex flex-col gap-3">
-          <a
-            href={getGoogleCalendarUrl()}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setShowCalendarPrompt(false)}
-            className="rounded-full bg-[#FFD600] px-5 py-3 text-sm font-black text-black transition hover:brightness-110"
-          >
-            Adicionar ao Google Calendar
-          </a>
+              <div className="mt-6 flex flex-col gap-3">
+                <a
+                  href={getGoogleCalendarUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setShowCalendarPrompt(false)}
+                  className="rounded-full bg-[#FFD600] px-5 py-3 text-sm font-black text-black transition hover:brightness-110"
+                >
+                  {copy.addCalendar}
+                </a>
 
-          <button
-            onClick={() => setShowCalendarPrompt(false)}
-            className="rounded-full border border-white/10 px-5 py-3 text-sm font-bold text-white/60 transition hover:text-white"
-          >
-            Depois
-          </button>
-        </div>
-      </div>
-    </div>,
-    document.body
-  )}
+                <button
+                  onClick={() => setShowCalendarPrompt(false)}
+                  className="rounded-full border border-white/10 px-5 py-3 text-sm font-bold text-white/60 transition hover:text-white"
+                >
+                  {copy.later}
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </>
   );
 }

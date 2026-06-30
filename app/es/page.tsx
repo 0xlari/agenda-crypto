@@ -6,13 +6,13 @@ import { getDictionary } from "@/lib/i18n";
 import { getPublishedEvents } from "@/lib/supabase/queries";
 import { SEO_IMAGE, SITE_NAME } from "@/lib/seo";
 
-const agenda = getDictionary("pt").agenda;
+const agenda = getDictionary("es").agenda;
 
 export const metadata: Metadata = {
   title: agenda.seoTitle,
   description: agenda.seoDescription,
   alternates: {
-    canonical: "/agenda",
+    canonical: "/es",
     languages: {
       "pt-BR": "/agenda",
       es: "/es",
@@ -21,8 +21,8 @@ export const metadata: Metadata = {
   keywords: [...agenda.keywords],
   openGraph: {
     type: "website",
-    locale: "pt_BR",
-    url: "/agenda",
+    locale: "es_419",
+    url: "/es",
     siteName: SITE_NAME,
     title: agenda.seoTitle,
     description: agenda.seoDescription,
@@ -43,7 +43,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function AgendaPage() {
+export default async function AgendaSpanishPage() {
   const events = await getPublishedEvents();
-  return <AgendaPageContent events={events} locale="pt" />;
+  return <AgendaPageContent events={events} locale="es" />;
 }

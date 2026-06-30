@@ -1,5 +1,7 @@
 "use client";
 
+import { getDictionary, type Locale } from "@/lib/i18n";
+
 export type CountryStat = {
   key: string;
   name: string;
@@ -12,6 +14,7 @@ type CountryExplorerProps = {
   countries: CountryStat[];
   selectedCountry: string | null;
   totalEvents: number;
+  locale?: Locale;
   onSelect: (countryKey: string | null) => void;
 };
 
@@ -128,16 +131,20 @@ function toMapPosition(country: CountryStat) {
   };
 }
 
-function eventLabel(count: number) {
-  return `${count} evento${count === 1 ? "" : "s"}`;
+type CountryExplorerCopy = ReturnType<typeof getDictionary>["countryExplorer"];
+
+function eventLabel(count: number, copy: CountryExplorerCopy) {
+  return `${count} ${count === 1 ? copy.eventSingular : copy.eventPlural}`;
 }
 
 export default function CountryExplorer({
   countries,
   selectedCountry,
   totalEvents,
+  locale = "pt",
   onSelect,
 }: CountryExplorerProps) {
+  const copy = getDictionary(locale).countryExplorer;
   const mappedCountries = countries
     .map((country) => ({ country, position: toMapPosition(country) }))
     .filter(
@@ -157,20 +164,19 @@ export default function CountryExplorer({
             <div className="relative z-10 p-5 sm:p-7 lg:p-8">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#19B5C9]/25 bg-[#19B5C9]/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.16em] text-[#67D8E6]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#19B5C9] shadow-[0_0_12px_rgba(25,181,201,0.9)]" />
-                Explore por país
+                {copy.eyebrow}
               </div>
 
               <h2 className="mt-4 text-2xl font-black tracking-tight text-white sm:text-3xl">
-                Onde o ecossistema se encontra?
+                {copy.title}
               </h2>
               <p className="mt-3 max-w-xl text-sm leading-6 text-white/55">
-                Escolha um país para ver só os eventos daquela região. O mapa e
-                a lista ficam sincronizados com a busca.
+                {copy.description}
               </p>
 
               <div
                 className="mt-6 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:max-h-[280px] lg:grid-cols-2 lg:overflow-y-auto lg:pr-2"
-                aria-label="Filtros por país"
+                aria-label={copy.ariaLabel}
               >
                 <button
                   type="button"
@@ -183,7 +189,7 @@ export default function CountryExplorer({
                       : "border-white/10 bg-black/20 text-white hover:border-white/20 hover:bg-white/[0.06]"
                   }`}
                 >
-                  <span className="text-sm font-extrabold">Todos os países</span>
+                  <span className="text-sm font-extrabold">{copy.allCountries}</span>
                   <span
                     className={`rounded-full px-2.5 py-1 text-[11px] font-black ${
                       selectedCountry === null
@@ -204,8 +210,9 @@ export default function CountryExplorer({
                       type="button"
                       data-testid={`country-filter-${country.key}`}
                       aria-pressed={active}
-                      aria-label={`Filtrar por ${country.name}: ${eventLabel(
-                        country.count
+                      aria-label={`${copy.filterBy} ${country.name}: ${eventLabel(
+                        country.count,
+                        copy
                       )}`}
                       onClick={() => onSelect(country.key)}
                       className={`flex min-w-0 items-center justify-between gap-2 rounded-2xl border px-3.5 py-3 text-left transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#19B5C9] ${
@@ -286,7 +293,7 @@ export default function CountryExplorer({
 
               <div className="absolute left-6 top-6 flex items-center gap-2 rounded-full border border-white/10 bg-black/35 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.18em] text-white/50 backdrop-blur-md">
                 <span className="h-2 w-2 rounded-full bg-[#EC4899] shadow-[0_0_12px_rgba(236,72,153,0.9)]" />
-                Radar LATAM
+                {copy.radar}
               </div>
 
               {mappedCountries.map(({ country, position }) => {
@@ -298,8 +305,9 @@ export default function CountryExplorer({
                     key={country.key}
                     type="button"
                     aria-pressed={active}
-                    aria-label={`Filtrar mapa por ${country.name}: ${eventLabel(
-                      country.count
+                    aria-label={`${copy.filterMapBy} ${country.name}: ${eventLabel(
+                      country.count,
+                      copy
                     )}`}
                     onClick={() => onSelect(country.key)}
                     style={{ left: `${position.x}%`, top: `${position.y}%` }}
@@ -337,7 +345,7 @@ export default function CountryExplorer({
               })}
 
               <div className="absolute bottom-6 right-6 max-w-[210px] rounded-2xl border border-white/10 bg-black/35 px-4 py-3 text-xs leading-5 text-white/45 backdrop-blur-md">
-                Cada ponto reúne os próximos eventos daquele país.
+                {copy.footnote}
               </div>
             </div>
           </div>

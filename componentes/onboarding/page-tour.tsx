@@ -9,17 +9,43 @@ export type TourStep = {
   icon?: string;
 };
 
+export type PageTourLabels = {
+  openTip: string;
+  tour: string;
+  minimize: string;
+  close: string;
+  skip: string;
+  finish: string;
+  next: string;
+};
+
 type PageTourProps = {
   pageId: string;
   steps: TourStep[];
+  labels?: PageTourLabels;
 };
 
-export default function PageTour({ pageId, steps }: PageTourProps) {
+const defaultLabels: PageTourLabels = {
+  openTip: "Abrir dica",
+  tour: "Tour rápido",
+  minimize: "Minimizar",
+  close: "Fechar",
+  skip: "Pular tour",
+  finish: "Concluir ✓",
+  next: "Próximo →",
+};
+
+export default function PageTour({
+  pageId,
+  steps,
+  labels = defaultLabels,
+}: PageTourProps) {
   const { tourSeen, markTourSeen, wizardCompleted, isMounted } = useOnboarding();
   const [currentStep, setCurrentStep] = useState(0);
   const [visible, setVisible] = useState(false);
   const [minimized, setMinimized] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const copy = { ...defaultLabels, ...labels };
 
   const storageKey = `agenda-tour-${pageId}`;
 
@@ -86,7 +112,7 @@ export default function PageTour({ pageId, steps }: PageTourProps) {
           <button
             onClick={() => setMinimized(false)}
             className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1A1A1A] text-[#19B5C9] transition hover:bg-[#19B5C9]/10"
-            aria-label="Abrir dica"
+            aria-label={copy.openTip}
           >
             <svg
               width="20"
@@ -108,7 +134,7 @@ export default function PageTour({ pageId, steps }: PageTourProps) {
               <div className="flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#19B5C9]" />
                 <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-white/40">
-                  Tour rápido
+                  {copy.tour}
                 </span>
                 <span className="text-[10px] text-white/25">
                   {currentStep + 1}/{total}
@@ -119,7 +145,7 @@ export default function PageTour({ pageId, steps }: PageTourProps) {
                 <button
                   onClick={() => setMinimized(true)}
                   className="flex h-6 w-6 items-center justify-center rounded-md text-white/30 transition hover:bg-white/6 hover:text-white/60"
-                  aria-label="Minimizar"
+                  aria-label={copy.minimize}
                 >
                   <svg
                     width="12"
@@ -137,7 +163,7 @@ export default function PageTour({ pageId, steps }: PageTourProps) {
                 <button
                   onClick={handleClose}
                   className="flex h-6 w-6 items-center justify-center rounded-md text-white/30 transition hover:bg-white/6 hover:text-white/60"
-                  aria-label="Fechar"
+                  aria-label={copy.close}
                 >
                   <svg
                     width="12"
@@ -183,14 +209,14 @@ export default function PageTour({ pageId, steps }: PageTourProps) {
                 onClick={handleClose}
                 className="text-[11px] font-medium text-white/30 transition hover:text-white/55"
               >
-                Pular tour
+                {copy.skip}
               </button>
 
               <button
                 onClick={handleNext}
                 className="rounded-full bg-[#19B5C9] px-4 py-1.5 text-[11px] font-bold text-white transition hover:bg-[#149caf]"
               >
-                {isLast ? "Concluir ✓" : "Próximo →"}
+                {isLast ? copy.finish : copy.next}
               </button>
             </div>
           </>
