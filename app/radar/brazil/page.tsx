@@ -110,10 +110,10 @@ const clientQuestions = [
 
 const navItems = [
   ["Summary", "#summary"],
+  ["Deliverables", "#deliverables"],
   ["Signals", "#signals"],
   ["Priority Events", "#priority-events"],
   ["Playbook", "#playbook"],
-  ["Deliverables", "#deliverables"],
   ["PDF", "#pdf"],
 ];
 
@@ -155,6 +155,12 @@ const topRecommendationBullets = [
   ["Main anchor", "Blockchain.RIO"],
   ["Best side play", "DeFi liquidity roundtable"],
   ["Primary goal", "Trust + fintech partnerships + ecosystem visibility"],
+];
+
+const thirtySecondSummary = [
+  "AuroraX wants to enter Brazil with a DeFi-focused positioning.",
+  "Agenda Crypto maps where the company should show up, which events matter and what actions to take.",
+  "The final delivery includes a private radar page, PDF report, event scores, side-event strategy and activation plan.",
 ];
 
 const marketReadout = [
@@ -403,17 +409,28 @@ const activationColumns = [
   },
 ];
 
-const deliverables = [
-  "Private radar page",
-  "PDF report for internal sharing",
-  "Curated event map",
-  "Priority ranking",
-  "Event strategic fit scores",
-  "Recommended plays by event",
-  "Side event strategy",
-  "Distribution plan",
-  "Local ecosystem context",
-  "Follow-up strategy call",
+const deliveryGroups = [
+  {
+    title: "Strategic intelligence",
+    items: [
+      "Curated event map",
+      "Priority ranking",
+      "Strategic fit scores",
+      "Local ecosystem context",
+    ],
+  },
+  {
+    title: "Activation plan",
+    items: [
+      "Recommended plays by event",
+      "Side event strategy",
+      "Distribution plan",
+    ],
+  },
+  {
+    title: "Executive assets",
+    items: ["Private radar page", "PDF report", "Follow-up strategy call"],
+  },
 ];
 
 export const metadata: Metadata = {
@@ -465,25 +482,48 @@ function SectionHeader({
   );
 }
 
-function CtaButtons({ compact = false }: { compact?: boolean }) {
+function CtaButtons({
+  compact = false,
+  leadWithContact = false,
+}: {
+  compact?: boolean;
+  leadWithContact?: boolean;
+}) {
+  const primaryClass =
+    "inline-flex min-h-12 items-center justify-center rounded-full bg-[#FFD600] px-6 py-3 text-sm font-black text-black transition hover:scale-[1.01] hover:bg-[#ffe04a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white";
+  const secondaryClass =
+    "inline-flex min-h-12 items-center justify-center rounded-full border border-[#19B5C9]/35 bg-[#19B5C9]/10 px-6 py-3 text-sm font-bold text-[#9DEAF4] transition hover:border-[#19B5C9]/60 hover:bg-[#19B5C9]/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#19B5C9]";
+  const contactButton = (
+    <a
+      href={contactHref}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={leadWithContact ? primaryClass : secondaryClass}
+    >
+      Talk to Agenda Crypto
+    </a>
+  );
+  const downloadButton = (
+    <a href={pdfHref} className={leadWithContact ? secondaryClass : primaryClass}>
+      Download sample report
+    </a>
+  );
+
   return (
     <div
       className={`flex flex-col gap-3 sm:flex-row ${compact ? "mt-6" : "mt-8"}`}
     >
-      <a
-        href={pdfHref}
-        className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#FFD600] px-6 py-3 text-sm font-black text-black transition hover:scale-[1.01] hover:bg-[#ffe04a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-      >
-        Download sample report
-      </a>
-      <a
-        href={contactHref}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex min-h-12 items-center justify-center rounded-full border border-[#19B5C9]/35 bg-[#19B5C9]/10 px-6 py-3 text-sm font-bold text-[#9DEAF4] transition hover:border-[#19B5C9]/60 hover:bg-[#19B5C9]/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#19B5C9]"
-      >
-        Talk to Agenda Crypto
-      </a>
+      {leadWithContact ? (
+        <>
+          {contactButton}
+          {downloadButton}
+        </>
+      ) : (
+        <>
+          {downloadButton}
+          {contactButton}
+        </>
+      )}
     </div>
   );
 }
@@ -609,6 +649,26 @@ export default function Web3BrazilRadarPage() {
         </div>
       </section>
 
+      <section className="border-b border-white/10 bg-[#121212]">
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+          <div className="rounded-[30px] border border-white/10 bg-[linear-gradient(135deg,rgba(25,181,201,0.14),rgba(236,72,153,0.08),rgba(255,255,255,0.035))] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.2)] sm:p-6">
+            <p className="text-xs font-black uppercase tracking-[0.22em] text-[#FFD600]">
+              In 30 seconds
+            </p>
+            <div className="mt-4 grid gap-3 lg:grid-cols-3">
+              {thirtySecondSummary.map((sentence) => (
+                <p
+                  key={sentence}
+                  className="rounded-[20px] border border-white/10 bg-black/20 p-4 text-sm font-bold leading-6 text-white/78"
+                >
+                  {sentence}
+                </p>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <nav className="sticky top-0 z-40 border-b border-white/10 bg-[#111111]/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-3 sm:px-6">
           {navItems.map(([label, href]) => (
@@ -673,19 +733,65 @@ export default function Web3BrazilRadarPage() {
         </div>
       </section>
 
+      <section className="border-b border-white/10 bg-[#111111]">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
+          <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[38px] border border-[#19B5C9]/30 bg-[radial-gradient(circle_at_top_left,rgba(25,181,201,0.24),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(236,72,153,0.2),transparent_32%),linear-gradient(135deg,rgba(255,214,0,0.13),rgba(255,255,255,0.035))] p-7 text-center shadow-[0_34px_110px_rgba(0,0,0,0.34)] sm:p-10">
+            <div className="absolute -right-10 -top-10 h-52 w-52 rounded-full bg-[#FFD600]/12 blur-3xl" />
+            <div className="absolute -bottom-12 -left-12 h-52 w-52 rounded-full bg-[#19B5C9]/12 blur-3xl" />
+            <div className="relative">
+              <Badge tone="cyan">Top recommendation</Badge>
+              <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-black tracking-tight text-white sm:text-5xl">
+                Top recommendation for AuroraX
+              </h2>
+              <p className="mx-auto mt-5 max-w-3xl text-base font-semibold leading-8 text-white/80 sm:text-lg">
+                For the next 90 days, AuroraX should use Blockchain.RIO as its
+                main visibility anchor and combine it with a curated DeFi
+                liquidity roundtable to build trust, meet fintech partners and
+                create local ecosystem relevance.
+              </p>
+              <div className="mt-7 grid gap-3 text-left md:grid-cols-3">
+                {topRecommendationBullets.map(([label, value]) => (
+                  <div
+                    key={label}
+                    className="rounded-[22px] border border-white/10 bg-black/25 p-4"
+                  >
+                    <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#FFD600]">
+                      {label}
+                    </p>
+                    <p className="mt-2 text-sm font-black leading-6 text-white">
+                      {value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="deliverables" className="scroll-mt-24 border-b border-white/10 bg-[#141414]">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 sm:py-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
           <SectionHeader
-            title="What AuroraX would receive"
-            description="This is designed to help marketing, partnerships, ecosystem, community and leadership teams make faster decisions about Brazil."
+            title="Final delivery package"
+            description="What the client receives after the analysis."
           />
-          <div className="grid gap-3 sm:grid-cols-2">
-            {deliverables.map((item) => (
+          <div className="mt-8 grid gap-5 lg:grid-cols-3">
+            {deliveryGroups.map((group) => (
               <div
-                key={item}
-                className="rounded-[20px] border border-white/10 bg-[#1D1D1D] p-4 text-sm font-semibold leading-6 text-white/76"
+                key={group.title}
+                className="rounded-[30px] border border-white/10 bg-[#1D1D1D] p-6 shadow-[0_22px_70px_rgba(0,0,0,0.2)]"
               >
-                {item}
+                <h3 className="text-lg font-black text-white">{group.title}</h3>
+                <div className="mt-5 space-y-3">
+                  {group.items.map((item) => (
+                    <div
+                      key={item}
+                      className="rounded-[18px] border border-white/10 bg-black/20 px-4 py-3 text-sm font-semibold leading-6 text-white/76"
+                    >
+                      {item}
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
@@ -696,15 +802,15 @@ export default function Web3BrazilRadarPage() {
         <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <SectionHeader
-              eyebrow="Sample view"
-              title="Early signals from Agenda Crypto"
-              description="Agenda Crypto organizes early ecosystem signals to help companies understand where attention, intent and presence are emerging."
+              eyebrow="Market signals"
+              title="Agenda Crypto market signals"
+              description="Agenda Crypto organizes early ecosystem signals into discovery, intent and presence views for smarter budget decisions."
             />
-            <Badge tone="yellow">Sample view</Badge>
+            <Badge tone="yellow">Signal layer</Badge>
           </div>
           <p className="mt-5 max-w-4xl text-sm font-semibold leading-7 text-white/72">
-            These signals help identify where attention, intent and presence are
-            emerging before a company commits budget.
+            These signals help AuroraX understand where attention, intent and
+            presence are already happening before committing budget.
           </p>
           <div className="mt-7 grid gap-5 lg:grid-cols-3">
             {signalGroups.map((group) => (
@@ -789,42 +895,6 @@ export default function Web3BrazilRadarPage() {
             partnership potential, regulatory context, side-event opportunity
             and trust-building value.
           </p>
-        </div>
-      </section>
-
-      <section className="border-b border-white/10 bg-[#111111]">
-        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
-          <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[38px] border border-[#19B5C9]/30 bg-[radial-gradient(circle_at_top_left,rgba(25,181,201,0.24),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(236,72,153,0.2),transparent_32%),linear-gradient(135deg,rgba(255,214,0,0.13),rgba(255,255,255,0.035))] p-7 text-center shadow-[0_34px_110px_rgba(0,0,0,0.34)] sm:p-10">
-            <div className="absolute -right-10 -top-10 h-52 w-52 rounded-full bg-[#FFD600]/12 blur-3xl" />
-            <div className="absolute -bottom-12 -left-12 h-52 w-52 rounded-full bg-[#19B5C9]/12 blur-3xl" />
-            <div className="relative">
-              <Badge tone="cyan">Top recommendation</Badge>
-              <h2 className="mx-auto mt-5 max-w-3xl text-3xl font-black tracking-tight text-white sm:text-5xl">
-                Top recommendation for AuroraX
-              </h2>
-              <p className="mx-auto mt-5 max-w-3xl text-base font-semibold leading-8 text-white/80 sm:text-lg">
-                For the next 90 days, AuroraX should use Blockchain.RIO as its
-                main visibility anchor and combine it with a curated DeFi
-                liquidity roundtable to build trust, meet fintech partners and
-                create local ecosystem relevance.
-              </p>
-              <div className="mt-7 grid gap-3 text-left md:grid-cols-3">
-                {topRecommendationBullets.map(([label, value]) => (
-                  <div
-                    key={label}
-                    className="rounded-[22px] border border-white/10 bg-black/25 p-4"
-                  >
-                    <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#FFD600]">
-                      {label}
-                    </p>
-                    <p className="mt-2 text-sm font-black leading-6 text-white">
-                      {value}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -996,15 +1066,14 @@ export default function Web3BrazilRadarPage() {
               Agenda Crypto commercial demo
             </p>
             <h2 className="mt-4 max-w-4xl text-3xl font-black leading-tight tracking-[-0.03em] text-white sm:text-5xl">
-              Get a custom Brazil Radar for your company
+              Want this radar for your company?
             </h2>
             <p className="mt-5 max-w-3xl text-sm leading-7 text-white/68 sm:text-base sm:leading-8">
-              Agenda Crypto can build a custom event intelligence report for
-              your team, with prioritized events, strategic recommendations,
-              side-event opportunities, distribution plan and local ecosystem
-              context.
+              Agenda Crypto can build a custom Brazil Radar for your team with
+              prioritized events, strategic recommendations, side-event
+              opportunities, distribution plan and local ecosystem context.
             </p>
-            <CtaButtons />
+            <CtaButtons leadWithContact />
             <div className="mt-8 border-t border-white/10 pt-6 text-sm leading-7 text-white/58">
               <p className="font-bold text-white">Larissa Barros | Agenda Crypto</p>
               <p>Website: agendacryptoo.com</p>
