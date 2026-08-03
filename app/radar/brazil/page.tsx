@@ -11,51 +11,83 @@ type RadarSignal = {
   description: string;
 };
 
-const radarSignals: RadarSignal[] = [
+type SignalGroup = {
+  title: string;
+  description: string;
+  signals: RadarSignal[];
+};
+
+const signalGroups: SignalGroup[] = [
   {
-    title: "Events mapped",
-    value: 48,
-    description:
-      "Published and sample event opportunities organized into the Brazil intelligence layer.",
+    title: "Discovery signals",
+    description: "Where the market is being mapped and searched.",
+    signals: [
+      {
+        title: "Events mapped",
+        value: 48,
+        description:
+          "Published and sample event opportunities organized into the Brazil intelligence layer.",
+      },
+      {
+        title: "Cities monitored",
+        value: 7,
+        description:
+          "Priority hubs across Rio de Janeiro, Sao Paulo and selected regional ecosystems.",
+      },
+      {
+        title: "Registration clicks",
+        value: 214,
+        description:
+          "Sample outbound demand signal for events with commercial relevance.",
+      },
+    ],
   },
   {
-    title: "Cities monitored",
-    value: 7,
-    description:
-      "Priority hubs across Rio de Janeiro, Sao Paulo and selected regional ecosystems.",
+    title: "Intent signals",
+    description: "Where attention is becoming planning behavior.",
+    signals: [
+      {
+        title: "Event saves",
+        value: 126,
+        description:
+          "Sample intent signal showing what audiences would save for planning.",
+      },
+      {
+        title: "I am going signals",
+        value: 83,
+        description:
+          "Sample attendance intent captured as a proxy for market attention.",
+      },
+      {
+        title: "Top categories",
+        value: "DeFi, fintech, payments",
+        description:
+          "Sample category cluster aligned with AuroraX market-entry priorities.",
+      },
+    ],
   },
   {
-    title: "DeFi / fintech-related events",
-    value: 14,
-    description:
-      "Sample segment filtered for DeFi, liquidity, fintech and payments relevance.",
-  },
-  {
-    title: "Side events connected",
-    value: 11,
-    description:
-      "Side-event opportunities around conference weeks, private dinners and meetups.",
-  },
-  {
-    title: "Event saves",
-    value: 126,
-    description: "Sample intent signal showing what audiences would save for planning.",
-  },
-  {
-    title: "I am going signals",
-    value: 83,
-    description: "Sample attendance intent captured as a proxy for market attention.",
-  },
-  {
-    title: "Check-ins",
-    value: 31,
-    description: "Sample validated-presence signal for post-event analysis.",
-  },
-  {
-    title: "Registration clicks",
-    value: 214,
-    description:
-      "Sample outbound demand signal for events with commercial relevance.",
+    title: "Presence signals",
+    description: "Where interest turns into in-person participation.",
+    signals: [
+      {
+        title: "Check-ins",
+        value: 31,
+        description: "Sample validated-presence signal for post-event analysis.",
+      },
+      {
+        title: "Agenda Pass",
+        value: 24,
+        description:
+          "Sample collectible proof-of-presence layer for post-event engagement.",
+      },
+      {
+        title: "Side events connected",
+        value: 11,
+        description:
+          "Side-event opportunities around conference weeks, private dinners and meetups.",
+      },
+    ],
   },
 ];
 
@@ -137,6 +169,7 @@ const eventCards = [
     play:
       "Attend with BD/leadership, map fintech and institutional stakeholders, request speaking opportunities and explore a curated side event around DeFi, liquidity and market infrastructure.",
     priority: "High",
+    action: "Attend + explore side event",
   },
   {
     name: "Stablecoin / Payments Side Event",
@@ -150,6 +183,7 @@ const eventCards = [
     play:
       "Host or sponsor a curated roundtable with fintechs, wallets and payment partners.",
     priority: "High",
+    action: "Host or sponsor",
   },
   {
     name: "DeFi Builders Meetup",
@@ -162,6 +196,7 @@ const eventCards = [
       "Helps AuroraX connect with builders and explain its DeFi product layer beyond a pure exchange narrative.",
     play: "Join as speaker, workshop partner or technical supporter.",
     priority: "Medium",
+    action: "Speak or support",
   },
   {
     name: "Web3 Founder Dinner",
@@ -174,6 +209,7 @@ const eventCards = [
       "Smaller private environments often create higher-quality relationships than large booths.",
     play: "Attend or co-host with a trusted local partner.",
     priority: "High",
+    action: "Attend or co-host",
   },
   {
     name: "Women in Web3 / Community Meetup",
@@ -186,6 +222,7 @@ const eventCards = [
       "Useful to build a more human and community-oriented presence in the market.",
     play: "Support as ecosystem partner, not as hard-selling sponsor.",
     priority: "Medium",
+    action: "Support",
   },
 ];
 
@@ -481,6 +518,11 @@ export default function Web3BrazilRadarPage() {
               Web3 teams understand where to show up, which events matter and
               how to turn presence into real market opportunities.
             </p>
+            <p className="mt-4 max-w-2xl rounded-[24px] border border-[#19B5C9]/20 bg-[#19B5C9]/10 p-4 text-sm font-bold leading-7 text-[#BDF5FA]">
+              We help Web3 companies avoid wasting budget on the wrong events -
+              and identify where presence can become partnerships, trust and
+              market entry.
+            </p>
             <CtaButtons />
           </div>
 
@@ -524,7 +566,7 @@ export default function Web3BrazilRadarPage() {
       </section>
 
       <section className="border-b border-white/10">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[0.86fr_1.14fr] lg:items-start">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 sm:py-12 lg:grid-cols-[0.86fr_1.14fr] lg:items-start">
           <SectionHeader
             eyebrow="Business scenario"
             title="Client scenario"
@@ -549,7 +591,26 @@ export default function Web3BrazilRadarPage() {
       </section>
 
       <section className="border-b border-white/10 bg-[#141414]">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 sm:py-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+          <SectionHeader
+            title="What AuroraX would receive"
+            description="This is designed to help marketing, partnerships, ecosystem, community and leadership teams make faster decisions about Brazil."
+          />
+          <div className="grid gap-3 sm:grid-cols-2">
+            {deliverables.map((item) => (
+              <div
+                key={item}
+                className="rounded-[20px] border border-white/10 bg-[#1D1D1D] p-4 text-sm font-semibold leading-6 text-white/76"
+              >
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-b border-white/10 bg-[#141414]">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <SectionHeader
               eyebrow="Sample view"
@@ -558,9 +619,26 @@ export default function Web3BrazilRadarPage() {
             />
             <Badge tone="yellow">Sample view</Badge>
           </div>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {radarSignals.map((signal) => (
-              <MetricCard key={signal.title} signal={signal} />
+          <p className="mt-5 max-w-4xl text-sm font-semibold leading-7 text-white/72">
+            These signals help identify where attention, intent and presence are
+            emerging before a company commits budget.
+          </p>
+          <div className="mt-7 grid gap-5 lg:grid-cols-3">
+            {signalGroups.map((group) => (
+              <div
+                key={group.title}
+                className="rounded-[30px] border border-white/10 bg-[#1B1B1B] p-5"
+              >
+                <h3 className="text-lg font-black text-white">{group.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-white/50">
+                  {group.description}
+                </p>
+                <div className="mt-5 space-y-3">
+                  {group.signals.map((signal) => (
+                    <MetricCard key={signal.title} signal={signal} />
+                  ))}
+                </div>
+              </div>
             ))}
           </div>
           <p className="mt-5 max-w-3xl text-xs leading-6 text-white/42">
@@ -572,7 +650,7 @@ export default function Web3BrazilRadarPage() {
       </section>
 
       <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
           <SectionHeader
             title="Brazil market readout"
             description="Brazil is not one single Web3 market. For a DeFi-focused exchange, each city and event type offers a different opportunity."
@@ -605,7 +683,7 @@ export default function Web3BrazilRadarPage() {
       </section>
 
       <section className="border-b border-white/10 bg-[#141414]">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
           <SectionHeader
             title="Event priority matrix for AuroraX"
             description="Not every event deserves the same budget, team or activation strategy."
@@ -631,13 +709,36 @@ export default function Web3BrazilRadarPage() {
         </div>
       </section>
 
+      <section className="border-b border-white/10 bg-[#111111]">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
+          <div className="relative overflow-hidden rounded-[34px] border border-[#19B5C9]/25 bg-[radial-gradient(circle_at_top_left,rgba(25,181,201,0.2),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(236,72,153,0.18),transparent_30%),linear-gradient(135deg,rgba(255,214,0,0.1),rgba(255,255,255,0.03))] p-6 shadow-[0_30px_90px_rgba(0,0,0,0.28)] sm:p-8">
+            <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-[#FFD600]/10 blur-3xl" />
+            <div className="relative grid gap-7 lg:grid-cols-[0.72fr_1.28fr] lg:items-center">
+              <div>
+                <Badge tone="cyan">Top recommendation</Badge>
+                <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">
+                  Top recommendation for AuroraX
+                </h2>
+              </div>
+              <p className="text-base font-semibold leading-8 text-white/78 sm:text-lg">
+                For the next 90 days, AuroraX should prioritize high-trust
+                environments where DeFi, fintech, regulation and liquidity
+                conversations overlap. The strongest play is to combine presence
+                at Blockchain.RIO with a curated side event focused on DeFi
+                liquidity, payments and market infrastructure.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <SectionHeader
               eyebrow="Event intelligence"
-              title="Recommended event cards"
-              description="Each card turns an event into a decision: why it matters, how strong the fit is and what AuroraX should do next."
+              title="Priority events for AuroraX"
+              description="Each event is scored by audience fit, partnership potential, side-event opportunity and strategic relevance."
             />
             <Badge tone="yellow">Sample data</Badge>
           </div>
@@ -645,12 +746,13 @@ export default function Web3BrazilRadarPage() {
             {eventCards.map((event) => (
               <article
                 key={event.name}
-                className="rounded-[32px] border border-white/10 bg-[#1B1B1B] p-6 shadow-[0_24px_70px_rgba(0,0,0,0.18)]"
+                className="rounded-[30px] border border-white/10 bg-[#1B1B1B] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.18)] sm:p-6"
               >
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
                     <div className="flex flex-wrap gap-2">
                       <PriorityLabel priority={event.priority} />
+                      <ActionLabel action={event.action} />
                       <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-bold text-white/55">
                         {event.city}
                       </span>
@@ -661,15 +763,17 @@ export default function Web3BrazilRadarPage() {
                     <h3 className="mt-4 text-2xl font-black text-white">
                       {event.name}
                     </h3>
-                    <p className="mt-2 text-sm leading-6 text-white/52">
+                    <p className="mt-2 text-sm leading-6 text-white/56">
                       {event.audience}
                     </p>
                   </div>
+                  <ScoreBadge score={event.score} />
                 </div>
-                <div className="mt-6">
+                <div className="mt-5">
                   <ScoreBar score={event.score} />
                 </div>
-                <div className="mt-6 grid gap-4 lg:grid-cols-3">
+                <div className="mt-6 grid gap-4 lg:grid-cols-2">
+                  <InfoBlock label="Recommended action" value={event.action} strong />
                   <InfoBlock label="Best for" value={event.bestFor} />
                   <InfoBlock label="Why it matters" value={event.why} />
                   <InfoBlock label="Recommended play" value={event.play} strong />
@@ -681,7 +785,7 @@ export default function Web3BrazilRadarPage() {
       </section>
 
       <section className="border-b border-white/10 bg-[#141414]">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
           <SectionHeader title="Recommended Brazil playbook" />
           <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             {playbook.map((item, index) => (
@@ -703,7 +807,7 @@ export default function Web3BrazilRadarPage() {
       </section>
 
       <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
           <SectionHeader
             title="Side event strategy"
             description="Main events create visibility. Side events create relationships."
@@ -725,7 +829,7 @@ export default function Web3BrazilRadarPage() {
       </section>
 
       <section className="border-b border-white/10 bg-[#141414]">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
           <SectionHeader title="Activation plan for AuroraX" />
           <div className="mt-8 grid gap-5 lg:grid-cols-3">
             {activationPlan.map((phase) => (
@@ -740,7 +844,7 @@ export default function Web3BrazilRadarPage() {
       </section>
 
       <section className="border-b border-white/10">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-12">
           <SectionHeader
             title="Distribution and activation layer"
             description="Distribution is not the final product. It is the engine that turns event intelligence into visibility, presence and impact."
@@ -757,27 +861,8 @@ export default function Web3BrazilRadarPage() {
         </div>
       </section>
 
-      <section className="border-b border-white/10 bg-[#141414]">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-          <SectionHeader
-            title="What AuroraX would receive"
-            description="This is designed to help marketing, partnerships, ecosystem, community and leadership teams make faster decisions about Brazil."
-          />
-          <div className="grid gap-3 sm:grid-cols-2">
-            {deliverables.map((item) => (
-              <div
-                key={item}
-                className="rounded-[22px] border border-white/10 bg-[#1D1D1D] p-4 text-sm font-semibold text-white/72"
-              >
-                {item}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       <section className="border-b border-white/10 bg-[radial-gradient(circle_at_15%_30%,rgba(255,214,0,0.12),transparent_32%),#141414]">
-        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[1fr_0.9fr] lg:items-center">
+        <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 sm:py-12 lg:grid-cols-[1fr_0.9fr] lg:items-center">
           <div>
             <SectionHeader
               eyebrow="Internal sharing asset"
@@ -808,12 +893,12 @@ export default function Web3BrazilRadarPage() {
               Agenda Crypto commercial demo
             </p>
             <h2 className="mt-4 max-w-4xl text-3xl font-black leading-tight tracking-[-0.03em] text-white sm:text-5xl">
-              Want a radar for your company?
+              Want a Brazil Radar for your company?
             </h2>
             <p className="mt-5 max-w-3xl text-sm leading-7 text-white/68 sm:text-base sm:leading-8">
-              If your team is planning to enter, expand or activate in Brazil,
-              Agenda Crypto can help you identify the right events, communities
-              and opportunities.
+              Agenda Crypto can create a custom event intelligence report for
+              your team, with prioritized events, side-event opportunities,
+              distribution strategy and local ecosystem context.
             </p>
             <CtaButtons />
             <div className="mt-8 border-t border-white/10 pt-6 text-sm leading-7 text-white/58">
@@ -824,6 +909,28 @@ export default function Web3BrazilRadarPage() {
         </div>
       </section>
     </main>
+  );
+}
+
+function ScoreBadge({ score }: { score: number }) {
+  return (
+    <div className="w-full rounded-[24px] border border-[#FFD600]/25 bg-[#FFD600]/10 p-4 text-left sm:w-[150px] sm:text-center">
+      <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[#FFD600]/80">
+        Fit score
+      </p>
+      <p className="mt-1 text-4xl font-black leading-none text-[#FFD600]">
+        {score}
+      </p>
+      <p className="mt-1 text-xs font-bold text-white/45">/100</p>
+    </div>
+  );
+}
+
+function ActionLabel({ action }: { action: string }) {
+  return (
+    <span className="rounded-full border border-[#EC4899]/30 bg-[#EC4899]/10 px-3 py-1 text-xs font-black text-[#F8A9CF]">
+      {action}
+    </span>
   );
 }
 
