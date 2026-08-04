@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getOrCreateReferralProfile } from "@/lib/referrals/server";
+import { supabaseServer } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
   try {
@@ -21,6 +22,25 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Entre com sua conta para criar seu link." },
         { status: 401 }
+      );
+    }
+
+    const { error: userError } = await supabaseServer.from("users").upsert(
+      {
+        id: userId,
+        name: displayName || email.split("@")[0],
+        email,
+        avatar_url: null,
+      },
+      { onConflict: "id" }
+    );
+
+    if (userError) {
+      console.error("Erro ao preparar usuario referral:", userError.message);
+
+      return NextResponse.json(
+        { error: "Nao foi possivel preparar seu usuario agora." },
+        { status: 500 }
       );
     }
 
