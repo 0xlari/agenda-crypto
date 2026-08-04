@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import {
   calculateMascotLevel,
   calculateXpFromPasses,
@@ -9,11 +8,7 @@ import {
   requireAuthenticatedUser,
   sameAuthenticatedUser,
 } from "@/lib/supabase/auth-server";
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { getSupabaseServer } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
   try {
@@ -26,6 +21,8 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    const supabaseAdmin = getSupabaseServer();
 
     if (!user_id && !response && !action) {
       const { data, error } = await supabaseAdmin

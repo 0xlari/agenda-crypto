@@ -2,7 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 
 type AuthResult =
   | { ok: true; user: { id: string; app_metadata?: { role?: string } } }
-  | { ok: false; status: 401 | 403; message: string };
+  | { ok: false; status: 401 | 403 | 500; message: string };
 
 function getBearerToken(request: Request) {
   const authorization = request.headers.get("authorization") || "";
@@ -24,9 +24,20 @@ export async function requireAuthenticatedUser(
     return { ok: false, status: 401, message: "Sessao obrigatoria." };
   }
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+  if (!supabaseUrl || !publishableKey) {
+    return {
+      ok: false,
+      status: 500,
+      message: "Configuracao de autenticacao indisponivel.",
+    };
+  }
+
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+    supabaseUrl,
+    publishableKey,
     {
       global: {
         headers: {

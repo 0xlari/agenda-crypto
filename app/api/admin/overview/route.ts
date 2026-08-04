@@ -1,13 +1,8 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { requireAdminUser } from "@/lib/supabase/auth-server";
+import { getSupabaseServer } from "@/lib/supabase/server";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
-async function getAdminData() {
+async function getAdminData(supabase: ReturnType<typeof getSupabaseServer>) {
   const today = new Date().toISOString();
 
   const [
@@ -76,7 +71,8 @@ export async function GET(request: Request) {
   }
 
   try {
-    const data = await getAdminData();
+    const supabase = getSupabaseServer();
+    const data = await getAdminData(supabase);
     return NextResponse.json(data);
   } catch (error) {
     console.error("Erro ao carregar admin overview:", error);

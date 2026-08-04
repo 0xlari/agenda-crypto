@@ -1,10 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { getSupabaseServer } from "@/lib/supabase/server";
 
 const INTEREST_TYPES = new Set(["free_listing", "featured", "partnership"]);
 
@@ -68,6 +63,8 @@ export async function POST(req: Request) {
       INTEREST_TYPES.has(body.interest_type)
         ? body.interest_type
         : "free_listing";
+
+    const supabase = getSupabaseServer();
 
     const { error } = await supabase.from("event_submissions").insert({
       contact_name: contactName,

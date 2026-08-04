@@ -1,10 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { getSupabaseServer } from "@/lib/supabase/server";
 
 function normalizePage(value: unknown) {
   if (typeof value !== "string") return null;
@@ -27,6 +22,8 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+
+    const supabase = getSupabaseServer();
 
     const { error } = await supabase.from("page_views").insert({
       page,

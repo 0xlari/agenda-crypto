@@ -1,14 +1,9 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import {
   requireAuthenticatedUser,
   sameAuthenticatedUser,
 } from "@/lib/supabase/auth-server";
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { getSupabaseServer } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
   try {
@@ -18,6 +13,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: auth.message }, { status: auth.status });
     }
 
+    const supabaseAdmin = getSupabaseServer();
     const { userId, eventId, type } = await request.json();
 
     if (!sameAuthenticatedUser(userId, auth.user.id)) {

@@ -1,11 +1,6 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
 import { requireAdminUser } from "@/lib/supabase/auth-server";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { getSupabaseServer } from "@/lib/supabase/server";
 
 function normalizeSlug(text: string) {
   return text
@@ -40,6 +35,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: auth.message }, { status: auth.status });
     }
 
+    const supabase = getSupabaseServer();
     const { submissionId } = await req.json();
 
     if (!submissionId) {
