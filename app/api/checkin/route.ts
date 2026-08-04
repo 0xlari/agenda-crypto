@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase/server";
+import {
+  requireAuthenticatedUser,
+  sameAuthenticatedUser,
+} from "@/lib/supabase/auth-server";
 
 function generateSerial() {
   const now = new Date();
@@ -15,11 +19,21 @@ function generateSerial() {
 
 export async function POST(request: Request) {
   try {
+    const auth = await requireAuthenticatedUser(request);
+
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.message }, { status: auth.status });
+    }
+
     const { userId, eventId } = await request.json();
 
-    if (!userId || !eventId) {
+    if (!sameAuthenticatedUser(userId, auth.user.id)) {
+      return NextResponse.json({ error: "Acesso negado." }, { status: 403 });
+    }
+
+    if (!eventId) {
       return NextResponse.json(
-        { error: "Dados obrigatórios ausentes." },
+        { error: "Dados obrigatorios ausentes." },
         { status: 400 }
       );
     }
@@ -32,20 +46,19 @@ export async function POST(request: Request) {
 
     if (eventError) {
       return NextResponse.json(
-        { error: `Erro ao buscar evento: ${eventError.message}` },
+        { error: "Nao foi possivel buscar o evento." },
         { status: 400 }
       );
     }
 
     if (!event) {
       return NextResponse.json(
-        { error: "Evento não encontrado." },
+        { error: "Evento nao encontrado." },
         { status: 404 }
       );
     }
 
     const validPassTypes = ["conference", "side_event", "online", "happy_hour"];
-
     const passType = validPassTypes.includes(event.event_type)
       ? event.event_type
       : "conference";
@@ -53,7 +66,7 @@ export async function POST(request: Request) {
     const { data: existingCheckin } = await supabaseServer
       .from("checkins")
       .select("id")
-      .eq("user_id", userId)
+      .eq("user_id", auth.user.id)
       .eq("event_id", eventId)
       .maybeSingle();
 
@@ -61,14 +74,14 @@ export async function POST(request: Request) {
       const { error: checkinError } = await supabaseServer
         .from("checkins")
         .insert({
-          user_id: userId,
+          user_id: auth.user.id,
           event_id: eventId,
           validated: true,
         });
 
       if (checkinError) {
         return NextResponse.json(
-          { error: `Erro ao salvar check-in: ${checkinError.message}` },
+          { error: "Nao foi possivel salvar o check-in." },
           { status: 400 }
         );
       }
@@ -77,7 +90,7 @@ export async function POST(request: Request) {
     const { data: existingInteraction } = await supabaseServer
       .from("event_interactions")
       .select("id")
-      .eq("user_id", userId)
+      .eq("user_id", auth.user.id)
       .eq("event_id", eventId)
       .eq("type", "checkin")
       .maybeSingle();
@@ -86,14 +99,14 @@ export async function POST(request: Request) {
       const { error: interactionError } = await supabaseServer
         .from("event_interactions")
         .insert({
-          user_id: userId,
+          user_id: auth.user.id,
           event_id: eventId,
           type: "checkin",
         });
 
       if (interactionError) {
         return NextResponse.json(
-          { error: `Erro ao salvar interação: ${interactionError.message}` },
+          { error: "Nao foi possivel salvar a interacao." },
           { status: 400 }
         );
       }
@@ -102,7 +115,7 @@ export async function POST(request: Request) {
     const { data: existingPass } = await supabaseServer
       .from("user_passes")
       .select("id")
-      .eq("user_id", userId)
+      .eq("user_id", auth.user.id)
       .eq("event_id", eventId)
       .maybeSingle();
 
@@ -110,7 +123,7 @@ export async function POST(request: Request) {
       const { error: passError } = await supabaseServer
         .from("user_passes")
         .insert({
-          user_id: userId,
+          user_id: auth.user.id,
           event_id: eventId,
           pass_type: passType,
           serial: generateSerial(),
@@ -119,7 +132,7 @@ export async function POST(request: Request) {
 
       if (passError) {
         return NextResponse.json(
-          { error: `Erro ao criar pass: ${passError.message}` },
+          { error: "Nao foi possivel criar o pass." },
           { status: 400 }
         );
       }
@@ -128,7 +141,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       validated: true,
-      message: "Presença confirmada e Agenda Pass dropado com sucesso.",
+      message: "Presenca confirmada e Agenda Pass criado com sucesso.",
     });
   } catch (error) {
     console.error("Erro no check-in:", error);

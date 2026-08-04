@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { authFetch } from "@/lib/supabase/auth-fetch";
 
 export default function AdminPage() {
   const [sheetUrl, setSheetUrl] = useState("");
@@ -13,7 +14,7 @@ export default function AdminPage() {
     setMessage("");
 
     try {
-      const response = await fetch("/api/import-events", {
+      const response = await authFetch("/api/import-events", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

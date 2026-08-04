@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireAdminUser } from "@/lib/supabase/auth-server";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,9 +9,13 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const auth = await requireAdminUser(req);
 
-    console.log("BODY UPDATE SUBMISSION:", body);
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.message }, { status: auth.status });
+    }
+
+    const body = await req.json();
 
     const {
       submissionId,
@@ -65,7 +70,7 @@ export async function POST(req: Request) {
       console.error("ERRO UPDATE SUBMISSION:", error);
 
       return NextResponse.json(
-        { error: `Erro ao atualizar submissão: ${error.message}` },
+        { error: "Nao foi possivel atualizar a submissao." },
         { status: 500 }
       );
     }

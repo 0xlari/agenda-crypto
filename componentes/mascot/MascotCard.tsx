@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import { MascotAvatar } from "./MascotAvatar";
 import { MascotOnboarding } from "./MascotOnboarding";
+import { authFetch } from "@/lib/supabase/auth-fetch";
 
 type Mascot = {
   id: string;
@@ -38,7 +39,7 @@ export function MascotCard() {
 
       setUserId(user.id);
 
-      await fetch("/api/mascot/sync", {
+      await authFetch("/api/mascot/sync", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -48,7 +49,7 @@ export function MascotCard() {
         }),
         });
 
-        const response = await fetch(
+        const response = await authFetch(
         `/api/mascot/onboarding?user_id=${user.id}`
         );
 

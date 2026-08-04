@@ -1,24 +1,31 @@
 import { NextResponse } from "next/server";
 import { getRecommendedEvents } from "@/lib/supabase/queries";
+import {
+  requireAuthenticatedUser,
+  sameAuthenticatedUser,
+} from "@/lib/supabase/auth-server";
 
 export async function POST(request: Request) {
   try {
-    const { userId } = await request.json();
+    const auth = await requireAuthenticatedUser(request);
 
-    if (!userId) {
-      return NextResponse.json(
-        { error: "userId é obrigatório" },
-        { status: 400 }
-      );
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.message }, { status: auth.status });
     }
 
-    const data = await getRecommendedEvents(userId);
+    const { userId } = await request.json();
+
+    if (!sameAuthenticatedUser(userId, auth.user.id)) {
+      return NextResponse.json({ error: "Acesso negado." }, { status: 403 });
+    }
+
+    const data = await getRecommendedEvents(auth.user.id);
 
     return NextResponse.json({ data });
   } catch (error) {
-    console.error("Erro ao buscar recomendações:", error);
+    console.error("Erro ao buscar recomendacoes:", error);
     return NextResponse.json(
-      { error: "Erro interno ao buscar recomendações" },
+      { error: "Erro interno ao buscar recomendacoes" },
       { status: 500 }
     );
   }

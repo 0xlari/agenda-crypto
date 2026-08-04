@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { supabase } from "@/lib/supabase/client";
+import { authFetch } from "@/lib/supabase/auth-fetch";
 
 type Props = {
   eventId: string;
@@ -89,7 +90,7 @@ export default function EventResponse({
       if (!user) return;
 
       if (saved) {
-        await fetch("/api/untrack-event", {
+        await authFetch("/api/untrack-event", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -107,7 +108,7 @@ export default function EventResponse({
       }
 
 
-      await fetch("/api/track-event", {
+      await authFetch("/api/track-event", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -141,7 +142,7 @@ export default function EventResponse({
       }
 
       if (selected === "going") {
-        await fetch("/api/unrespond", {
+        await authFetch("/api/unrespond", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -158,7 +159,7 @@ export default function EventResponse({
         return;
       }
 
-      const response = await fetch("/api/respond", {
+      const response = await authFetch("/api/respond", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -177,7 +178,7 @@ export default function EventResponse({
         return;
       }
 
-      await fetch("/api/track-event", {
+      await authFetch("/api/track-event", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -216,7 +217,7 @@ export default function EventResponse({
 
     if (!user) return;
 
-    const response = await fetch("/api/event-user-state", {
+    const response = await authFetch("/api/event-user-state", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -1,5 +1,6 @@
 import { supabaseServer } from "@/lib/supabase/server";
 import { geocodeAddress } from "@/lib/geocode";
+import { requireAdminUser } from "@/lib/supabase/auth-server";
 
 function parseBool(value?: string) {
   return String(value || "").trim().toLowerCase() === "true";
@@ -15,6 +16,12 @@ function parseTags(value?: string) {
 
 export async function POST(request: Request) {
   try {
+    const auth = await requireAdminUser(request);
+
+    if (!auth.ok) {
+      return Response.json({ error: auth.message }, { status: auth.status });
+    }
+
     const body = await request.json();
     const sheetUrl = body.sheetUrl?.trim();
 
@@ -157,7 +164,12 @@ export async function POST(request: Request) {
       .upsert(events, { onConflict: "slug" });
 
     if (error) {
-      return Response.json({ error: error.message }, { status: 400 });
+      console.error("Erro ao salvar eventos importados:", error);
+
+      return Response.json(
+        { error: "Nao foi possivel salvar os eventos importados." },
+        { status: 400 }
+      );
     }
 
     return Response.json({

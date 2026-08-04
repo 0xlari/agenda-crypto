@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireAdminUser } from "@/lib/supabase/auth-server";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -33,6 +34,12 @@ function normalizeDate(dateStr?: string | null) {
 
 export async function POST(req: Request) {
   try {
+    const auth = await requireAdminUser(req);
+
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.message }, { status: auth.status });
+    }
+
     const { submissionId } = await req.json();
 
     if (!submissionId) {
@@ -82,7 +89,7 @@ export async function POST(req: Request) {
     if (eventInsertError) {
       console.error("Erro ao criar evento:", eventInsertError);
       return NextResponse.json(
-        { error: `Erro ao criar evento: ${eventInsertError.message}` },
+        { error: "Nao foi possivel criar o evento." },
         { status: 500 }
       );
     }
@@ -96,7 +103,7 @@ export async function POST(req: Request) {
       console.error("Erro ao atualizar submissão:", updateSubmissionError);
       return NextResponse.json(
         {
-          error: `Evento criado, mas falhou ao atualizar submissão: ${updateSubmissionError.message}`,
+          error: "Evento criado, mas nao foi possivel atualizar a submissao.",
         },
         { status: 500 }
       );

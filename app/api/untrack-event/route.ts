@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import {
+  requireAuthenticatedUser,
+  sameAuthenticatedUser,
+} from "@/lib/supabase/auth-server";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,11 +12,21 @@ const supabaseAdmin = createClient(
 
 export async function POST(request: Request) {
   try {
+    const auth = await requireAuthenticatedUser(request);
+
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.message }, { status: auth.status });
+    }
+
     const { userId, eventId, type } = await request.json();
 
-    if (!userId || !eventId || !type) {
+    if (!sameAuthenticatedUser(userId, auth.user.id)) {
+      return NextResponse.json({ error: "Acesso negado." }, { status: 403 });
+    }
+
+    if (!eventId || !type) {
       return NextResponse.json(
-        { error: "Dados obrigatórios ausentes" },
+        { error: "Dados obrigatorios ausentes" },
         { status: 400 }
       );
     }
@@ -20,12 +34,15 @@ export async function POST(request: Request) {
     const { error } = await supabaseAdmin
       .from("event_interactions")
       .delete()
-      .eq("user_id", userId)
+      .eq("user_id", auth.user.id)
       .eq("event_id", eventId)
       .eq("type", type);
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return NextResponse.json(
+        { error: "Nao foi possivel remover a interacao." },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ success: true });

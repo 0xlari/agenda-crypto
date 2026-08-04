@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { supabase } from "@/lib/supabase/client";
+import { authFetch } from "@/lib/supabase/auth-fetch";
 
 export default function UserPersistor() {
   useEffect(() => {
@@ -12,7 +13,7 @@ export default function UserPersistor() {
 
       if (!user) return;
 
-      await fetch("/api/save-user", {
+      await authFetch("/api/save-user", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

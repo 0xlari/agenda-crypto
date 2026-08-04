@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { authFetch } from "@/lib/supabase/auth-fetch";
 
 type Stats = {
   publishedCount: number;
@@ -98,7 +99,7 @@ export default function AdminDashboard({
     setLoadingId(submissionId);
 
     try {
-      const response = await fetch("/api/admin/approve-event", {
+      const response = await authFetch("/api/admin/approve-event", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -126,7 +127,7 @@ export default function AdminDashboard({
     setLoadingId(submissionId);
 
     try {
-      const response = await fetch("/api/admin/reject-submission", {
+      const response = await authFetch("/api/admin/reject-submission", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -154,7 +155,7 @@ export default function AdminDashboard({
     setLoadingId(eventId);
 
     try {
-      const response = await fetch("/api/admin/approve-event", {
+      const response = await authFetch("/api/admin/approve-event", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -185,7 +186,7 @@ export default function AdminDashboard({
     }));
 
     try {
-      const response = await fetch("/api/admin/update-lead-status", {
+      const response = await authFetch("/api/admin/update-lead-status", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -247,7 +248,7 @@ async function saveSubmissionEdits(submissionId: string) {
   try {
     setLoadingId(submissionId);
 
-    const response = await fetch("/api/admin/update-submission", {
+    const response = await authFetch("/api/admin/update-submission", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

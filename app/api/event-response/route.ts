@@ -5,6 +5,10 @@ import {
   calculateXpFromPasses,
   getUnlockedTraitByPassCount,
 } from "@/lib/mascot/progression";
+import {
+  requireAuthenticatedUser,
+  sameAuthenticatedUser,
+} from "@/lib/supabase/auth-server";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -14,21 +18,15 @@ const supabaseAdmin = createClient(
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-
     const { event_id, user_id, response, action } = body;
 
     if (!event_id) {
       return NextResponse.json(
-        { error: "event_id é obrigatório." },
+        { error: "event_id e obrigatorio." },
         { status: 400 }
       );
     }
 
-    /*
-      CASO 1:
-      Se o front mandar apenas event_id,
-      essa rota continua funcionando como contador de "vou".
-    */
     if (!user_id && !response && !action) {
       const { data, error } = await supabaseAdmin
         .from("event_responses")
@@ -36,52 +34,43 @@ export async function POST(request: Request) {
         .eq("event_id", event_id);
 
       if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json(
+          { error: "Nao foi possivel carregar a contagem." },
+          { status: 500 }
+        );
       }
 
       const going = (data ?? []).filter(
         (item) => item.response === "going" || item.response === "confirmed"
       ).length;
 
-      return NextResponse.json({
-        going,
-      });
+      return NextResponse.json({ going });
     }
 
-    /*
-      Daqui pra baixo precisa de usuário,
-      porque vamos salvar resposta individual.
-    */
-    if (!user_id) {
-      return NextResponse.json(
-        { error: "user_id é obrigatório para salvar resposta." },
-        { status: 400 }
-      );
+    const auth = await requireAuthenticatedUser(request);
+
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.message }, { status: auth.status });
     }
 
-    /*
-      Busca se esse usuário já respondeu esse evento.
-      Isso evita duplicar presença e evita somar Agenda Pass mais de uma vez.
-    */
+    if (!sameAuthenticatedUser(user_id, auth.user.id)) {
+      return NextResponse.json({ error: "Acesso negado." }, { status: 403 });
+    }
+
     const { data: existingResponse, error: existingError } = await supabaseAdmin
       .from("event_responses")
       .select("id, response")
       .eq("event_id", event_id)
-      .eq("user_id", user_id)
+      .eq("user_id", auth.user.id)
       .maybeSingle();
 
     if (existingError) {
       return NextResponse.json(
-        { error: existingError.message },
+        { error: "Nao foi possivel carregar a resposta." },
         { status: 500 }
       );
     }
 
-    /*
-      Define qual resposta vamos salvar.
-      - "going" = pessoa marcou "vou"
-      - "confirmed" = pessoa confirmou presença no evento
-    */
     const nextResponse =
       action === "confirm_presence" || response === "confirmed"
         ? "confirmed"
@@ -89,21 +78,16 @@ export async function POST(request: Request) {
           ? "not_going"
           : "going";
 
-    /*
-      Atualiza ou cria resposta do evento.
-      Não uso upsert aqui para não depender de constraint única no banco.
-    */
     if (existingResponse?.id) {
       const { error: updateError } = await supabaseAdmin
         .from("event_responses")
-        .update({
-          response: nextResponse,
-        })
-        .eq("id", existingResponse.id);
+        .update({ response: nextResponse })
+        .eq("id", existingResponse.id)
+        .eq("user_id", auth.user.id);
 
       if (updateError) {
         return NextResponse.json(
-          { error: updateError.message },
+          { error: "Nao foi possivel atualizar a resposta." },
           { status: 500 }
         );
       }
@@ -112,22 +96,18 @@ export async function POST(request: Request) {
         .from("event_responses")
         .insert({
           event_id,
-          user_id,
+          user_id: auth.user.id,
           response: nextResponse,
         });
 
       if (insertError) {
         return NextResponse.json(
-          { error: insertError.message },
+          { error: "Nao foi possivel criar a resposta." },
           { status: 500 }
         );
       }
     }
 
-    /*
-      Só evolui mascote quando for confirmação real de presença.
-      E só soma se a pessoa ainda NÃO tinha confirmado esse evento antes.
-    */
     const shouldEvolveMascot =
       nextResponse === "confirmed" && existingResponse?.response !== "confirmed";
 
@@ -138,20 +118,16 @@ export async function POST(request: Request) {
       const { data: currentMascot, error: mascotError } = await supabaseAdmin
         .from("user_mascots")
         .select("*")
-        .eq("user_id", user_id)
+        .eq("user_id", auth.user.id)
         .maybeSingle();
 
       if (mascotError) {
         return NextResponse.json(
-          { error: mascotError.message },
+          { error: "Nao foi possivel carregar o mascote." },
           { status: 500 }
         );
       }
 
-      /*
-        Se a pessoa ainda não criou mascote, não quebra o fluxo.
-        A presença é confirmada normalmente.
-      */
       if (currentMascot) {
         const newPassCount = (currentMascot.agenda_pass_count ?? 0) + 1;
         const newLevel = calculateMascotLevel(newPassCount);
@@ -192,11 +168,11 @@ export async function POST(request: Request) {
             unlocked_traits: updatedUnlockedTraits,
             updated_at: new Date().toISOString(),
           })
-          .eq("user_id", user_id);
+          .eq("user_id", auth.user.id);
 
         if (updateMascotError) {
           return NextResponse.json(
-            { error: updateMascotError.message },
+            { error: "Nao foi possivel atualizar o mascote." },
             { status: 500 }
           );
         }
@@ -205,9 +181,6 @@ export async function POST(request: Request) {
       }
     }
 
-    /*
-      Recalcula o contador atualizado.
-    */
     const { data: countData, error: countError } = await supabaseAdmin
       .from("event_responses")
       .select("response")
@@ -215,7 +188,7 @@ export async function POST(request: Request) {
 
     if (countError) {
       return NextResponse.json(
-        { error: countError.message },
+        { error: "Nao foi possivel recalcular a contagem." },
         { status: 500 }
       );
     }
@@ -233,7 +206,6 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Erro em /api/event-response:", error);
-
     return NextResponse.json(
       { error: "Erro interno do servidor." },
       { status: 500 }

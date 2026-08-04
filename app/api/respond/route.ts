@@ -1,21 +1,34 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import {
+  requireAuthenticatedUser,
+  sameAuthenticatedUser,
+} from "@/lib/supabase/auth-server";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+const allowedResponses = new Set(["going", "not_going"]);
+
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    console.log("BODY RECEBIDO EM /api/respond:", body);
+    const auth = await requireAuthenticatedUser(req);
 
-    const { event_id, user_id, response } = body;
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.message }, { status: auth.status });
+    }
 
-    if (!event_id || !user_id || !response) {
+    const { event_id, user_id, response } = await req.json();
+
+    if (!sameAuthenticatedUser(user_id, auth.user.id)) {
+      return NextResponse.json({ error: "Acesso negado." }, { status: 403 });
+    }
+
+    if (!event_id || !allowedResponses.has(response)) {
       return NextResponse.json(
-        { error: "event_id, user_id e response são obrigatórios." },
+        { error: "Dados de resposta invalidos." },
         { status: 400 }
       );
     }
@@ -25,7 +38,7 @@ export async function POST(req: Request) {
       .upsert(
         {
           event_id,
-          user_id,
+          user_id: auth.user.id,
           response,
         },
         {
@@ -34,9 +47,9 @@ export async function POST(req: Request) {
       );
 
     if (error) {
-      console.error("ERRO AO SALVAR EM event_responses:", error);
+      console.error("Erro ao salvar resposta de evento:", error);
       return NextResponse.json(
-        { error: error.message },
+        { error: "Nao foi possivel salvar a resposta." },
         { status: 500 }
       );
     }
@@ -44,9 +57,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("ERRO INTERNO /api/respond:", error);
-    return NextResponse.json(
-      { error: "Erro interno" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Erro interno" }, { status: 500 });
   }
 }

@@ -1,4 +1,64 @@
-import { getAdminDashboardData } from "@/lib/supabase/admin-queries";
+"use client";
+
+import { useEffect, useState } from "react";
+
+import { authFetch } from "@/lib/supabase/auth-fetch";
+
+type AdminDashboardOverview = {
+  activeEvents: number;
+  totalUsers: number;
+  totalActiveUsers: number;
+  totalLoggedInteractions: number;
+  totalUniqueLoggedViews: number;
+  totalViews: number;
+  totalSaves: number;
+  totalGoing: number;
+  totalIntentions: number;
+  totalCheckins: number;
+  totalPasses: number;
+  totalUsersWithPass: number;
+  totalRegistrationClicks: number;
+  intentRate: number;
+  actionsPerLoggedUser: number;
+  showUpRate: number;
+  registrationCtr: number;
+  pendingSubmissions: number;
+  totalSubscribers: number;
+  publishedEvents: number;
+};
+
+type TopCity = {
+  city: string;
+  total: number;
+};
+
+type TopCategory = {
+  category: string;
+  total: number;
+};
+
+type HotEvent = {
+  id: string;
+  title: string;
+  category?: string | null;
+  city?: string | null;
+  views: number;
+  unique_logged_views: number;
+  saves: number;
+  going: number;
+  checkins: number;
+  passes: number;
+  intent_rate: number;
+  show_up_rate: number;
+  intelligence_score: number;
+};
+
+type AdminDashboardData = {
+  overview: AdminDashboardOverview;
+  hotEvents: HotEvent[];
+  topCities: TopCity[];
+  topCategories: TopCategory[];
+};
 
 function MetricCard({
   title,
@@ -85,9 +145,70 @@ function SignalCard({
   );
 }
 
-export default async function AdminDashboardPage() {
-  const { overview, hotEvents, topCities, topCategories } =
-  await getAdminDashboardData();
+export default function AdminDashboardPage() {
+  const [data, setData] = useState<AdminDashboardData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadDashboard() {
+      try {
+        const response = await authFetch("/api/admin/dashboard");
+
+        if (!response.ok) {
+          throw new Error("Acesso administrativo restrito.");
+        }
+
+        const payload = await response.json();
+
+        if (active) {
+          setData(payload);
+        }
+      } catch (err) {
+        if (active) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Nao foi possivel carregar o dashboard."
+          );
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadDashboard();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[#08080C] px-6 py-8 text-white">
+        <div className="mx-auto max-w-7xl text-sm text-zinc-400">
+          Carregando dashboard...
+        </div>
+      </main>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <main className="min-h-screen bg-[#08080C] px-6 py-8 text-white">
+        <div className="mx-auto max-w-7xl rounded-xl border border-red-400/20 bg-red-500/10 p-5 text-sm text-red-100">
+          {error ?? "Acesso administrativo restrito."}
+        </div>
+      </main>
+    );
+  }
+
+  const { overview, hotEvents, topCities, topCategories } = data;
 
   const funnelMax = Math.max(
     overview.totalViews,

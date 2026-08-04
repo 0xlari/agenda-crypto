@@ -1,6 +1,7 @@
 "use client";
 
 import { supabase } from "@/lib/supabase/client";
+import { authFetch } from "@/lib/supabase/auth-fetch";
 
 type Props = {
   eventId: string;
@@ -14,7 +15,7 @@ export default function RegistrationClickButton({ eventId, url }: Props) {
         data: { user },
       } = await supabase.auth.getUser();
 
-      await fetch("/api/track-event", {
+      await authFetch("/api/track-event", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
+import { authFetch } from "@/lib/supabase/auth-fetch";
 import AgendaPass from "@/componentes/agenda-pass";
 import ConfirmPresenceButton from "@/componentes/confirm-presence-button";
 import PassDropModal from "./pass-drop-modal";
@@ -176,7 +177,7 @@ export default function MinhaAgendaClient() {
           return;
         }
 
-        const recommendationsResponse = await fetch("/api/recommendations", {
+        const recommendationsResponse = await authFetch("/api/recommendations", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -192,7 +193,7 @@ export default function MinhaAgendaClient() {
           setRecommended(recommendationsJson.data || []);
         }
 
-        const passesResponse = await fetch("/api/my-passes", {
+        const passesResponse = await authFetch("/api/my-passes", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

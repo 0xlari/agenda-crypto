@@ -1,78 +1,72 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import AdminDashboard from "@/componentes/admin-dashboard";
-import { createClient } from "@supabase/supabase-js";
+import { authFetch } from "@/lib/supabase/auth-fetch";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+type AdminData = {
+  stats: any;
+  pendingEvents: any[];
+  leads: any[];
+  pendingSubmissions: any[];
+};
 
-async function getAdminData() {
-  const today = new Date().toISOString();
+export default function AdminPage() {
+  const [data, setData] = useState<AdminData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const [
-    { count: publishedCount },
-    { count: activeCount },
-    { count: goingCount },
-    { count: agendaViewsCount },
-  ] = await Promise.all([
-    supabase
-      .from("events")
-      .select("*", { count: "exact", head: true })
-      .eq("published", true),
+  useEffect(() => {
+    async function loadAdminData() {
+      try {
+        const response = await authFetch("/api/admin/overview");
+        const json = await response.json();
 
-    supabase
-      .from("events")
-      .select("*", { count: "exact", head: true })
-      .eq("published", true)
-      .gte("end_date", today),
+        if (!response.ok) {
+          setError(json.error || "Acesso negado.");
+          return;
+        }
 
-    supabase
-      .from("event_responses")
-      .select("*", { count: "exact", head: true })
-      .eq("response", "going"),
+        setData(json);
+      } catch (err) {
+        console.error("Erro ao carregar admin:", err);
+        setError("Nao foi possivel carregar o painel.");
+      } finally {
+        setLoading(false);
+      }
+    }
 
-    supabase
-      .from("page_views")
-      .select("*", { count: "exact", head: true })
-      .eq("page", "agenda"),
-  ]);
+    loadAdminData();
+  }, []);
 
-  const { data: pendingEvents } = await supabase
-    .from("events")
-    .select("id,title,city,start_date,published")
-    .eq("published", false)
-    .order("start_date", { ascending: true });
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[#212121] px-6 py-16 text-white">
+        <div className="mx-auto max-w-7xl">Carregando painel...</div>
+      </main>
+    );
+  }
 
-  const { data: leads } = await supabase
-    .from("event_submissions")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(20);
-
-  const { data: pendingSubmissions } = await supabase
-    .from("event_submissions")
-    .select("*")
-    .eq("interest_type", "free_listing")
-    .eq("status", "new")
-    .order("created_at", { ascending: false });
-
-  return {
-    stats: {
-      publishedCount: publishedCount || 0,
-      activeCount: activeCount || 0,
-      goingCount: goingCount || 0,
-      agendaViewsCount: agendaViewsCount || 0,
-      leadsCount: leads?.length || 0,
-    },
-    pendingEvents: pendingEvents || [],
-    leads: leads || [],
-    pendingSubmissions: pendingSubmissions || [],
-  };
-}
-
-export default async function AdminPage() {
-  const data = await getAdminData();
+  if (error || !data) {
+    return (
+      <main className="min-h-screen bg-[#212121] px-6 py-16 text-white">
+        <div className="mx-auto max-w-2xl rounded-3xl border border-white/10 bg-white/[0.04] p-8">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#EC4899]">
+            Admin
+          </p>
+          <h1 className="mt-3 text-3xl font-black">Acesso restrito</h1>
+          <p className="mt-3 text-white/60">{error || "Acesso negado."}</p>
+          <Link
+            href="/"
+            className="mt-6 inline-flex rounded-full bg-[#FFD600] px-5 py-3 text-sm font-bold text-black"
+          >
+            Voltar para o site
+          </Link>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[#212121] px-6 py-16 text-white">
@@ -84,7 +78,7 @@ export default async function AdminPage() {
             </p>
             <h1 className="mt-3 text-4xl font-black">Painel da Agenda Crypto</h1>
             <p className="mt-3 text-white/60">
-              Operação, leads e visão geral do produto em um só lugar.
+              Operacao, leads e visao geral do produto em um so lugar.
             </p>
           </div>
 

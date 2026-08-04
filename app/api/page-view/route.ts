@@ -6,13 +6,24 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+function normalizePage(value: unknown) {
+  if (typeof value !== "string") return null;
+
+  const page = value.trim();
+
+  if (!page || page.length > 180) return null;
+
+  return page;
+}
+
 export async function POST(req: Request) {
   try {
-    const { page } = await req.json();
+    const body = await req.json();
+    const page = normalizePage(body?.page);
 
     if (!page) {
       return NextResponse.json(
-        { error: "Page é obrigatória." },
+        { error: "Page e obrigatoria." },
         { status: 400 }
       );
     }
@@ -22,11 +33,18 @@ export async function POST(req: Request) {
     });
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      console.error("Erro ao registrar page view:", error.message);
+
+      return NextResponse.json(
+        { error: "Erro ao registrar acesso." },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({ success: true });
-  } catch {
+  } catch (err) {
+    console.error("Erro geral page-view:", err);
+
     return NextResponse.json(
       { error: "Erro ao registrar acesso." },
       { status: 500 }

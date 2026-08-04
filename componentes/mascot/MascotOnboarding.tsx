@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { MascotAvatar } from "./MascotAvatar";
 import { getInitialTraits } from "@/lib/mascot/getInitialMascot";
+import { authFetch } from "@/lib/supabase/auth-fetch";
 
 type MascotOnboardingProps = {
   userId: string;
@@ -123,7 +124,7 @@ export function MascotOnboarding({
     setLoading(true);
 
     try {
-      const response = await fetch("/api/mascot/onboarding", {
+      const response = await authFetch("/api/mascot/onboarding", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

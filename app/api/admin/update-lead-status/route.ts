@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { requireAdminUser } from "@/lib/supabase/auth-server";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,6 +9,12 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
+    const auth = await requireAdminUser(req);
+
+    if (!auth.ok) {
+      return NextResponse.json({ error: auth.message }, { status: auth.status });
+    }
+
     const { submissionId, leadStatus } = await req.json();
 
     if (!submissionId || !leadStatus) {
@@ -34,8 +41,10 @@ export async function POST(req: Request) {
       .eq("id", submissionId);
 
     if (error) {
+      console.error("Erro ao atualizar status do lead:", error);
+
       return NextResponse.json(
-        { error: `Erro ao atualizar status: ${error.message}` },
+        { error: "Nao foi possivel atualizar o status." },
         { status: 500 }
       );
     }

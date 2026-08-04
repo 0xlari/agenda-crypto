@@ -6,13 +6,33 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+function normalizeEmail(value: unknown) {
+  if (typeof value !== "string") return null;
+
+  const email = value.trim().toLowerCase();
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
+    return null;
+  }
+
+  return email;
+}
+
+function normalizeSource(value: unknown) {
+  if (typeof value !== "string") return "site";
+
+  return value.trim().slice(0, 80) || "site";
+}
+
 export async function POST(req: Request) {
   try {
-    const { email, source } = await req.json();
+    const body = await req.json();
+    const email = normalizeEmail(body?.email);
+    const source = normalizeSource(body?.source);
 
     if (!email) {
       return NextResponse.json(
-        { error: "Email é obrigatório" },
+        { error: "Email valido e obrigatorio" },
         { status: 400 }
       );
     }
@@ -24,10 +44,10 @@ export async function POST(req: Request) {
       .maybeSingle();
 
     if (checkError) {
-      console.error("Erro ao verificar subscriber:", checkError);
+      console.error("Erro ao verificar subscriber:", checkError.message);
 
       return NextResponse.json(
-        { error: `Erro ao verificar email no Supabase: ${checkError.message}` },
+        { error: "Erro ao verificar email." },
         { status: 500 }
       );
     }
@@ -35,7 +55,7 @@ export async function POST(req: Request) {
     if (existingSubscriber) {
       return NextResponse.json({
         success: true,
-        message: "Você já está inscrito 😉",
+        message: "Voce ja esta inscrito.",
       });
     }
 
@@ -43,15 +63,15 @@ export async function POST(req: Request) {
       .from("subscribers")
       .insert({
         email,
-        source: source || "site",
+        source,
         status: "active",
       });
 
     if (supabaseError) {
-      console.error("Erro Supabase:", supabaseError);
+      console.error("Erro Supabase subscribe:", supabaseError.message);
 
       return NextResponse.json(
-        { error: `Erro ao salvar no Supabase: ${supabaseError.message}` },
+        { error: "Erro ao salvar inscricao." },
         { status: 500 }
       );
     }
@@ -70,8 +90,7 @@ export async function POST(req: Request) {
     });
 
     if (!brevoResponse.ok) {
-      const brevoData = await brevoResponse.text();
-      console.error("Erro Brevo:", brevoData);
+      console.error("Erro Brevo:", brevoResponse.status);
 
       return NextResponse.json(
         { error: "Salvou no Supabase, mas falhou no Brevo." },
@@ -81,7 +100,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "Inscrição realizada com sucesso.",
+      message: "Inscricao realizada com sucesso.",
     });
   } catch (err) {
     console.error("Erro geral subscribe:", err);
