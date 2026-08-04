@@ -7,6 +7,8 @@ import EventResponse from "@/componentes/event-response";
 import EventViewTracker from "@/componentes/event_view_tracker";
 import { getRelatedEvents } from "@/lib/supabase/queries";
 import RegistrationClickButton from "@/componentes/registration-click-button";
+import ReferralVisitTracker from "@/componentes/referrals/referral-visit-tracker";
+import EventReferralShare from "@/componentes/referrals/event-referral-share";
 import { absoluteUrl, SEO_IMAGE, SITE_NAME, seoDescription } from "@/lib/seo";
 
 function formatDate(dateString: string) {
@@ -17,6 +19,7 @@ function formatDate(dateString: string) {
 
 type EventPageProps = {
   params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ ref?: string | string[] }>;
 };
 
 type EventCardItem = {
@@ -110,8 +113,11 @@ export async function generateMetadata({
 
 export default async function EventPage({
   params,
+  searchParams,
 }: EventPageProps) {
   const { slug } = await params;
+  const query = searchParams ? await searchParams : {};
+  const referralCode = Array.isArray(query.ref) ? query.ref[0] : query.ref;
   const event = await getEventBySlug(slug);
   const childEvents = event ? await getChildEvents(event.id) : [];
   const officialProgram = childEvents.filter(
@@ -178,6 +184,12 @@ export default async function EventPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd) }}
       />
       <EventViewTracker eventId={event.id} />
+      <ReferralVisitTracker
+        eventId={event.id}
+        eventSlug={event.slug}
+        hasTrail={childEvents.length > 0}
+        referralCode={referralCode}
+      />
       {/* HERO */}
       <section className="border-b border-white/10">
         <div className="mx-auto max-w-7xl px-5 py-8 sm:px-6 md:py-12">
@@ -382,6 +394,12 @@ export default async function EventPage({
   </section>
 )}
       </section>
+
+      <EventReferralShare
+        eventTitle={event.title}
+        eventSlug={event.slug}
+        hasTrail={childEvents.length > 0}
+      />
 
       {officialProgram.length > 0 && (
         <section className="mx-auto max-w-7xl overflow-hidden px-5 pb-10 sm:px-6 md:pb-12">

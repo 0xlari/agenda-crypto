@@ -1,6 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import {
+  getReferralVisitorId,
+  getStoredReferralContext,
+} from "@/lib/referrals/client";
 
 export default function NewsletterSection() {
   const [email, setEmail] = useState("");
@@ -13,15 +17,22 @@ export default function NewsletterSection() {
     setMessage("");
 
     try {
+      const referral = getStoredReferralContext();
+      const referralVisitorId = referral ? getReferralVisitorId() : null;
+
       const response = await fetch("/api/subscribe", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           email,
           source: "home",
-         }),
+          referralCode: referral?.code,
+          referralVisitorId,
+          referralSourceType: referral?.sourceType,
+          referralEventSlug: referral?.eventSlug,
+        }),
       });
 
       const data = await response.json();
@@ -31,7 +42,7 @@ export default function NewsletterSection() {
         return;
       }
 
-      setMessage("Inscrição realizada com sucesso.");
+      setMessage(data.message || "Inscrição realizada com sucesso.");
       setEmail("");
     } catch {
       setMessage("Erro ao conectar com o servidor.");
