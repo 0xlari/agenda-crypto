@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import AgendaHighlightCard from "@/componentes/agenda-highlight-card";
 
 type Stats = {
   publishedCount: number;
@@ -344,6 +345,7 @@ async function saveSubmissionEdits(submissionId: string) {
 
                     {submission.image_url ? (
                       <div className="mt-4 overflow-hidden rounded-2xl border border-white/10">
+                        {/* eslint-disable-next-line @next/next/no-img-element -- Admin preview accepts user-provided and Supabase URLs. */}
                         <img
                           src={submission.image_url}
                           alt={submission.event_title}
@@ -401,13 +403,12 @@ async function saveSubmissionEdits(submissionId: string) {
                     </p>
                   )}
                   {submission.agenda_highlight && (
-                    <div className="mt-4 rounded-2xl border border-[#19B5C9]/20 bg-[#19B5C9]/10 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#19B5C9]">
-                        Destacar na Agenda Crypto
-                      </p>
-                      <p className="mt-2 text-sm leading-6 text-white/75">
-                        {submission.agenda_highlight}
-                      </p>
+                    <div className="mt-4">
+                      <AgendaHighlightCard
+                        value={submission.agenda_highlight}
+                        eyebrow="Curadoria"
+                        title="Leitura editorial do evento"
+                      />
                     </div>
                   )}
 
@@ -539,7 +540,16 @@ async function saveSubmissionEdits(submissionId: string) {
           onChange={(e) =>
             setEditForm((prev) => ({ ...prev, agenda_highlight: e.target.value }))
           }
-          placeholder="Olhar da Agenda Crypto"
+          placeholder={`Para quem vale a pena:
+desenvolvedores, estudantes, founders ou comunidade...
+
+Formato: Meetup, Networking
+Nível: Intermediário, Técnico
+Tema: Bitcoin
+Oportunidade: Aprendizado, Comunidade
+
+Observação para curadoria:
+algo importante para revisar antes de publicar`}
           className="min-h-[110px] rounded-xl bg-white/10 px-4 py-3 text-white outline-none md:col-span-2"
         />
 

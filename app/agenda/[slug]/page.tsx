@@ -5,6 +5,7 @@ import Image from "next/image";
 import NewsletterSignup from "@/componentes/newsletter-signup";
 import EventResponse from "@/componentes/event-response";
 import EventViewTracker from "@/componentes/event_view_tracker";
+import AgendaHighlightCard from "@/componentes/agenda-highlight-card";
 import { getRelatedEvents } from "@/lib/supabase/queries";
 import RegistrationClickButton from "@/componentes/registration-click-button";
 import ReferralVisitTracker from "@/componentes/referrals/referral-visit-tracker";
@@ -448,9 +449,13 @@ export default async function EventPage({
       A leitura da Agenda sobre este movimento
     </h2>
 
-    <p className="mt-4 max-w-4xl text-base leading-8 text-white/78">
-      {event.agenda_highlight}
-    </p>
+    <div className="mt-6 max-w-5xl">
+      <AgendaHighlightCard
+        value={event.agenda_highlight}
+        eyebrow="Curadoria"
+        title="Para quem vale a pena participar"
+      />
+    </div>
 
     {childEvents.length > 0 && (
       <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4">

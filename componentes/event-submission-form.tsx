@@ -1,6 +1,11 @@
 "use client";
 
-import { type FormEvent, useState } from "react";
+import {
+  type Dispatch,
+  type FormEvent,
+  type SetStateAction,
+  useState,
+} from "react";
 
 type InterestType = "free_listing" | "promo_package" | "event_production";
 type QuickPlatformId = "luma" | "sympla" | "eventbrite" | "meetup" | "other";
@@ -58,6 +63,43 @@ const QUICK_PLATFORM_OPTIONS: Array<{
   },
 ];
 
+const FORMAT_OPTIONS = [
+  "Meetup",
+  "Conferência",
+  "Workshop",
+  "Hackathon",
+  "Side event",
+  "Networking",
+  "Online",
+];
+
+const LEVEL_OPTIONS = [
+  "Iniciante",
+  "Intermediário",
+  "Avançado",
+  "Técnico",
+  "Executivo",
+];
+
+const TOPIC_OPTIONS = [
+  "Bitcoin",
+  "DeFi",
+  "IA",
+  "Fintech",
+  "Regulação",
+  "Infraestrutura",
+  "Comunidade",
+];
+
+const OPPORTUNITY_OPTIONS = [
+  "Aprendizado",
+  "Networking",
+  "Parcerias",
+  "Cobertura",
+  "Patrocínio",
+  "Agenda Pass",
+];
+
 export default function EventSubmissionForm({
   defaultInterestType = "free_listing",
   title = "Cadastre seu evento",
@@ -76,7 +118,14 @@ export default function EventSubmissionForm({
   const [endDate, setEndDate] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [eventTime, setEventTime] = useState("");
-  const [agendaHighlight, setAgendaHighlight] = useState("");
+  const [audienceInsight, setAudienceInsight] = useState("");
+  const [editorialNotes, setEditorialNotes] = useState("");
+  const [selectedFormats, setSelectedFormats] = useState<string[]>([]);
+  const [selectedLevels, setSelectedLevels] = useState<string[]>([]);
+  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+  const [selectedOpportunities, setSelectedOpportunities] = useState<string[]>(
+    []
+  );
   const [interestType, setInterestType] =
     useState<InterestType>(defaultInterestType);
 
@@ -224,7 +273,14 @@ export default function EventSubmissionForm({
           tags,
           image_url: imageUrl,
           interest_type: interestType,
-          agenda_highlight: agendaHighlight,
+          agenda_highlight: buildAgendaHighlightPayload({
+            audienceInsight,
+            formats: selectedFormats,
+            levels: selectedLevels,
+            opportunities: selectedOpportunities,
+            topics: selectedTopics,
+            editorialNotes,
+          }),
         }),
       });
 
@@ -261,7 +317,12 @@ export default function EventSubmissionForm({
     setTags("");
     setImageUrl("");
     setEventTime("");
-    setAgendaHighlight("");
+    setAudienceInsight("");
+    setEditorialNotes("");
+    setSelectedFormats([]);
+    setSelectedLevels([]);
+    setSelectedTopics([]);
+    setSelectedOpportunities([]);
     setInterestType(defaultInterestType);
     setSelectedPlatform(null);
     setShowManualForm(false);
@@ -491,12 +552,59 @@ export default function EventSubmissionForm({
             className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none transition hover:border-[#19B5C9]/35 focus:border-[#19B5C9]/55 md:col-span-2"
           />
 
-          <textarea
-            placeholder="O que vale a pena a Agenda Crypto destacar nesse evento? (opcional)"
-            value={agendaHighlight}
-            onChange={(e) => setAgendaHighlight(e.target.value)}
-            className="min-h-[120px] rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-white placeholder:text-white/35 outline-none transition hover:border-[#19B5C9]/35 focus:border-[#19B5C9]/55 md:col-span-2"
-          />
+          <div className="rounded-[28px] border border-[#19B5C9]/20 bg-[#19B5C9]/8 p-4 md:col-span-2 sm:p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#19B5C9]">
+              Insight editorial
+            </p>
+            <h4 className="mt-2 text-lg font-black text-white">
+              Para quem vale a pena participar?
+            </h4>
+            <p className="mt-2 text-sm leading-6 text-white/65">
+              Escreva em formato de texto. A Agenda Crypto transforma isso em
+              um bloco limpo para curadoria, sem você precisar formatar.
+            </p>
+
+            <textarea
+              placeholder="Ex: Para quem vale a pena: desenvolvedores, estudantes de tecnologia, pesquisadores e pessoas que desejam compreender o Bitcoin além do mercado. Iniciantes são aceitos, mas vale estudar os fundamentos antes..."
+              value={audienceInsight}
+              onChange={(e) => setAudienceInsight(e.target.value)}
+              className="mt-4 min-h-[150px] w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder:text-white/35 outline-none transition hover:border-[#19B5C9]/35 focus:border-[#19B5C9]/55"
+            />
+
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <EditorialChipGroup
+                label="Formato"
+                options={FORMAT_OPTIONS}
+                selected={selectedFormats}
+                setSelected={setSelectedFormats}
+              />
+              <EditorialChipGroup
+                label="Nível"
+                options={LEVEL_OPTIONS}
+                selected={selectedLevels}
+                setSelected={setSelectedLevels}
+              />
+              <EditorialChipGroup
+                label="Tema"
+                options={TOPIC_OPTIONS}
+                selected={selectedTopics}
+                setSelected={setSelectedTopics}
+              />
+              <EditorialChipGroup
+                label="Oportunidade"
+                options={OPPORTUNITY_OPTIONS}
+                selected={selectedOpportunities}
+                setSelected={setSelectedOpportunities}
+              />
+            </div>
+
+            <textarea
+              placeholder="Observação opcional para a curadoria da Agenda Crypto"
+              value={editorialNotes}
+              onChange={(e) => setEditorialNotes(e.target.value)}
+              className="mt-4 min-h-[95px] w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder:text-white/35 outline-none transition hover:border-[#19B5C9]/35 focus:border-[#19B5C9]/55"
+            />
+          </div>
 
           <div className="space-y-3 md:col-span-2">
             <input
@@ -607,4 +715,97 @@ export default function EventSubmissionForm({
       )}
     </div>
   );
+}
+
+function EditorialChipGroup({
+  label,
+  options,
+  selected,
+  setSelected,
+}: {
+  label: string;
+  options: string[];
+  selected: string[];
+  setSelected: Dispatch<SetStateAction<string[]>>;
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-black/15 p-4">
+      <p className="mb-3 text-sm font-semibold text-white/80">{label}</p>
+      <div className="flex flex-wrap gap-2">
+        {options.map((option) => {
+          const isSelected = selected.includes(option);
+
+          return (
+            <button
+              key={option}
+              type="button"
+              aria-pressed={isSelected}
+              onClick={() => toggleSelection(option, setSelected)}
+              className={`rounded-full border px-3 py-2 text-xs font-semibold transition ${
+                isSelected
+                  ? "border-[#FFD600]/70 bg-[#FFD600] text-black"
+                  : "border-white/10 bg-white/[0.04] text-white/65 hover:border-[#19B5C9]/45 hover:bg-[#19B5C9]/10 hover:text-[#19B5C9]"
+              }`}
+            >
+              {option}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function toggleSelection(
+  option: string,
+  setSelected: Dispatch<SetStateAction<string[]>>
+) {
+  setSelected((current) =>
+    current.includes(option)
+      ? current.filter((item) => item !== option)
+      : [...current, option]
+  );
+}
+
+function buildAgendaHighlightPayload({
+  audienceInsight,
+  formats,
+  levels,
+  opportunities,
+  topics,
+  editorialNotes,
+}: {
+  audienceInsight: string;
+  formats: string[];
+  levels: string[];
+  opportunities: string[];
+  topics: string[];
+  editorialNotes: string;
+}) {
+  const sections = [
+    formatLongSection("Para quem vale a pena", audienceInsight),
+    formatListSection("Formato", formats),
+    formatListSection("Nível", levels),
+    formatListSection("Tema", topics),
+    formatListSection("Oportunidade", opportunities),
+    formatLongSection("Observação para curadoria", editorialNotes),
+  ].filter(Boolean);
+
+  return sections.join("\n\n");
+}
+
+function formatListSection(label: string, values: string[]) {
+  return values.length > 0 ? `${label}: ${values.join(", ")}` : "";
+}
+
+function formatLongSection(label: string, value: string) {
+  const normalizedValue = value.trim();
+
+  if (!normalizedValue) {
+    return "";
+  }
+
+  return normalizedValue.toLowerCase().startsWith(`${label.toLowerCase()}:`)
+    ? normalizedValue
+    : `${label}:\n${normalizedValue}`;
 }
