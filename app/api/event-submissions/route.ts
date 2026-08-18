@@ -26,6 +26,7 @@ export async function POST(req: Request) {
       interest_type,
       event_time,
       agenda_highlight,
+      internal_notes,
     } = body;
 
     if (!contact_name || !email || !event_title) {
@@ -51,6 +52,7 @@ export async function POST(req: Request) {
       tags: tags || null,
       image_url: image_url || null,
       interest_type: interest_type || "free_listing",
+      internal_notes: internal_notes || null,
       status: "new",
     });
 

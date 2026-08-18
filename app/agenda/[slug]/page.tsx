@@ -9,7 +9,15 @@ import { getRelatedEvents } from "@/lib/supabase/queries";
 import RegistrationClickButton from "@/componentes/registration-click-button";
 import ReferralVisitTracker from "@/componentes/referrals/referral-visit-tracker";
 import EventReferralShare from "@/componentes/referrals/event-referral-share";
-import { absoluteUrl, SEO_IMAGE, SITE_NAME, seoDescription } from "@/lib/seo";
+import {
+  absoluteImageUrl,
+  absoluteUrl,
+  compactJsonLd,
+  formatDateForSeo,
+  SEO_IMAGE,
+  SITE_NAME,
+  seoDescription,
+} from "@/lib/seo";
 
 function formatDate(dateString: string) {
   return new Date(`${dateString}T00:00:00`).toLocaleDateString("pt-BR", {
@@ -47,6 +55,87 @@ function schemaDate(dateString: string | null | undefined, eventTime?: string | 
   return time ? `${dateString}T${time}:00-03:00` : dateString;
 }
 
+function buildEventSeoTitle(event: {
+  title: string;
+  city?: string | null;
+  start_date?: string | null;
+}) {
+  const date = formatDateForSeo(event.start_date);
+  const city = event.city?.trim();
+
+  if (city && date) return `${event.title} | ${city} em ${date}`;
+  if (city) return `${event.title} | Evento cripto/Web3 em ${city}`;
+  if (date) return `${event.title} | Evento cripto/Web3 em ${date}`;
+
+  return `${event.title} | Evento cripto/Web3`;
+}
+
+function buildEventDescription(event: {
+  title: string;
+  short_description?: string | null;
+  description?: string | null;
+  city?: string | null;
+  start_date?: string | null;
+}) {
+  const date = formatDateForSeo(event.start_date);
+  const city = event.city?.trim();
+  const locationText = city ? ` em ${city}` : "";
+  const dateText = date ? ` no dia ${date}` : "";
+
+  return seoDescription(
+    event.short_description || event.description,
+    `Veja data, local, inscrição e programação de ${event.title}${locationText}${dateText} na Agenda Crypto, a agenda de eventos cripto, Web3 e blockchain.`,
+    170
+  );
+}
+
+function buildEventAttendanceMode(event: {
+  is_online?: boolean | null;
+  city?: string | null;
+  venue?: string | null;
+}) {
+  if (event.is_online === true) {
+    return "https://schema.org/OnlineEventAttendanceMode";
+  }
+
+  if (event.is_online === false || event.city || event.venue) {
+    return "https://schema.org/OfflineEventAttendanceMode";
+  }
+
+  return undefined;
+}
+
+function buildEventLocation(
+  event: {
+    is_online?: boolean | null;
+    registration_url?: string | null;
+    source_url?: string | null;
+    venue?: string | null;
+    city?: string | null;
+    country?: string | null;
+  },
+  eventUrl: string
+) {
+  if (event.is_online === true) {
+    return {
+      "@type": "VirtualLocation",
+      url: event.registration_url || event.source_url || eventUrl,
+    };
+  }
+
+  if (!event.venue && !event.city && !event.country) return undefined;
+
+  return {
+    "@type": "Place",
+    name: event.venue || event.city || event.country,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: event.city,
+      addressCountry: event.country,
+    },
+  };
+}
+
 export async function generateMetadata({
   params,
 }: EventPageProps): Promise<Metadata> {
@@ -63,12 +152,10 @@ export async function generateMetadata({
     };
   }
 
-  const description = seoDescription(
-    event.short_description || event.description,
-    `Detalhes de ${event.title} na Agenda Crypto.`
-  );
+  const title = buildEventSeoTitle(event);
+  const description = buildEventDescription(event);
   const eventUrl = `/agenda/${event.slug}`;
-  const image = event.image_url || SEO_IMAGE;
+  const image = absoluteImageUrl(event.image_url || SEO_IMAGE);
   const keywords = [
     event.title,
     event.category,
@@ -82,7 +169,7 @@ export async function generateMetadata({
   );
 
   return {
-    title: event.title,
+    title,
     description,
     keywords,
     alternates: {
@@ -93,7 +180,7 @@ export async function generateMetadata({
       locale: "pt_BR",
       url: eventUrl,
       siteName: SITE_NAME,
-      title: event.title,
+      title,
       description,
       images: [
         {
@@ -104,7 +191,7 @@ export async function generateMetadata({
     },
     twitter: {
       card: event.image_url ? "summary_large_image" : "summary",
-      title: event.title,
+      title,
       description,
       images: [image],
     },
@@ -136,45 +223,32 @@ export default async function EventPage({
     return notFound();
   }
 
-  const eventDescription = seoDescription(
-    event.short_description || event.description,
-    `Detalhes de ${event.title} na Agenda Crypto.`
-  );
+  const eventDescription = buildEventDescription(event);
   const eventUrl = absoluteUrl(`/agenda/${event.slug}`);
-  const eventImage = event.image_url || absoluteUrl(SEO_IMAGE);
-  const eventJsonLd = {
+  const eventJsonLd = compactJsonLd({
     "@context": "https://schema.org",
     "@type": "Event",
     name: event.title,
     description: eventDescription,
     url: eventUrl,
-    image: [eventImage],
+    image: event.image_url ? [absoluteImageUrl(event.image_url)] : undefined,
     startDate: schemaDate(event.start_date, event.event_time),
-    endDate: schemaDate(event.end_date || event.start_date, event.event_time),
+    endDate: event.end_date ? schemaDate(event.end_date, event.event_time) : undefined,
     eventStatus: "https://schema.org/EventScheduled",
-    eventAttendanceMode: event.is_online
-      ? "https://schema.org/OnlineEventAttendanceMode"
-      : "https://schema.org/OfflineEventAttendanceMode",
-    location: event.is_online
+    eventAttendanceMode: buildEventAttendanceMode(event),
+    location: buildEventLocation(event, eventUrl),
+    offers: event.registration_url
       ? {
-          "@type": "VirtualLocation",
-          url: event.registration_url || event.source_url || eventUrl,
+          "@type": "Offer",
+          url: event.registration_url,
+          availability: "https://schema.org/InStock",
         }
-      : {
-          "@type": "Place",
-          name: event.venue || event.city || "Local a confirmar",
-          address: {
-            "@type": "PostalAddress",
-            addressLocality: event.city || undefined,
-            addressCountry: event.country || undefined,
-          },
-        },
-    organizer: {
-      "@type": "Organization",
-      name: SITE_NAME,
-      url: absoluteUrl("/agenda"),
+      : undefined,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": eventUrl,
     },
-  };
+  });
 
   return (
     <main className="min-h-screen bg-[#212121] text-[#F5F5F5]">

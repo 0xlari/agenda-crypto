@@ -1,5 +1,49 @@
+import type { Metadata } from "next";
 import EventSubmissionForm from "@/componentes/event-submission-form";
 import PageTour from "@/componentes/onboarding/page-tour";
+import {
+  absoluteUrl,
+  compactJsonLd,
+  createPageMetadata,
+  SITE_NAME,
+} from "@/lib/seo";
+
+const DIVULGACAO_TITLE = "Divulgue eventos cripto, Web3 e blockchain no Brasil";
+const DIVULGACAO_DESCRIPTION =
+  "Cadastre e divulgue seu evento cripto, Web3, blockchain, fintech ou IA na Agenda Crypto para alcançar comunidades, builders e empresas do ecossistema.";
+
+export const metadata: Metadata = createPageMetadata({
+  title: DIVULGACAO_TITLE,
+  description: DIVULGACAO_DESCRIPTION,
+  path: "/divulgacao",
+  keywords: [
+    "divulgar evento cripto",
+    "divulgacao de eventos web3",
+    "cadastrar evento blockchain",
+    "marketing para eventos cripto",
+    "eventos fintech",
+  ],
+});
+
+const divulgacaoJsonLd = compactJsonLd({
+  "@context": "https://schema.org",
+  "@type": "Service",
+  name: "Divulgação de eventos cripto, Web3 e blockchain",
+  serviceType: "Divulgação e distribuição de eventos",
+  description: DIVULGACAO_DESCRIPTION,
+  url: absoluteUrl("/divulgacao"),
+  provider: {
+    "@type": "Organization",
+    name: SITE_NAME,
+    url: absoluteUrl("/agenda"),
+  },
+  areaServed: ["Brasil", "América Latina"],
+  audience: {
+    "@type": "Audience",
+    audienceType:
+      "Organizadores de eventos, comunidades Web3, empresas cripto e fintechs",
+  },
+});
 
 const whatsappMessage = encodeURIComponent(
   "Olá! Quero entender melhor os formatos de destaque, cobertura e divulgação da Agenda Crypto para o meu evento."
@@ -8,6 +52,10 @@ const whatsappMessage = encodeURIComponent(
 export default function DivulgacaoPage() {
   return (
     <main className="min-h-screen bg-[#212121] px-3 py-10 text-white sm:px-6 sm:py-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(divulgacaoJsonLd) }}
+      />
       <PageTour
         pageId="divulgacao"
         steps={[

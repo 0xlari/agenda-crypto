@@ -2,6 +2,8 @@ import Link from "next/link";
 import AdminDashboard from "@/componentes/admin-dashboard";
 import { createClient } from "@supabase/supabase-js";
 
+export const dynamic = "force-dynamic";
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -47,6 +49,7 @@ async function getAdminData() {
   const { data: leads } = await supabase
     .from("event_submissions")
     .select("*")
+    .or("status.is.null,status.neq.rejected")
     .order("created_at", { ascending: false })
     .limit(20);
 

@@ -49,6 +49,35 @@ type Suggestion = {
   countryKey?: string;
 };
 
+function normalizeSearchText(value: string | null | undefined) {
+  return normalize(value || "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function matchesSearchText(
+  value: string | null | undefined,
+  normalizedQuery: string
+) {
+  if (!normalizedQuery) return true;
+
+  const normalizedValue = normalizeSearchText(value);
+  if (!normalizedValue) return false;
+  if (normalizedValue.includes(normalizedQuery)) return true;
+
+  const compactValue = normalizedValue.replace(/\s+/g, "");
+  const compactQuery = normalizedQuery.replace(/\s+/g, "");
+
+  if (compactValue.includes(compactQuery)) return true;
+
+  const queryTokens = normalizedQuery.split(" ").filter(Boolean);
+  return (
+    queryTokens.length > 1 &&
+    queryTokens.every((token) => normalizedValue.includes(token))
+  );
+}
+
 function formatEventDate(dateString: string) {
   return new Date(`${dateString}T00:00:00`).toLocaleDateString("pt-BR", {
     day: "2-digit",
@@ -415,19 +444,25 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
         index ===
         self.findIndex(
           (candidate) =>
-            normalize(candidate.value) === normalize(item.value) &&
+            normalizeSearchText(candidate.value) ===
+              normalizeSearchText(item.value) &&
             candidate.type === item.type
         )
     );
   }, [countryStats, events]);
 
   const filteredEvents = useMemo(() => {
-    const normalizedQuery = normalize(query);
+    const normalizedQuery = normalizeSearchText(query);
 
     return events.filter((event) => {
       const country = eventCountries.get(event.id) || UNKNOWN_COUNTRY;
+      const eventNameMatches = normalizedQuery
+        ? matchesSearchText(event.title, normalizedQuery)
+        : false;
 
-      if (selectedCountry && country.key !== selectedCountry) return false;
+      if (selectedCountry && country.key !== selectedCountry && !eventNameMatches) {
+        return false;
+      }
       if (!normalizedQuery) return true;
 
       const haystack = [
@@ -444,16 +479,20 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
         ...(event.tags || []),
       ].join(" ");
 
-      return normalize(haystack).includes(normalizedQuery);
+      return matchesSearchText(haystack, normalizedQuery);
     });
   }, [eventCountries, events, query, selectedCountry]);
 
   const suggestions = useMemo(() => {
     if (!query.trim()) return [];
-    const normalizedQuery = normalize(query);
+    const normalizedQuery = normalizeSearchText(query);
 
     return searchableBase
-      .filter((item) => normalize(item.value).includes(normalizedQuery))
+      .filter(
+        (item) =>
+          matchesSearchText(item.value, normalizedQuery) ||
+          matchesSearchText(item.label, normalizedQuery)
+      )
       .slice(0, 8);
   }, [query, searchableBase]);
 
@@ -472,6 +511,10 @@ export default function AgendaBrowser({ events }: { events: EventItem[] }) {
       setSelectedCountry(suggestion.countryKey);
       setQuery("");
     } else {
+      if (suggestion.type === "evento") {
+        setSelectedCountry(null);
+      }
+
       setQuery(suggestion.value);
     }
 

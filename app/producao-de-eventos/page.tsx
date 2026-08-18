@@ -1,4 +1,49 @@
+import type { Metadata } from "next";
 import PageTour from "@/componentes/onboarding/page-tour";
+import {
+  absoluteUrl,
+  compactJsonLd,
+  createPageMetadata,
+  SITE_NAME,
+} from "@/lib/seo";
+
+const PRODUCAO_TITLE = "Produção de eventos Web3, cripto e blockchain";
+const PRODUCAO_DESCRIPTION =
+  "A Agenda Crypto apoia marcas, protocolos e comunidades na criação, produção e ativação de eventos Web3 com estratégia, experiência, comunidade e conteúdo.";
+
+export const metadata: Metadata = createPageMetadata({
+  title: PRODUCAO_TITLE,
+  description: PRODUCAO_DESCRIPTION,
+  path: "/producao-de-eventos",
+  keywords: [
+    "producao de eventos web3",
+    "producao de eventos cripto",
+    "eventos blockchain",
+    "side events web3",
+    "ativacao de comunidade",
+    "eventos para marcas cripto",
+  ],
+});
+
+const producaoJsonLd = compactJsonLd({
+  "@context": "https://schema.org",
+  "@type": "Service",
+  name: "Produção de eventos Web3, cripto e blockchain",
+  serviceType: "Produção, ativação e cobertura de eventos",
+  description: PRODUCAO_DESCRIPTION,
+  url: absoluteUrl("/producao-de-eventos"),
+  provider: {
+    "@type": "Organization",
+    name: SITE_NAME,
+    url: absoluteUrl("/agenda"),
+  },
+  areaServed: ["Brasil", "América Latina"],
+  audience: {
+    "@type": "Audience",
+    audienceType:
+      "Marcas, protocolos, comunidades e empresas do ecossistema Web3",
+  },
+});
 
 const whatsappMessage = encodeURIComponent(
   "Oi! Vim pela página de Produção de Eventos da Agenda Crypto e quero entender melhor como vocês podem apoiar meu projeto."
@@ -7,6 +52,10 @@ const whatsappMessage = encodeURIComponent(
 export default function ProducaoDeEventosPage() {
   return (
     <main className="min-h-screen bg-[#212121] text-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(producaoJsonLd) }}
+      />
       <PageTour
         pageId="producao-de-eventos"
         steps={[

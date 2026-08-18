@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { revalidatePath } from "next/cache";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -17,13 +18,15 @@ export async function POST(req: Request) {
       );
     }
 
-    const { error } = await supabase
+    const { data: rejectedSubmission, error } = await supabase
       .from("event_submissions")
       .update({
         status: "rejected",
         rejected_at: new Date().toISOString(),
       })
-      .eq("id", submissionId);
+      .eq("id", submissionId)
+      .select("id,status")
+      .maybeSingle();
 
     if (error) {
       return NextResponse.json(
@@ -31,6 +34,22 @@ export async function POST(req: Request) {
         { status: 500 }
       );
     }
+
+    if (!rejectedSubmission) {
+      return NextResponse.json(
+        { error: "Submissão não encontrada para rejeição." },
+        { status: 404 }
+      );
+    }
+
+    if (rejectedSubmission.status !== "rejected") {
+      return NextResponse.json(
+        { error: "A submissão não foi marcada como rejeitada." },
+        { status: 500 }
+      );
+    }
+
+    revalidatePath("/admin");
 
     return NextResponse.json({
       success: true,
