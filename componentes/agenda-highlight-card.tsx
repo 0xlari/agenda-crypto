@@ -4,6 +4,7 @@ type Props = {
   value?: string | null;
   eyebrow?: string;
   title?: string;
+  showHeader?: boolean;
 };
 
 const TAG_GROUPS = [
@@ -32,7 +33,8 @@ const TAG_GROUPS = [
 export default function AgendaHighlightCard({
   value,
   eyebrow = "Insight editorial",
-  title = "Olhar da Agenda Crypto",
+  title = "Resumo editorial",
+  showHeader = true,
 }: Props) {
   const highlight = parseAgendaHighlight(value);
 
@@ -53,12 +55,31 @@ export default function AgendaHighlightCard({
     );
   }
 
+  const agendaViewClassName = showHeader
+    ? "mt-4 rounded-2xl border border-white/10 bg-black/20 p-4"
+    : "rounded-2xl border border-white/10 bg-black/20 p-4";
+
   return (
     <div className="rounded-3xl border border-[#19B5C9]/20 bg-[linear-gradient(135deg,rgba(25,181,201,0.12),rgba(255,255,255,0.035),rgba(236,72,153,0.08))] p-5">
-      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#19B5C9]">
-        {eyebrow}
-      </p>
-      <h3 className="mt-2 text-xl font-black text-white">{title}</h3>
+      {showHeader && (
+        <>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#19B5C9]">
+            {eyebrow}
+          </p>
+          <h3 className="mt-2 text-xl font-black text-white">{title}</h3>
+        </>
+      )}
+
+      {highlight.agendaView && (
+        <div className={agendaViewClassName}>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#FFD600]">
+            Olhar da Agenda Crypto
+          </p>
+          <p className="mt-2 whitespace-pre-line text-sm leading-7 text-white/78">
+            <LinkedText text={highlight.agendaView} />
+          </p>
+        </div>
+      )}
 
       {highlight.audience && (
         <div className="mt-4 rounded-2xl border border-white/10 bg-black/20 p-4">
@@ -105,7 +126,7 @@ export default function AgendaHighlightCard({
       {highlight.note && (
         <div className="mt-4 rounded-2xl border border-white/10 bg-black/15 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/45">
-            Observação para curadoria
+            Nota interna
           </p>
           <p className="mt-2 whitespace-pre-line text-sm leading-7 text-white/70">
             <LinkedText text={highlight.note} />

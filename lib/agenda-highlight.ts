@@ -1,4 +1,5 @@
 type HighlightField =
+  | "agendaView"
   | "audience"
   | "format"
   | "level"
@@ -7,6 +8,7 @@ type HighlightField =
   | "note";
 
 export type ParsedAgendaHighlight = {
+  agendaView: string | null;
   audience: string | null;
   format: string[];
   level: string[];
@@ -18,12 +20,17 @@ export type ParsedAgendaHighlight = {
 };
 
 const LABEL_ALIASES: Record<HighlightField, string[]> = {
+  agendaView: [
+    "Olhar da Agenda Crypto",
+    "Observação para curadoria",
+    "Observacao para curadoria",
+  ],
   audience: ["Para quem vale a pena", "Público ideal", "Publico ideal"],
   format: ["Formato"],
   level: ["Nível", "Nivel"],
   topic: ["Tema"],
   opportunity: ["Oportunidade"],
-  note: ["Observação para curadoria", "Observacao para curadoria"],
+  note: ["Nota interna"],
 };
 
 const LABEL_TO_FIELD = Object.entries(LABEL_ALIASES).reduce<
@@ -48,6 +55,7 @@ export function parseAgendaHighlight(
   value?: string | null
 ): ParsedAgendaHighlight {
   const emptyHighlight: ParsedAgendaHighlight = {
+    agendaView: null,
     audience: null,
     format: [],
     level: [],
@@ -87,7 +95,7 @@ export function parseAgendaHighlight(
       return;
     }
 
-    if (field === "audience" || field === "note") {
+    if (field === "agendaView" || field === "audience" || field === "note") {
       parsed[field] = content;
       return;
     }
@@ -99,6 +107,7 @@ export function parseAgendaHighlight(
   });
 
   const hasStructuredContent =
+    parsed.agendaView ||
     parsed.audience ||
     parsed.note ||
     parsed.format.length > 0 ||

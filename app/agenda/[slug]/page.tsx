@@ -453,7 +453,7 @@ export default async function EventPage({
       <AgendaHighlightCard
         value={event.agenda_highlight}
         eyebrow="Curadoria"
-        title="Olhar da Agenda Crypto"
+        showHeader={false}
       />
     </div>
 

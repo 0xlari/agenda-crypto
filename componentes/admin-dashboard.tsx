@@ -548,7 +548,7 @@ Nível: Intermediário, Técnico
 Tema: Bitcoin
 Oportunidade: Aprendizado, Comunidade
 
-Observação para curadoria:
+Olhar da Agenda Crypto:
 algo importante para revisar antes de publicar`}
           className="min-h-[110px] rounded-xl bg-white/10 px-4 py-3 text-white outline-none md:col-span-2"
         />

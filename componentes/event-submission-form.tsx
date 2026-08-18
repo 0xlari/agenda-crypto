@@ -599,7 +599,7 @@ export default function EventSubmissionForm({
             </div>
 
             <textarea
-              placeholder="Observação opcional para a curadoria da Agenda Crypto"
+              placeholder="Olhar da Agenda Crypto: por que esse evento importa?"
               value={editorialNotes}
               onChange={(e) => setEditorialNotes(e.target.value)}
               className="mt-4 min-h-[95px] w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white placeholder:text-white/35 outline-none transition hover:border-[#19B5C9]/35 focus:border-[#19B5C9]/55"
@@ -788,7 +788,7 @@ function buildAgendaHighlightPayload({
     formatListSection("Nível", levels),
     formatListSection("Tema", topics),
     formatListSection("Oportunidade", opportunities),
-    formatLongSection("Observação para curadoria", editorialNotes),
+    formatLongSection("Olhar da Agenda Crypto", editorialNotes),
   ].filter(Boolean);
 
   return sections.join("\n\n");
