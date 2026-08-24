@@ -72,7 +72,7 @@ async function syncBrevoContact(email: string) {
         listIds: [listId],
         attributes: {
           ORIGEM: "newsletter",
-          CONSENTIMENTO_MARKETING: "Sim",
+          CONSENTIMENTO_MARKETING: "sim",
           DATA_CONSENTIMENTO: today,
           DATA_CADASTRO: today,
         },
