@@ -60,6 +60,7 @@ async function syncBrevoContact(email: string) {
   }
 
   try {
+    const today = new Date().toISOString().split("T")[0];
     const brevoResponse = await fetch("https://api.brevo.com/v3/contacts", {
       method: "POST",
       headers: {
@@ -69,6 +70,12 @@ async function syncBrevoContact(email: string) {
       body: JSON.stringify({
         email,
         listIds: [listId],
+        attributes: {
+          ORIGEM: "newsletter",
+          CONSENTIMENTO_MARKETING: "Sim",
+          DATA_CONSENTIMENTO: today,
+          DATA_CADASTRO: today,
+        },
         updateEnabled: true,
       }),
     });
