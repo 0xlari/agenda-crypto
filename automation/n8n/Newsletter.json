@@ -1,0 +1,209 @@
+{
+  "name": "Newsletter",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "5938cc22-a360-4938-bceb-52bcd90929ac",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "events",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "published",
+              "condition": "eq",
+              "keyValue": "true"
+            },
+            {
+              "keyName": "start_date",
+              "condition": "gte",
+              "keyValue": "={{ $now.toISODate() }}"
+            },
+            {
+              "keyName": "start_date",
+              "condition": "lte",
+              "keyValue": "={{ $now.plus({ days: 7 }).toISODate() }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "09aa1ba6-ff37-4294-9b82-4c1dce10f36f",
+      "name": "Get many rows",
+      "credentials": {
+        "supabaseApi": {
+          "id": "WHU4AmGkd4hCHhVS",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nfunction contains(value, term) {\n  if (!value) return false;\n\n  if (Array.isArray(value)) {\n    return value.some(v =>\n      String(v).toLowerCase().includes(term.toLowerCase())\n    );\n  }\n\n  return String(value)\n    .toLowerCase()\n    .includes(term.toLowerCase());\n}\n\nconst scored = items.map(item => {\n  const event = item.json;\n\n  let score = 0;\n  const reasons = [];\n\n  // Destaque editorial/manual\n  if (event.featured === true) {\n    score += 30;\n    reasons.push(\"featured\");\n  }\n\n  // Eventos grandes\n  if (event.is_big_event === true) {\n    score += 25;\n    reasons.push(\"big_event\");\n  }\n\n  // Evento principal\n  if (event.level === \"main\") {\n    score += 15;\n    reasons.push(\"main_event\");\n  }\n\n  // Conferências tendem a ter mais relevância para o Radar\n  if (\n    contains(event.event_type, \"conference\") ||\n    contains(event.category, \"conference\")\n  ) {\n    score += 10;\n    reasons.push(\"conference\");\n  }\n\n  // Ter Olhar da Agenda já produzido é um sinal editorial forte\n  if (\n    event.agenda_highlight &&\n    event.agenda_highlight.trim().length > 100\n  ) {\n    score += 20;\n    reasons.push(\"agenda_highlight\");\n  }\n\n  // Intenção comercial/networking\n if (\n  contains(event.intent, \"negocios\") ||\n  contains(event.intent, \"business\")\n) {\n  score += 8;\n  reasons.push(\"business\");\n}\n\n  if (contains(event.intent, \"networking\")) {\n    score += 6;\n    reasons.push(\"networking\");\n  }\n\n  if (contains(event.intent, \"institucional\")) {\n    score += 5;\n    reasons.push(\"institutional\");\n  }\n\n  // Diversidade LATAM\n  if (\n    event.country &&\n    ![\"brazil\", \"brasil\"].includes(\n      event.country.toLowerCase()\n    )\n  ) {\n    score += 5;\n    reasons.push(\"latam\");\n  }\n\n  // Imagem é importante para a newsletter\n  if (event.image_url) {\n    score += 3;\n    reasons.push(\"image\");\n  }\n\n  // Página/slug próprio na Agenda\n  if (event.slug) {\n    score += 3;\n    reasons.push(\"agenda_page\");\n  }\n // Relevância direta para o ecossistema cripto\nconst coreCryptoTerms = [\n  \"crypto\",\n  \"cripto\",\n  \"blockchain\",\n  \"web3\",\n  \"bitcoin\",\n  \"stablecoin\",\n  \"defi\",\n  \"token\",\n  \"tokenização\",\n  \"tokenization\",\n  \"digital assets\",\n  \"ativos digitais\"\n];\n\nconst adjacentTerms = [\n  \"payments\",\n  \"pagamentos\",\n  \"fintech\"\n];\n\nconst searchableContent = [\n  event.title,\n  event.description,\n  event.short_description,\n  event.category,\n  event.event_type,\n  event.tags\n];\n\nconst hasCoreCrypto = coreCryptoTerms.some(term =>\n  searchableContent.some(value => contains(value, term))\n);\n\nconst hasAdjacent = adjacentTerms.some(term =>\n  searchableContent.some(value => contains(value, term))\n);\n\nif (hasCoreCrypto) {\n  score += 25;\n  reasons.push(\"core_crypto_relevance\");\n} else if (hasAdjacent) {\n  score += 5;\n  reasons.push(\"adjacent_crypto_relevance\");\n} else {\n  score -= 25;\n  reasons.push(\"low_crypto_relevance\");\n}\n\n  return {\n    json: {\n      ...event,\n      radar_score: score,\n      radar_score_reasons: reasons,\n      agenda_url: event.slug\n        ? `https://www.agendacryptoo.com/agenda/${event.slug}`\n        : event.registration_url || event.source_url\n    }\n  };\n});\n\n// Só eventos com relevância direta para cripto\nconst eligible = scored.filter(item =>\n  item.json.radar_score_reasons.includes(\"core_crypto_relevance\")\n);\n\n// Maior pontuação primeiro\neligible.sort(\n  (a, b) =>\n    b.json.radar_score - a.json.radar_score\n);\n\n// Retorna até 3 eventos realmente relevantes\nreturn eligible.slice(0, 3);"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "ecbd9b43-6305-4c25-813a-17f567f33946",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().map(item => item.json);\n\n// PT-BR simples para datas\nfunction formatDate(dateString) {\n  if (!dateString) return \"\";\n\n  const date = new Date(`${dateString}T12:00:00`);\n\n  return date.toLocaleDateString(\"pt-BR\", {\n    day: \"2-digit\",\n    month: \"short\",\n  });\n}\n\nfunction cleanAgendaHighlight(text) {\n  if (!text) return \"\";\n\n  // Remove o título inicial repetido\n  return text\n    .replace(/^Olhar da Agenda Crypto:\\s*/i, \"\")\n    .trim();\n}\n\n// Até 3 eventos\nconst e1 = items[0] || {};\nconst e2 = items[1] || {};\nconst e3 = items[2] || {};\n\n// Contagens\nconst cities = new Set(\n  items\n    .map(event => event.city)\n    .filter(Boolean)\n);\n\nconst countries = new Set(\n  items\n    .map(event => event.country)\n    .filter(Boolean)\n);\n\n// Tags/temas para descobrir tema recorrente\nconst topicCounts = {};\n\nfor (const event of items) {\n  const topics = [\n    ...(Array.isArray(event.tags) ? event.tags : []),\n    event.category,\n    event.event_type\n  ].filter(Boolean);\n\n  for (const topic of topics) {\n    const normalized = String(topic).trim().toLowerCase();\n\n    topicCounts[normalized] =\n      (topicCounts[normalized] || 0) + 1;\n  }\n}\n\nconst trendingTopic =\n  Object.entries(topicCounts)\n    .sort((a, b) => b[1] - a[1])[0]?.[0] || \"Cripto\";\n\n// Resumo provisório.\n// Depois vamos substituir isso pela geração com IA.\nconst weeklySummary =\n  items.length === 1\n    ? `Nesta semana, o principal evento no radar da Agenda Crypto acontece em ${e1.city || e1.country || \"LATAM\"}.`\n    : `Nesta semana, ${items.length} eventos se destacam no radar da Agenda Crypto, passando por ${Array.from(cities).join(\", \")}.`;\n\n// Insight provisório.\n// Depois também vamos gerar com IA.\nconst agendaInsight =\n  items[0]?.agenda_highlight\n    ? cleanAgendaHighlight(items[0].agenda_highlight)\n    : \"A Agenda Crypto acompanha os movimentos dos eventos para identificar onde estão surgindo novas conexões, negócios e tendências no ecossistema.\";\n\nreturn [\n  {\n    json: {\n      weekly_summary: weeklySummary,\n\n      event_1_image: e1.image_url || \"\",\n      event_1_name: e1.title || \"\",\n      event_1_location:\n        [e1.city, e1.country]\n          .filter(Boolean)\n          .join(\", \"),\n      event_1_date: formatDate(e1.start_date),\n      event_1_theme:\n        e1.category ||\n        e1.event_type ||\n        \"Cripto\",\n      event_1_insight:\n        cleanAgendaHighlight(e1.agenda_highlight) ||\n        e1.short_description ||\n        \"\",\n      event_1_url: e1.agenda_url || \"\",\n\n      event_2_image: e2.image_url || \"\",\n      event_2_name: e2.title || \"\",\n      event_2_location:\n        [e2.city, e2.country]\n          .filter(Boolean)\n          .join(\", \"),\n      event_2_date: formatDate(e2.start_date),\n      event_2_theme:\n        e2.category ||\n        e2.event_type ||\n        \"Cripto\",\n      event_2_insight:\n        cleanAgendaHighlight(e2.agenda_highlight) ||\n        e2.short_description ||\n        \"\",\n      event_2_url: e2.agenda_url || \"\",\n\n      event_3_image: e3.image_url || \"\",\n      event_3_name: e3.title || \"\",\n      event_3_location:\n        [e3.city, e3.country]\n          .filter(Boolean)\n          .join(\", \"),\n      event_3_date: formatDate(e3.start_date),\n      event_3_theme:\n        e3.category ||\n        e3.event_type ||\n        \"Cripto\",\n      event_3_insight:\n        cleanAgendaHighlight(e3.agenda_highlight) ||\n        e3.short_description ||\n        \"\",\n      event_3_url: e3.agenda_url || \"\",\n\n      agenda_insight: agendaInsight,\n\n      events_count: items.length,\n      cities_count: cities.size,\n      countries_count: countries.size,\n      trending_topic: trendingTopic\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "e005e610-795b-42ca-8fd8-d80b7acc5f58",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/emailCampaigns",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "=api-key",
+              "value": "BREVO_API_KEY_REMOVED"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  name: `Radar Semanal - ${$now.toISODate()}`,\n  subject: \"Radar Semanal — Agenda Crypto\",\n  sender: {\n    name: \"Agenda Crypto\",\n    email: \"newsletter@agendacryptoo.com\"\n  },\n  recipients: {\n    listIds: [3]\n  },\n  previewText: \"Os eventos e movimentos que importam nesta semana.\",\n  htmlContent: $json.html_content\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "b289d91a-9064-49fa-9d22-11169c9a09e9",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\nfunction esc(value = \"\") {\n  return String(value)\n    .replace(/&/g, \"&amp;\")\n    .replace(/</g, \"&lt;\")\n    .replace(/>/g, \"&gt;\")\n    .replace(/\"/g, \"&quot;\")\n    .replace(/'/g, \"&#039;\");\n}\n\nfunction eventCard(index) {\n  const name = data[`event_${index}_name`];\n\n  if (!name) return \"\";\n\n  const image = data[`event_${index}_image`];\n  const location = data[`event_${index}_location`];\n  const date = data[`event_${index}_date`];\n  const theme = data[`event_${index}_theme`];\n  const insight = data[`event_${index}_insight`];\n  const url = data[`event_${index}_url`];\n\n  const imageHtml = image\n    ? `\n      <tr>\n        <td>\n          <img\n            src=\"${esc(image)}\"\n            alt=\"${esc(name)}\"\n            width=\"640\"\n            style=\"border:0;display:block;max-width:100%;height:auto;\"\n          >\n        </td>\n      </tr>\n    `\n    : \"\";\n\n  return `\n    <table\n      role=\"presentation\"\n      width=\"100%\"\n      style=\"\n        border-spacing:0;\n        border-collapse:collapse;\n        border:1px solid #e8e8e8;\n        border-radius:14px;\n        overflow:hidden;\n        margin-bottom:24px;\n        background:#ffffff;\n      \"\n    >\n      ${imageHtml}\n\n      <tr>\n        <td style=\"padding:22px;\">\n\n          <h3 style=\"\n            font-size:21px;\n            line-height:1.25;\n            font-weight:800;\n            margin:0 0 10px;\n            color:#171717;\n          \">\n            ${esc(name)}\n          </h3>\n\n          <p style=\"\n            font-size:14px;\n            line-height:1.5;\n            color:#6a6a6a;\n            margin:0 0 10px;\n          \">\n            📍 ${esc(location)} · ${esc(date)}\n          </p>\n\n          <p style=\"\n            font-size:14px;\n            line-height:1.5;\n            color:#171717;\n            font-weight:700;\n            margin:0 0 12px;\n          \">\n            Tema: ${esc(theme)}\n          </p>\n\n          <p style=\"\n            font-size:15px;\n            line-height:1.6;\n            color:#444444;\n            margin:0 0 18px;\n          \">\n            <strong>Por que vale olhar:</strong>\n            ${esc(insight)}\n          </p>\n\n          <a\n            href=\"${esc(url)}\"\n            style=\"\n              display:inline-block;\n              background:#171717;\n              color:#ffffff;\n              font-size:14px;\n              font-weight:700;\n              padding:13px 18px;\n              border-radius:8px;\n              text-decoration:none;\n            \"\n          >\n            Ver evento na Agenda\n          </a>\n\n        </td>\n      </tr>\n    </table>\n  `;\n}\n\nconst eventsHtml = [1, 2, 3]\n  .map(eventCard)\n  .join(\"\");\n\nconst agendaInsightHtml = data.agenda_insight\n  ? `\n    <tr>\n      <td style=\"padding:0 32px;\">\n\n        <h2 style=\"\n          font-size:23px;\n          line-height:1.2;\n          font-weight:800;\n          margin:0 0 16px;\n          color:#171717;\n        \">\n          👀 Olhar da Agenda Crypto\n        </h2>\n\n        <div style=\"\n          background:#fff5fa;\n          border:1px solid #ffd3e7;\n          border-radius:14px;\n          padding:24px;\n        \">\n          <p style=\"\n            font-size:16px;\n            line-height:1.65;\n            color:#383838;\n            margin:0;\n          \">\n            ${esc(data.agenda_insight)}\n          </p>\n        </div>\n\n        <div style=\"\n          height:1px;\n          background:#e9e9e9;\n          margin:32px 0;\n        \"></div>\n\n      </td>\n    </tr>\n  `\n  : \"\";\n\nconst html = `\n<!doctype html>\n<html lang=\"pt-BR\">\n<head>\n  <meta charset=\"utf-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n  <title>Radar Semanal — Agenda Crypto</title>\n</head>\n\n<body style=\"\n  margin:0;\n  padding:0;\n  background:#f5f5f5;\n  font-family:Arial,Helvetica,sans-serif;\n  color:#171717;\n\">\n\n<table\n  role=\"presentation\"\n  width=\"100%\"\n  style=\"\n    width:100%;\n    background:#f5f5f5;\n    padding:24px 0;\n    border-spacing:0;\n    border-collapse:collapse;\n  \"\n>\n<tr>\n<td align=\"center\">\n\n<table\n  role=\"presentation\"\n  width=\"100%\"\n  style=\"\n    width:100%;\n    max-width:640px;\n    margin:0 auto;\n    background:#ffffff;\n    border-spacing:0;\n    border-collapse:collapse;\n  \"\n>\n\n  <!-- HEADER -->\n  <tr>\n    <td style=\"padding:32px 32px 10px;text-align:center;\">\n      <img\n        src=\"https://www.agendacryptoo.com/images/logo.png\"\n        alt=\"Agenda Crypto\"\n        width=\"190\"\n        style=\"\n          width:190px;\n          max-width:190px;\n          margin:0 auto;\n          border:0;\n          display:block;\n          height:auto;\n        \"\n      >\n    </td>\n  </tr>\n\n  <!-- HERO -->\n  <tr>\n    <td style=\"padding:28px 32px 0;\">\n\n      <p style=\"\n        font-size:12px;\n        font-weight:700;\n        letter-spacing:1.4px;\n        text-transform:uppercase;\n        color:#ff2f92;\n        margin:0 0 10px;\n      \">\n        Radar Agenda Crypto\n      </p>\n\n      <h1 style=\"\n        font-size:34px;\n        line-height:1.1;\n        font-weight:800;\n        margin:0 0 14px;\n        color:#171717;\n      \">\n        O que merece sua atenção nesta semana\n      </h1>\n\n      <p style=\"\n        font-size:17px;\n        line-height:1.55;\n        color:#4a4a4a;\n        margin:0;\n      \">\n        Eventos, movimentos e sinais do ecossistema cripto no Brasil\n        e na América Latina — com a curadoria da Agenda Crypto.\n      </p>\n\n      <div style=\"\n        height:1px;\n        background:#e9e9e9;\n        margin:32px 0;\n      \"></div>\n\n    </td>\n  </tr>\n\n  <!-- NESTA SEMANA -->\n  <tr>\n    <td style=\"padding:0 32px;\">\n\n      <h2 style=\"\n        font-size:23px;\n        line-height:1.2;\n        font-weight:800;\n        margin:0 0 16px;\n        color:#171717;\n      \">\n        📡 Nesta semana\n      </h2>\n\n      <p style=\"\n        font-size:16px;\n        line-height:1.65;\n        color:#383838;\n        margin:0;\n      \">\n        ${esc(data.weekly_summary)}\n      </p>\n\n      <div style=\"\n        height:1px;\n        background:#e9e9e9;\n        margin:32px 0;\n      \"></div>\n\n    </td>\n  </tr>\n\n  <!-- EVENTOS -->\n  <tr>\n    <td style=\"padding:0 32px;\">\n\n      <h2 style=\"\n        font-size:23px;\n        line-height:1.2;\n        font-weight:800;\n        margin:0 0 16px;\n        color:#171717;\n      \">\n        📅 Eventos para ficar de olho\n      </h2>\n\n      ${eventsHtml}\n\n      <div style=\"\n        height:1px;\n        background:#e9e9e9;\n        margin:32px 0;\n      \"></div>\n\n    </td>\n  </tr>\n\n  ${agendaInsightHtml}\n\n  <!-- RADAR EM NÚMEROS -->\n  <tr>\n    <td style=\"padding:0 32px;\">\n\n      <h2 style=\"\n        font-size:23px;\n        line-height:1.2;\n        font-weight:800;\n        margin:0 0 16px;\n        color:#171717;\n      \">\n        📊 Radar em números\n      </h2>\n\n      <table\n        role=\"presentation\"\n        width=\"100%\"\n        style=\"\n          width:100%;\n          border-spacing:0;\n          border-collapse:collapse;\n        \"\n      >\n        <tr>\n\n          <td style=\"\n            width:33.33%;\n            text-align:center;\n            padding:18px 8px;\n            border:1px solid #ececec;\n          \">\n            <p style=\"\n              font-size:26px;\n              font-weight:800;\n              color:#171717;\n              margin:0 0 5px;\n            \">\n              ${esc(data.events_count)}\n            </p>\n            <p style=\"\n              font-size:12px;\n              line-height:1.4;\n              color:#6a6a6a;\n              margin:0;\n            \">\n              eventos no radar\n            </p>\n          </td>\n\n          <td style=\"\n            width:33.33%;\n            text-align:center;\n            padding:18px 8px;\n            border:1px solid #ececec;\n          \">\n            <p style=\"\n              font-size:26px;\n              font-weight:800;\n              color:#171717;\n              margin:0 0 5px;\n            \">\n              ${esc(data.cities_count)}\n            </p>\n            <p style=\"\n              font-size:12px;\n              line-height:1.4;\n              color:#6a6a6a;\n              margin:0;\n            \">\n              cidades\n            </p>\n          </td>\n\n          <td style=\"\n            width:33.33%;\n            text-align:center;\n            padding:18px 8px;\n            border:1px solid #ececec;\n          \">\n            <p style=\"\n              font-size:26px;\n              font-weight:800;\n              color:#171717;\n              margin:0 0 5px;\n            \">\n              ${esc(data.countries_count)}\n            </p>\n            <p style=\"\n              font-size:12px;\n              line-height:1.4;\n              color:#6a6a6a;\n              margin:0;\n            \">\n              países\n            </p>\n          </td>\n\n        </tr>\n      </table>\n\n      <p style=\"\n        font-size:16px;\n        line-height:1.65;\n        color:#383838;\n        margin:18px 0 0;\n        text-align:center;\n      \">\n        Tema em alta:\n        <strong>${esc(data.trending_topic)}</strong>\n      </p>\n\n      <div style=\"\n        height:1px;\n        background:#e9e9e9;\n        margin:32px 0;\n      \"></div>\n\n    </td>\n  </tr>\n\n  <!-- CTA -->\n  <tr>\n    <td style=\"padding:0 32px;\">\n\n      <div style=\"\n        background:#171717;\n        border-radius:16px;\n        padding:30px;\n        text-align:center;\n      \">\n\n        <h2 style=\"\n          font-size:25px;\n          line-height:1.2;\n          font-weight:800;\n          color:#ffffff;\n          margin:0 0 10px;\n        \">\n          Sua próxima conexão pode começar em um evento.\n        </h2>\n\n        <p style=\"\n          font-size:15px;\n          line-height:1.6;\n          color:#d6d6d6;\n          margin:0 0 20px;\n        \">\n          Explore a Agenda Crypto e encontre os próximos eventos\n          do ecossistema.\n        </p>\n\n        <a\n          href=\"https://www.agendacryptoo.com/agenda\"\n          style=\"\n            display:inline-block;\n            background:#ff2f92;\n            color:#ffffff;\n            font-size:14px;\n            font-weight:700;\n            padding:13px 18px;\n            border-radius:8px;\n            text-decoration:none;\n          \"\n        >\n          Explorar todos os eventos\n        </a>\n\n      </div>\n\n      <p style=\"\n        font-size:14px;\n        line-height:1.65;\n        color:#383838;\n        text-align:center;\n        margin:22px 0 0;\n      \">\n        Organiza um evento?\n        <a\n          href=\"https://www.agendacryptoo.com/divulgacao\"\n          style=\"\n            color:#ff2f92;\n            font-weight:700;\n            text-decoration:none;\n          \"\n        >\n          Cadastre na Agenda Crypto\n        </a>\n      </p>\n\n    </td>\n  </tr>\n\n  <!-- FOOTER -->\n  <tr>\n    <td style=\"\n      padding:28px 32px 36px;\n      text-align:center;\n      color:#8a8a8a;\n      font-size:12px;\n      line-height:1.6;\n    \">\n\n      <strong style=\"color:#171717;\">\n        Agenda Crypto\n      </strong>\n      <br>\n\n      Se tem data, tá na Agenda.\n      <br><br>\n\n      Você recebeu este e-mail porque se inscreveu\n      para receber novidades da Agenda Crypto.\n      <br><br>\n\n      <a\n        href=\"{{ unsubscribe }}\"\n        style=\"\n          color:#666666;\n          text-decoration:underline;\n        \"\n      >\n        Cancelar inscrição\n      </a>\n\n    </td>\n  </tr>\n\n</table>\n\n</td>\n</tr>\n</table>\n\n</body>\n</html>\n`;\n\nreturn [\n  {\n    json: {\n      ...data,\n      html_content: html\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        832,
+        0
+      ],
+      "id": "13ec87c2-2346-46fa-850a-29b8999e7986",
+      "name": "Code in JavaScript2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "dd3d9263-ec5c-4be2-984b-2aaf846b24ca",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "52dbaf3ecba419b6cb44f6bd3a62a4599e956b14a16a46d961e4a60309ffacbf"
+  },
+  "id": "mshYe8Rvz51lCtS3",
+  "tags": []
+}

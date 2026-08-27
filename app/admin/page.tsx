@@ -44,6 +44,12 @@ async function getAdminData() {
     .eq("published", false)
     .order("start_date", { ascending: true });
 
+  const { data: intelligenceEvents } = await supabase
+    .from("events")
+    .select("id,title,slug,city,start_date,published")
+    .order("start_date", { ascending: false })
+    .limit(120);
+
   const { data: leads } = await supabase
     .from("event_submissions")
     .select("*")
@@ -66,6 +72,7 @@ async function getAdminData() {
       leadsCount: leads?.length || 0,
     },
     pendingEvents: pendingEvents || [],
+    intelligenceEvents: intelligenceEvents || [],
     leads: leads || [],
     pendingSubmissions: pendingSubmissions || [],
   };
@@ -108,6 +115,7 @@ export default async function AdminPage() {
         <AdminDashboard
           stats={data.stats}
           pendingEvents={data.pendingEvents}
+          intelligenceEvents={data.intelligenceEvents}
           leads={data.leads}
           pendingSubmissions={data.pendingSubmissions}
         />

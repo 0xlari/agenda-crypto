@@ -1,0 +1,409 @@
+{
+  "name": "Workflow 1 — Event Intelligence Research",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "365fa69b-06b7-466e-a760-dd984db58073",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "events",
+        "limit": 20,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "published",
+              "condition": "eq",
+              "keyValue": "true"
+            },
+            {
+              "keyName": "start_date",
+              "condition": "gte",
+              "keyValue": "={{ $now.toISODate() }}"
+            },
+            {
+              "keyName": "start_date",
+              "condition": "lte",
+              "keyValue": "={{ $now.plus({ days: 7 }).toISODate() }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "c8e15eda-839a-41e2-8b11-cec705efaf90",
+      "name": "Get many rows",
+      "credentials": {
+        "supabaseApi": {
+          "id": "WHU4AmGkd4hCHhVS",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.source_url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "b4a1faee-220b-4a21-8a71-9ee62a163d5e",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const html = $json.data || \"\";\n\nconst text = html\n  .replace(/<script[\\s\\S]*?<\\/script>/gi, \" \")\n  .replace(/<style[\\s\\S]*?<\\/style>/gi, \" \")\n  .replace(/<svg[\\s\\S]*?<\\/svg>/gi, \" \")\n  .replace(/<[^>]+>/g, \" \")\n  .replace(/&nbsp;/g, \" \")\n  .replace(/&amp;/g, \"&\")\n  .replace(/&quot;/g, '\"')\n  .replace(/&#39;/g, \"'\")\n  .replace(/\\s+/g, \" \")\n  .trim();\n\nconst blockedOrEmpty =\n  text.length < 300 ||\n  /doesn't work properly without javascript/i.test(text) ||\n  /enable javascript/i.test(text);\n\nreturn {\n  ...$json,\n  page_text: text.slice(0, 30000),\n  source_quality: blockedOrEmpty ? \"poor\" : \"good\",\n  needs_fallback: blockedOrEmpty\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        0
+      ],
+      "id": "79b202fa-a314-4fe0-9eff-2d57179a2b46",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b47868c5-b8d7-4caf-bcba-1dc0fe565ea3",
+              "leftValue": "={{ $json.needs_fallback }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        976,
+        0
+      ],
+      "id": "39e066a2-7999-4961-8e3c-df908223da11",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "1899a1cd-ecfa-4f4c-9c89-391b17aef350",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "url": "={{ \"https://news.google.com/rss/search?q=\" + encodeURIComponent($json.title + \" \" + $json.city) + \"&hl=pt-BR&gl=BR&ceid=BR:pt-419\" }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1168,
+        -128
+      ],
+      "id": "c1cf47ed-9bcd-47a4-8a56-19e48f4f0d77",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1568,
+        -32
+      ],
+      "id": "0ad8779e-4f7d-4924-a889-d4d6e6e9b7aa",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const xml = $json.data || \"\";\n\nconst items = [...xml.matchAll(/<item>([\\s\\S]*?)<\\/item>/g)];\n\nconst news = items.slice(0, 10).map((match) => {\n  const item = match[1];\n\n  const getTag = (tag) => {\n    const result = item.match(\n      new RegExp(`<${tag}[^>]*>([\\\\s\\\\S]*?)<\\\\/${tag}>`)\n    );\n    return result ? result[1].trim() : \"\";\n  };\n\n  return {\n    title: getTag(\"title\"),\n    link: getTag(\"link\"),\n    pubDate: getTag(\"pubDate\"),\n    source: getTag(\"source\"),\n  };\n});\n\nconst event = $(\"If\").item.json;\n\nreturn {\n  ...event,\n  news_results: news,\n  news_count: news.length\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1376,
+        -128
+      ],
+      "id": "fa76eb04-6792-406b-aac2-0c6aebecfb88",
+      "name": "Code do Google News"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const text = [\n  $json.official_page_text || \"\",\n  $json.news_context || \"\",\n  JSON.stringify($json.json_ld || [])\n].join(\"\\n\");\n\nconst lower = text.toLowerCase();\n\nconst topics = [];\n\nconst topicMap = [\n  [\"stablecoin\", \"Stablecoins\"],\n  [\"tokenization\", \"Tokenização\"],\n  [\"tokenización\", \"Tokenização\"],\n  [\"defi\", \"DeFi\"],\n  [\"cbdc\", \"CBDC\"],\n  [\"regulation\", \"Regulação\"],\n  [\"regulación\", \"Regulação\"],\n  [\"regulação\", \"Regulação\"],\n  [\"payments\", \"Pagamentos\"],\n  [\"pagos\", \"Pagamentos\"],\n  [\"pagamentos\", \"Pagamentos\"],\n  [\"web3\", \"Web3\"],\n  [\"blockchain\", \"Blockchain\"],\n  [\"fintech\", \"Fintech\"],\n  [\"artificial intelligence\", \"IA\"],\n  [\"inteligencia artificial\", \"IA\"],\n  [\"inteligência artificial\", \"IA\"],\n  [\"venture capital\", \"Venture Capital\"],\n  [\"investment\", \"Investimentos\"],\n  [\"inversión\", \"Investimentos\"],\n  [\"investimento\", \"Investimentos\"],\n  [\"startup\", \"Startups\"],\n  [\"innovation\", \"Inovação\"],\n  [\"innovación\", \"Inovação\"],\n  [\"inovação\", \"Inovação\"],\n  [\"trading\", \"Trading\"],\n  [\"bitcoin\", \"Bitcoin\"]\n];\n\nfor (const [keyword, label] of topicMap) {\n  if (lower.includes(keyword) && !topics.includes(label)) {\n    topics.push(label);\n  }\n}\n\nconst organizers = [];\n\n// Primeiro tenta pegar organizadores do JSON-LD\nfor (const block of $json.json_ld || []) {\n  if (block?.[\"@type\"] === \"Event\" && Array.isArray(block.organizer)) {\n    for (const org of block.organizer) {\n      if (org?.name && !organizers.includes(org.name)) {\n        organizers.push(org.name);\n      }\n    }\n  }\n}\n\n// Se não encontrou no JSON-LD, tenta achar no texto oficial\nif (organizers.length === 0 && $json.official_page_text) {\n  const organizerPatterns = [\n    /Organizers?:\\s*([^\\.]+)/i,\n    /Organiza(?:dores?)?:\\s*([^\\.]+)/i\n  ];\n\n  for (const pattern of organizerPatterns) {\n    const match = $json.official_page_text.match(pattern);\n\n    if (match?.[1]) {\n      organizers.push(match[1].trim());\n      break;\n    }\n  }\n}\n\nreturn {\n  ...$json,\n\n  extracted_intelligence: {\n    organizer_name: organizers.join(\", \"),\n    main_topics: topics,\n\n    research_status: \"researched\",\n    research_confidence: $json.research_confidence,\n\n    research_notes:\n      $json.research_method === \"official_page\"\n        ? \"Research based on official event page and structured data.\"\n        : \"Research based on recent news fallback.\"\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2032,
+        -32
+      ],
+      "id": "bc624c55-6bd7-4bac-9bb5-7aa70bbc3a4b",
+      "name": "Code extrai inteligência"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const news = $json.news_results || [];\nconst html = $json.data || \"\";\n\nconst researchSources = [];\n\n// Extrai JSON-LD antes de ignorar scripts\nconst jsonLdBlocks = [];\n\nconst jsonLdMatches = [\n  ...html.matchAll(\n    /<script[^>]*type=[\"']application\\/ld\\+json[\"'][^>]*>([\\s\\S]*?)<\\/script>/gi\n  )\n];\n\nfor (const match of jsonLdMatches) {\n  try {\n    const parsed = JSON.parse(match[1].trim());\n    jsonLdBlocks.push(parsed);\n  } catch (e) {\n    // ignora blocos inválidos\n  }\n}\n\nif ($json.source_quality === \"good\" && $json.source_url) {\n  researchSources.push({\n    type: \"official\",\n    url: $json.source_url\n  });\n}\n\nfor (const item of news) {\n  researchSources.push({\n    type: \"news\",\n    title: item.title,\n    source: item.source,\n    url: item.link,\n    published_at: item.pubDate\n  });\n}\n\nconst newsText = news\n  .map((item) => `${item.source}: ${item.title}`)\n  .join(\"\\n\");\n\nreturn {\n  event_id: $json.id,\n  title: $json.title,\n  city: $json.city,\n  country: $json.country,\n  start_date: $json.start_date,\n  end_date: $json.end_date,\n  category: $json.category,\n  audience: $json.audience,\n  tags: $json.tags,\n  source_url: $json.source_url,\n\n  official_page_text:\n    $json.source_quality === \"good\"\n      ? ($json.page_text || \"\")\n      : \"\",\n\n  json_ld: jsonLdBlocks,\n\n  news_context: newsText,\n\n  research_sources: researchSources,\n\n  research_method:\n    $json.source_quality === \"good\"\n      ? \"official_page\"\n      : \"news_fallback\",\n\n  research_confidence:\n    $json.source_quality === \"good\"\n      ? \"high\"\n      : news.length >= 3\n        ? \"medium\"\n        : \"low\"\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1824,
+        -32
+      ],
+      "id": "69780a5b-d3fd-42a2-956a-d21773bc5f46",
+      "name": "Code pacote de pesquisa"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://zavutionnemdkoixdaui.supabase.co/rest/v1/event_intelligence?on_conflict=event_id",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  event_id: $json.event_id,\n  organizer_name: $json.extracted_intelligence.organizer_name,\n  main_topics: $json.extracted_intelligence.main_topics,\n  research_sources: $json.research_sources,\n  research_confidence: $json.extracted_intelligence.research_confidence,\n  research_status: $json.extracted_intelligence.research_status,\n  research_notes: $json.extracted_intelligence.research_notes,\n  research_updated_at: $now.toISO()\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2240,
+        -32
+      ],
+      "id": "7a72eb3a-0496-4e75-a1f6-46be36cb80a6",
+      "name": "HTTP Request2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "WHU4AmGkd4hCHhVS",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const source = $(\"Code extrai inteligência\").item.json;\n\nconst intelligence = source.extracted_intelligence || {};\nconst topics = intelligence.main_topics || [];\n\nconst title = source.title || \"\";\nconst city = source.city || \"\";\nconst country = source.country || \"\";\nconst audience = source.audience || \"\";\nconst officialText = source.official_page_text || \"\";\nconst newsText = source.news_context || \"\";\nconst researchSources = source.research_sources || [];\n\nconst topicSet = new Set(\n  topics.map(t => String(t).toLowerCase())\n);\n\nconst basicText = [\n  title,\n  audience,\n  (source.tags || []).join(\" \"),\n  topics.join(\" \")\n].join(\" \").toLowerCase();\n\nconst fullText = [\n  basicText,\n  officialText,\n  newsText\n].join(\" \").toLowerCase();\n\nconst hasTopic = (...names) =>\n  names.some(name =>\n    topicSet.has(name.toLowerCase())\n  );\n\nconst contains = (text, ...terms) =>\n  terms.some(term =>\n    text.includes(term.toLowerCase())\n  );\n\n\n// CRYPTO CORE\nconst cryptoCore =\n  hasTopic(\n    \"Blockchain\",\n    \"Web3\",\n    \"DeFi\",\n    \"Stablecoins\",\n    \"Bitcoin\",\n    \"Tokenização\"\n  ) ||\n  contains(\n    basicText,\n    \"crypto\",\n    \"cripto\",\n    \"blockchain\",\n    \"web3\",\n    \"bitcoin\"\n  );\n\n\n// STARTUP / INOVAÇÃO\nconst startupFocused =\n  hasTopic(\n    \"Startups\",\n    \"Inovação\",\n    \"Venture Capital\"\n  ) ||\n  contains(\n    basicText,\n    \"startup\",\n    \"founders\",\n    \"venture capital\",\n    \"innovation\",\n    \"inovação\"\n  );\n\n\n// INSTITUCIONAL\nlet institutionalScore = 0;\n\nif (\n  contains(\n    fullText,\n    \"government\",\n    \"governo\",\n    \"gobierno\",\n    \"reguladores\",\n    \"regulators\"\n  )\n) {\n  institutionalScore += 2;\n}\n\nif (\n  contains(\n    fullText,\n    \"banking\",\n    \"banks\",\n    \"bancos\",\n    \"sistema financeiro\"\n  )\n) {\n  institutionalScore += 2;\n}\n\nif (\n  contains(\n    fullText,\n    \"cbdc\",\n    \"central bank\",\n    \"banco central\"\n  )\n) {\n  institutionalScore += 2;\n}\n\nif (\n  contains(\n    fullText,\n    \"regulation\",\n    \"regulación\",\n    \"regulação\"\n  )\n) {\n  institutionalScore += 1;\n}\n\nif (\n  contains(\n    audience.toLowerCase(),\n    \"reguladores\",\n    \"bancos\",\n    \"instituições\",\n    \"institutions\"\n  )\n) {\n  institutionalScore += 2;\n}\n\nconst institutional =\n  cryptoCore && institutionalScore >= 4;\n\n\n// BUSINESS\nlet businessScore = 0;\n\nif (\n  contains(\n    fullText,\n    \"business day\",\n    \"c-level\",\n    \"family office\"\n  )\n) {\n  businessScore += 3;\n}\n\nif (\n  contains(\n    fullText,\n    \"business development\",\n    \"networking exclusivo\",\n    \"networking exclusive\"\n  )\n) {\n  businessScore += 2;\n}\n\nif (\n  contains(\n    fullText,\n    \"venture capital\",\n    \"investidores\",\n    \"investors\"\n  )\n) {\n  businessScore += 1;\n}\n\nconst businessHeavy =\n  businessScore >= 3;\n\n\n// PAGAMENTOS\nconst paymentsRelevant =\n  hasTopic(\n    \"Pagamentos\",\n    \"Stablecoins\",\n    \"Fintech\"\n  ) ||\n  contains(\n    basicText,\n    \"payments\",\n    \"pagamentos\",\n    \"fintech\",\n    \"stablecoin\"\n  );\n\n\n// PERFIL\nlet eventProfile = \"general\";\n\nif (cryptoCore && institutional) {\n  eventProfile = \"institutional_crypto\";\n}\n\nelse if (cryptoCore && businessHeavy) {\n  eventProfile = \"crypto_business\";\n}\n\nelse if (cryptoCore) {\n  eventProfile = \"crypto_ecosystem\";\n}\n\nelse if (startupFocused) {\n  eventProfile = \"startup_innovation\";\n}\n\n\n// PACOTE FINAL PARA O MODELO\nreturn {\n  event_id: source.event_id,\n  title,\n  city,\n  country,\n  audience,\n\n  main_topics: topics,\n\n  organizer_name:\n    intelligence.organizer_name || \"\",\n\n  event_profile: eventProfile,\n\n  signals: {\n    crypto_core: cryptoCore,\n    institutional,\n    institutional_score: institutionalScore,\n    startup_focused: startupFocused,\n    business_heavy: businessHeavy,\n    business_score: businessScore,\n    payments_relevant: paymentsRelevant\n  },\n\n  official_page_text:\n    officialText.slice(0, 12000),\n\n  news_context:\n    newsText.slice(0, 6000),\n\n  research_sources: researchSources,\n\n  research_confidence:\n    intelligence.research_confidence || source.research_confidence\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2448,
+        -32
+      ],
+      "id": "b74167bc-2fb8-4df6-9eb6-77be6cd59d31",
+      "name": "Code editorial"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Code do Google News",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code do Google News": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Code pacote de pesquisa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code pacote de pesquisa": {
+      "main": [
+        [
+          {
+            "node": "Code extrai inteligência",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code extrai inteligência": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Code editorial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "b8c82e9b-e2a5-4d69-b2b5-bbff3ca8da56",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "52dbaf3ecba419b6cb44f6bd3a62a4599e956b14a16a46d961e4a60309ffacbf"
+  },
+  "id": "QfSqhvjueneNNL4U",
+  "tags": []
+}

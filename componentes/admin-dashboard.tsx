@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import EventIntelligenceEditor from "@/componentes/admin/event-intelligence-editor";
 
 type Stats = {
   publishedCount: number;
@@ -15,6 +16,15 @@ type PendingEvent = {
   title: string;
   city: string | null;
   start_date: string;
+  published: boolean;
+};
+
+type IntelligenceEvent = {
+  id: string;
+  title: string;
+  slug: string | null;
+  city: string | null;
+  start_date: string | null;
   published: boolean;
 };
 
@@ -77,11 +87,13 @@ function getLeadStatusLabel(status?: string) {
 export default function AdminDashboard({
   stats,
   pendingEvents,
+  intelligenceEvents,
   leads,
   pendingSubmissions,
 }: {
   stats: Stats;
   pendingEvents: PendingEvent[];
+  intelligenceEvents: IntelligenceEvent[];
   leads: Lead[];
   pendingSubmissions: PendingSubmission[];
 }) {
@@ -89,6 +101,9 @@ export default function AdminDashboard({
   const [approvedEventIds, setApprovedEventIds] = useState<string[]>([]);
   const [hiddenSubmissionIds, setHiddenSubmissionIds] = useState<string[]>([]);
   const [editingSubmissionId, setEditingSubmissionId] = useState<string | null>(null);
+  const [selectedIntelligenceEventId, setSelectedIntelligenceEventId] = useState(
+  intelligenceEvents[0]?.id ?? ""
+);
   const [editForm, setEditForm] = useState<Record<string, string>>({});
   const [leadStatuses, setLeadStatuses] = useState<Record<string, string>>(
     Object.fromEntries(leads.map((lead) => [lead.id, lead.lead_status || "new"]))
@@ -215,6 +230,15 @@ export default function AdminDashboard({
   );
 
   const latestLeads = useMemo(() => leads.slice(0, 20), [leads]);
+  const selectedIntelligenceEvent = useMemo(
+  () =>
+    intelligenceEvents.find(
+      (event) => event.id === selectedIntelligenceEventId
+    ) ??
+    intelligenceEvents[0] ??
+    null,
+  [intelligenceEvents, selectedIntelligenceEventId]
+);
 
   function startEditing(submission: PendingSubmission) {
   setEditingSubmissionId(submission.id);
@@ -302,7 +326,79 @@ async function saveSubmissionEdits(submissionId: string) {
           <p className="mt-2 text-3xl font-black">{stats.leadsCount}</p>
         </div>
       </section>
+      <section className="rounded-[32px] border border-[#19B5C9]/20 bg-[#19B5C9]/[0.06] p-6">
+  <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#19B5C9]">
+        Inteligência editorial
+      </p>
 
+      <h2 className="mt-2 text-2xl font-black">
+        Camada estratégica dos eventos
+      </h2>
+
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-white/60">
+        Estruture pesquisa, sinais de mercado, fontes e o olhar da Agenda
+        Crypto sem misturar isso com o cadastro base do evento.
+      </p>
+    </div>
+
+    <span className="rounded-full border border-white/10 bg-black/20 px-4 py-2 text-xs font-semibold text-white/50">
+      {intelligenceEvents.length} eventos recentes
+    </span>
+  </div>
+
+  {intelligenceEvents.length === 0 ? (
+    <p className="rounded-2xl border border-dashed border-white/10 p-5 text-sm text-white/50">
+      Nenhum evento disponível para editar inteligência editorial.
+    </p>
+  ) : (
+    <div className="grid gap-5 xl:grid-cols-[340px_1fr]">
+      <div className="max-h-[760px] space-y-3 overflow-y-auto rounded-[28px] border border-white/10 bg-black/20 p-3">
+        {intelligenceEvents.map((event) => {
+          const isSelected =
+            selectedIntelligenceEvent?.id === event.id;
+
+          return (
+            <button
+              key={event.id}
+              type="button"
+              onClick={() => setSelectedIntelligenceEventId(event.id)}
+              className={`w-full rounded-2xl border p-4 text-left transition ${
+                isSelected
+                  ? "border-[#FFD600]/50 bg-[#FFD600]/10"
+                  : "border-white/10 bg-white/[0.03] hover:border-[#19B5C9]/40"
+              }`}
+            >
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-white/40">
+                {event.start_date
+                  ? formatDate(event.start_date)
+                  : "Sem data"}
+              </span>
+
+              <strong className="mt-2 block text-sm text-white">
+                {event.title}
+              </strong>
+
+              <span className="mt-1 block text-xs text-white/45">
+                {event.city || "Online"} ·{" "}
+                {event.published ? "Publicado" : "Não publicado"}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {selectedIntelligenceEvent && (
+        <EventIntelligenceEditor
+          key={selectedIntelligenceEvent.id}
+          eventId={selectedIntelligenceEvent.id}
+          eventTitle={selectedIntelligenceEvent.title}
+        />
+      )}
+    </div>
+  )}
+</section>
       <section className="rounded-[32px] border border-white/10 bg-white/[0.03] p-6">
         <div className="mb-5">
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#19B5C9]">
