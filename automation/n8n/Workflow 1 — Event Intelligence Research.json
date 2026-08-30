@@ -6,10 +6,10 @@
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        0,
-        0
+        -1008,
+        16
       ],
-      "id": "365fa69b-06b7-466e-a760-dd984db58073",
+      "id": "8a80e12d-fd88-46c2-92f1-2df53a6aa6fe",
       "name": "When clicking ‘Execute workflow’"
     },
     {
@@ -41,15 +41,15 @@
       "type": "n8n-nodes-base.supabase",
       "typeVersion": 1,
       "position": [
-        208,
-        0
+        -800,
+        16
       ],
-      "id": "c8e15eda-839a-41e2-8b11-cec705efaf90",
+      "id": "7cebc821-15da-4aa6-8426-8c318e4bfeb0",
       "name": "Get many rows",
       "credentials": {
         "supabaseApi": {
-          "id": "WHU4AmGkd4hCHhVS",
-          "name": "Supabase account 2"
+          "id": "KUjkRsuuKMGif84T",
+          "name": "Supabase account"
         }
       }
     },
@@ -61,10 +61,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        416,
-        0
+        -592,
+        16
       ],
-      "id": "b4a1faee-220b-4a21-8a71-9ee62a163d5e",
+      "id": "7c1ad576-fc57-4722-95bb-aba1492ac5b6",
       "name": "HTTP Request"
     },
     {
@@ -75,10 +75,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        800,
-        0
+        -208,
+        16
       ],
-      "id": "79b202fa-a314-4fe0-9eff-2d57179a2b46",
+      "id": "71b300b4-e3b0-4315-be19-92fc79c12bc5",
       "name": "Code in JavaScript"
     },
     {
@@ -109,10 +109,10 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        976,
-        0
+        -32,
+        16
       ],
-      "id": "39e066a2-7999-4961-8e3c-df908223da11",
+      "id": "5a822e2c-2cbc-4ee7-a5aa-f422408a8fef",
       "name": "If"
     },
     {
@@ -124,10 +124,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        624,
-        0
+        -384,
+        16
       ],
-      "id": "1899a1cd-ecfa-4f4c-9c89-391b17aef350",
+      "id": "a2b96dbd-0bba-4b72-ae14-bb864849a6b9",
       "name": "Merge"
     },
     {
@@ -138,10 +138,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        1168,
-        -128
+        160,
+        -112
       ],
-      "id": "c1cf47ed-9bcd-47a4-8a56-19e48f4f0d77",
+      "id": "73b354e2-f66d-4b83-9b34-a5d070837946",
       "name": "HTTP Request1"
     },
     {
@@ -149,10 +149,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        1568,
-        -32
+        560,
+        -16
       ],
-      "id": "0ad8779e-4f7d-4924-a889-d4d6e6e9b7aa",
+      "id": "8e4ba846-4951-4005-9596-a0e062242864",
       "name": "Merge1"
     },
     {
@@ -162,10 +162,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1376,
-        -128
+        368,
+        -112
       ],
-      "id": "fa76eb04-6792-406b-aac2-0c6aebecfb88",
+      "id": "4008fc07-eb92-4564-a4c2-76ea493959d7",
       "name": "Code do Google News"
     },
     {
@@ -176,10 +176,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2032,
-        -32
+        1024,
+        -16
       ],
-      "id": "bc624c55-6bd7-4bac-9bb5-7aa70bbc3a4b",
+      "id": "955a030a-bc40-4796-b837-3f8482d0c7d5",
       "name": "Code extrai inteligência"
     },
     {
@@ -190,10 +190,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1824,
-        -32
+        816,
+        -16
       ],
-      "id": "69780a5b-d3fd-42a2-956a-d21773bc5f46",
+      "id": "6feabc30-aa32-4a62-9518-5fe63c03d129",
       "name": "Code pacote de pesquisa"
     },
     {
@@ -219,15 +219,15 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
       "position": [
-        2240,
-        -32
+        1232,
+        -16
       ],
-      "id": "7a72eb3a-0496-4e75-a1f6-46be36cb80a6",
+      "id": "44f670fe-e8bd-4a9e-b81e-a216cc4b9602",
       "name": "HTTP Request2",
       "credentials": {
         "supabaseApi": {
-          "id": "WHU4AmGkd4hCHhVS",
-          "name": "Supabase account 2"
+          "id": "KUjkRsuuKMGif84T",
+          "name": "Supabase account"
         }
       }
     },
@@ -239,11 +239,180 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2448,
-        -32
+        1440,
+        -16
       ],
-      "id": "b74167bc-2fb8-4df6-9eb6-77be6cd59d31",
+      "id": "6abfc684-e728-435d-932a-9fc9355a51df",
       "name": "Code editorial"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:11434/api/generate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: \"qwen2.5:3b\",\n  stream: false,\n  format: \"json\",\n\n  options: {\n    num_ctx: 4096,\n    num_predict: 650,\n    temperature: 0.2\n  },\n\n  prompt: `\nVocê é o analista editorial da Agenda Crypto.\n\nSua tarefa é analisar UM evento por vez e produzir uma leitura editorial única, específica e útil.\n\nREGRAS:\n- Use SOMENTE informações presentes nos dados abaixo.\n- NÃO invente speakers, empresas, patrocinadores, parceiros, números, anúncios ou fatos.\n- Se algo não estiver comprovado, diga explicitamente que não há evidência suficiente.\n- Não use elogios genéricos.\n- Não repita a descrição oficial.\n- Não use conhecimento externo.\n- Escreva em português do Brasil.\n- Seja direto, analítico e específico.\n\nDADOS DO EVENTO:\n\nTítulo: ${$json.title}\nCidade: ${$json.city}\nPaís: ${$json.country}\nPúblico: ${$json.audience}\n\nPerfil classificado:\n${$json.event_profile}\n\nTemas principais:\n${JSON.stringify($json.main_topics)}\n\nOrganizador:\n${$json.organizer_name || \"não identificado\"}\n\nSinais:\n${JSON.stringify($json.signals)}\n\nCONTEÚDO DA PÁGINA OFICIAL:\n${$json.official_page_text || \"não disponível\"}\n\nCONTEXTO DE NOTÍCIAS:\n${$json.news_context || \"não disponível\"}\n\nConfiança da pesquisa:\n${$json.research_confidence}\n\nRetorne APENAS JSON válido com exatamente esta estrutura:\n\n{\n  \"why_it_matters\": \"\",\n  \"who_should_go\": \"\",\n  \"who_should_skip\": \"\",\n  \"business_opportunity\": \"\",\n  \"networking_opportunity\": \"\",\n  \"editorial_angle\": \"\",\n  \"agenda_take\": \"\",\n  \"regional_context\": \"\"\n}\n`\n}) }}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1600,
+        0
+      ],
+      "id": "d1ee155b-c6c4-45da-885e-5a329058e951",
+      "name": "HTTP Request3"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const raw = $json.response || \"\";\n\nlet parsed;\n\ntry {\n  parsed = typeof raw === \"string\"\n    ? JSON.parse(raw)\n    : raw;\n} catch (error) {\n  return {\n    editorial_valid: false,\n    validation_errors: [\"O response do modelo não é JSON válido.\"],\n    raw_response: raw\n  };\n}\n\nconst requiredFields = [\n  \"why_it_matters\",\n  \"who_should_go\",\n  \"who_should_skip\",\n  \"business_opportunity\",\n  \"networking_opportunity\",\n  \"editorial_angle\",\n  \"agenda_take\",\n  \"regional_context\"\n];\n\nconst errors = [];\n\n// -----------------------------------------------------\n// 1. CAMPOS OBRIGATÓRIOS\n// -----------------------------------------------------\n\nfor (const field of requiredFields) {\n  if (\n    !parsed[field] ||\n    typeof parsed[field] !== \"string\" ||\n    parsed[field].trim().length < 10\n  ) {\n    errors.push(`Campo inválido ou vazio: ${field}`);\n  }\n}\n\n\n// -----------------------------------------------------\n// 2. FRASES GENÉRICAS / PROMOCIONAIS\n// -----------------------------------------------------\n\nconst genericPatterns = [\n  /excelente oportunidade/i,\n  /evento imperdível/i,\n  /conteúdo de qualidade/i,\n  /não perca/i,\n  /vale muito a pena/i,\n  /evento único/i,\n  /oportunidade incrível/i,\n  /uma experiência única/i\n];\n\n\n// -----------------------------------------------------\n// 3. SINAIS DE EXTRAPOLAÇÃO\n// -----------------------------------------------------\n\nconst unsupportedPatterns = [\n  /\\bdeve apresentar\\b/i,\n  /\\bdeve contar com\\b/i,\n  /\\bdeve incluir\\b/i,\n  /\\bdeve focar\\b/i,\n  /\\bprovavelmente contará\\b/i,\n  /\\bcertamente\\b/i,\n  /\\bsem dúvida\\b/i,\n  /\\bserá uma referência\\b/i,\n  /\\bé um dos maiores\\b/i,\n  /\\bé um dos principais\\b/i,\n  /\\bé um dos mais importantes\\b/i\n];\n\n\n// -----------------------------------------------------\n// 4. REPETIÇÃO RUIM\n// -----------------------------------------------------\n\nconst repetitionPatterns = [\n  /networking e networking/i,\n  /bitcoin e bitcoin/i,\n  /blockchain e blockchain/i\n];\n\n\n// -----------------------------------------------------\n// 5. VALIDA CADA CAMPO\n// -----------------------------------------------------\n\nfor (const field of requiredFields) {\n  const value = parsed[field] || \"\";\n\n  for (const pattern of genericPatterns) {\n    if (pattern.test(value)) {\n      errors.push(`${field}: linguagem genérica/promocional.`);\n      break;\n    }\n  }\n\n  for (const pattern of unsupportedPatterns) {\n    if (pattern.test(value)) {\n      errors.push(`${field}: possível extrapolação não comprovada.`);\n      break;\n    }\n  }\n\n  for (const pattern of repetitionPatterns) {\n    if (pattern.test(value)) {\n      errors.push(`${field}: repetição textual ruim.`);\n      break;\n    }\n  }\n}\n\n\n// -----------------------------------------------------\n// 6. VALIDAÇÕES ESPECÍFICAS\n// -----------------------------------------------------\n\nif (\n  /apenas aqueles sem interesse/i.test(parsed.who_should_skip || \"\")\n) {\n  errors.push(\n    \"who_should_skip: resposta genérica demais e pouco útil.\"\n  );\n}\n\nif (\n  /não há perfis específicos/i.test(parsed.who_should_skip || \"\")\n) {\n  errors.push(\n    \"who_should_skip: deveria apontar uma limitação real do evento.\"\n  );\n}\n\nif (\n  /crescente adoção/i.test(parsed.editorial_angle || \"\") ||\n  /crescente aderência/i.test(parsed.editorial_angle || \"\")\n) {\n  errors.push(\n    \"editorial_angle: afirma tendência regional sem evidência suficiente.\"\n  );\n}\n\nif (\n  /faz parte de um ecossistema/i.test(parsed.regional_context || \"\")\n) {\n  errors.push(\n    \"regional_context: possível extrapolação regional além das fontes.\"\n  );\n}\n\n\n// -----------------------------------------------------\n// 7. RESULTADO FINAL\n// -----------------------------------------------------\n\nreturn {\n  editorial_valid: errors.length === 0,\n  validation_errors: errors,\n\n  editorial: parsed,\n\n  model: $json.model || null,\n  generated_at: $json.created_at || null\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1808,
+        0
+      ],
+      "id": "b392b9d9-0cd8-487e-8d03-bc37ff78c70d",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "70d392bc-ef5c-4160-a758-207481ba35cd",
+              "leftValue": "={{ $json.editorial_valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2016,
+        0
+      ],
+      "id": "50934ee7-36a7-40e9-b1c9-47c0c1edbb80",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:11434/api/generate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  model: \"qwen2.5:3b\",\n  stream: false,\n  format: \"json\",\n  prompt: `\nVocê é o revisor editorial da Agenda Crypto.\n\nVocê deve corrigir SOMENTE os campos listados em ERROS DO VALIDADOR.\n\nNÃO altere campos que não tenham erro.\nNÃO invente fatos.\nNÃO use conhecimento externo.\nNÃO crie tendências regionais sem evidência.\nNÃO deixe campos vazios.\nNÃO use frases genéricas como \"não há perfis específicos\".\n\nERROS DO VALIDADOR:\n${JSON.stringify($json.validation_errors)}\n\nANÁLISE ATUAL:\n${JSON.stringify($json.editorial)}\n\nINSTRUÇÕES DE CORREÇÃO:\n\n- Se who_should_skip estiver com erro:\n  escreva um perfil concreto que teria pouco valor neste evento.\n  Use apenas os temas e público já descritos.\n  Exemplo de lógica:\n  \"Profissionais que buscam conteúdo técnico avançado ou discussões institucionais profundas podem encontrar pouco valor, já que o evento é introdutório e voltado a público amplo.\"\n\n- Se editorial_angle estiver com erro:\n  NÃO fale em \"crescimento\", \"adoção crescente\", \"expansão\" ou tendências do país sem evidência.\n  Foque em um ângulo observável no próprio evento.\n  Exemplo de lógica:\n  \"Como um evento introdutório combina educação em Bitcoin com temas de Web3, regulação e fintech para um público amplo em Córdoba.\"\n\n- Se regional_context estiver com erro:\n  NÃO diga que o evento \"faz parte de um ecossistema\" ou que demonstra evolução regional.\n  Limite-se ao que é comprovado:\n  cidade, país, formato, público e foco temático.\n\n- Se business_opportunity estiver vazio:\n  escreva uma análise conservadora.\n  Se não houver evidência de negócios, diga:\n  \"A evidência de oportunidade comercial é limitada; o valor parece estar mais em relacionamento e aproximação com o ecossistema local.\"\n\nRetorne APENAS JSON válido com exatamente esta estrutura:\n\n{\n  \"why_it_matters\": \"\",\n  \"who_should_go\": \"\",\n  \"who_should_skip\": \"\",\n  \"business_opportunity\": \"\",\n  \"networking_opportunity\": \"\",\n  \"editorial_angle\": \"\",\n  \"agenda_take\": \"\",\n  \"regional_context\": \"\"\n}\n\nIMPORTANTE:\npreserve literalmente os campos que não precisam de correção.\n`\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2224,
+        96
+      ],
+      "id": "0e3f3ce6-a128-4e1f-92df-49eda0aab3e9",
+      "name": "HTTP Request4"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const raw = $json.response || \"\";\n\nlet parsed;\n\ntry {\n  parsed = typeof raw === \"string\"\n    ? JSON.parse(raw)\n    : raw;\n} catch (error) {\n  return {\n    editorial_valid: false,\n    validation_errors: [\"O response do modelo não é JSON válido.\"],\n    raw_response: raw\n  };\n}\n\nconst requiredFields = [\n  \"why_it_matters\",\n  \"who_should_go\",\n  \"who_should_skip\",\n  \"business_opportunity\",\n  \"networking_opportunity\",\n  \"editorial_angle\",\n  \"agenda_take\",\n  \"regional_context\"\n];\n\nconst errors = [];\n\n// -----------------------------------------------------\n// 1. CAMPOS OBRIGATÓRIOS\n// -----------------------------------------------------\n\nfor (const field of requiredFields) {\n  if (\n    !parsed[field] ||\n    typeof parsed[field] !== \"string\" ||\n    parsed[field].trim().length < 10\n  ) {\n    errors.push(`Campo inválido ou vazio: ${field}`);\n  }\n}\n\n\n// -----------------------------------------------------\n// 2. FRASES GENÉRICAS / PROMOCIONAIS\n// -----------------------------------------------------\n\nconst genericPatterns = [\n  /excelente oportunidade/i,\n  /evento imperdível/i,\n  /conteúdo de qualidade/i,\n  /não perca/i,\n  /vale muito a pena/i,\n  /evento único/i,\n  /oportunidade incrível/i,\n  /uma experiência única/i\n];\n\n\n// -----------------------------------------------------\n// 3. SINAIS DE EXTRAPOLAÇÃO\n// -----------------------------------------------------\n\nconst unsupportedPatterns = [\n  /\\bdeve apresentar\\b/i,\n  /\\bdeve contar com\\b/i,\n  /\\bdeve incluir\\b/i,\n  /\\bdeve focar\\b/i,\n  /\\bprovavelmente contará\\b/i,\n  /\\bcertamente\\b/i,\n  /\\bsem dúvida\\b/i,\n  /\\bserá uma referência\\b/i,\n  /\\bé um dos maiores\\b/i,\n  /\\bé um dos principais\\b/i,\n  /\\bé um dos mais importantes\\b/i\n];\n\n\n// -----------------------------------------------------\n// 4. REPETIÇÃO RUIM\n// -----------------------------------------------------\n\nconst repetitionPatterns = [\n  /networking e networking/i,\n  /bitcoin e bitcoin/i,\n  /blockchain e blockchain/i\n];\n\n\n// -----------------------------------------------------\n// 5. VALIDA CADA CAMPO\n// -----------------------------------------------------\n\nfor (const field of requiredFields) {\n  const value = parsed[field] || \"\";\n\n  for (const pattern of genericPatterns) {\n    if (pattern.test(value)) {\n      errors.push(`${field}: linguagem genérica/promocional.`);\n      break;\n    }\n  }\n\n  for (const pattern of unsupportedPatterns) {\n    if (pattern.test(value)) {\n      errors.push(`${field}: possível extrapolação não comprovada.`);\n      break;\n    }\n  }\n\n  for (const pattern of repetitionPatterns) {\n    if (pattern.test(value)) {\n      errors.push(`${field}: repetição textual ruim.`);\n      break;\n    }\n  }\n}\n\n\n// -----------------------------------------------------\n// 6. VALIDAÇÕES ESPECÍFICAS\n// -----------------------------------------------------\n\nif (\n  /apenas aqueles sem interesse/i.test(parsed.who_should_skip || \"\")\n) {\n  errors.push(\n    \"who_should_skip: resposta genérica demais e pouco útil.\"\n  );\n}\n\nif (\n  /não há perfis específicos/i.test(parsed.who_should_skip || \"\")\n) {\n  errors.push(\n    \"who_should_skip: deveria apontar uma limitação real do evento.\"\n  );\n}\n\nif (\n  /crescente adoção/i.test(parsed.editorial_angle || \"\") ||\n  /crescente aderência/i.test(parsed.editorial_angle || \"\")\n) {\n  errors.push(\n    \"editorial_angle: afirma tendência regional sem evidência suficiente.\"\n  );\n}\n\nif (\n  /faz parte de um ecossistema/i.test(parsed.regional_context || \"\")\n) {\n  errors.push(\n    \"regional_context: possível extrapolação regional além das fontes.\"\n  );\n}\n\n\n// -----------------------------------------------------\n// 7. RESULTADO FINAL\n// -----------------------------------------------------\n\nreturn {\n  editorial_valid: errors.length === 0,\n  validation_errors: errors,\n\n  editorial: parsed,\n\n  model: $json.model || null,\n  generated_at: $json.created_at || null\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2432,
+        96
+      ],
+      "id": "aaaa0afa-036e-46bf-946d-5b85f3b23675",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "bc3bf9f8-f47c-4854-b4ff-371f2cc67f62",
+              "leftValue": "={{ $json.editorial_valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2544,
+        96
+      ],
+      "id": "3ae9c0c9-dff0-40d2-b129-11386088c937",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://zavutionnemdkoixdaui.supabase.co/rest/v1/event_intelligence?on_conflict=event_id",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  event_id: $(\"Code editorial\").item.json.event_id,\n  why_it_matters: $json.editorial.why_it_matters,\n  who_should_go: $json.editorial.who_should_go,\n  who_should_skip: $json.editorial.who_should_skip,\n  business_opportunity: $json.editorial.business_opportunity,\n  networking_opportunity: $json.editorial.networking_opportunity,\n  editorial_angle: $json.editorial.editorial_angle,\n  agenda_take: $json.editorial.agenda_take,\n  regional_context: $json.editorial.regional_context\n}) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2736,
+        16
+      ],
+      "id": "d687e053-b287-45d3-8f85-53624c53511c",
+      "name": "HTTP Request5",
+      "credentials": {
+        "supabaseApi": {
+          "id": "KUjkRsuuKMGif84T",
+          "name": "Supabase account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -391,6 +560,91 @@
           }
         ]
       ]
+    },
+    "Code editorial": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
     }
   },
   "active": false,
@@ -399,11 +653,11 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "b8c82e9b-e2a5-4d69-b2b5-bbff3ca8da56",
+  "versionId": "6bac8b66-e817-4a9d-a249-c89ae8a93be4",
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "52dbaf3ecba419b6cb44f6bd3a62a4599e956b14a16a46d961e4a60309ffacbf"
+    "instanceId": "aa6a281df8b20e5b09bff3d6671c711b8a3783ddd5edc9c2d9b6d1c3106348a0"
   },
-  "id": "QfSqhvjueneNNL4U",
+  "id": "4mxnikooYJISn4Y0",
   "tags": []
 }
