@@ -148,6 +148,15 @@ export const COUNTRY_DIRECTORY: ResolvedCountry[] = [
     lat: 9.75,
     lng: -83.75,
   },
+  {
+    key: "el-salvador",
+    name: "El Salvador",
+    storageName: "El Salvador",
+    aliases: ["el salvador", "sv"],
+    cities: ["san salvador", "el zonte", "la libertad"],
+    lat: 13.79,
+    lng: -88.9,
+  },
 ];
 
 export const ONLINE_COUNTRY: ResolvedCountry = {
@@ -211,13 +220,14 @@ export function getCountryByCity(city?: string | null) {
 }
 
 export function resolveEventCountry({ city, country, isOnline }: EventLocation) {
-  const cityCountry = getCountryByCity(city);
-
-  // City wins when old imports stored a contradictory default country.
-  if (cityCountry) return cityCountry;
-
   const knownCountry = getCountryByValue(country);
+
+  // An explicit, recognized country is more reliable than substring-based
+  // city inference (for example, San Salvador must not match Salvador, Brazil).
   if (knownCountry) return knownCountry;
+
+  const cityCountry = getCountryByCity(city);
+  if (cityCountry) return cityCountry;
 
   if (country?.trim()) {
     return {
