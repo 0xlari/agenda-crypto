@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AdminDashboard from "@/componentes/admin-dashboard";
+import EventAnnouncementsAdmin from "@/componentes/event-announcements-admin";
 import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
@@ -114,6 +115,10 @@ export default async function AdminPage() {
           leads={data.leads}
           pendingSubmissions={data.pendingSubmissions}
         />
+
+        <div className="mt-10">
+          <EventAnnouncementsAdmin />
+        </div>
       </div>
     </main>
   );

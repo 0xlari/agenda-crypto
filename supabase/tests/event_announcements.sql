@@ -125,8 +125,11 @@ insert into public.event_announcements (
   );
 
 select ok(
-  has_table_privilege('anon', 'public.event_announcements', 'select'),
-  'anon has SELECT privilege'
+  has_column_privilege('anon', 'public.event_announcements', 'title', 'select')
+    and not has_column_privilege(
+      'anon', 'public.event_announcements', 'internal_notes', 'select'
+    ),
+  'anon can read public columns but not internal notes'
 );
 
 select ok(
@@ -135,8 +138,12 @@ select ok(
 );
 
 select ok(
-  has_table_privilege('authenticated', 'public.event_announcements', 'select'),
-  'authenticated has SELECT privilege'
+  has_column_privilege(
+    'authenticated', 'public.event_announcements', 'title', 'select'
+  ) and not has_column_privilege(
+    'authenticated', 'public.event_announcements', 'internal_notes', 'select'
+  ),
+  'authenticated can read public columns but not internal notes'
 );
 
 select ok(
@@ -155,7 +162,7 @@ select ok(
 set local role anon;
 
 select is(
-  (select count(*) from public.event_announcements),
+  (select count(id) from public.event_announcements),
   1::bigint,
   'anon sees only published announcements'
 );
@@ -164,7 +171,7 @@ reset role;
 set local role authenticated;
 
 select is(
-  (select count(*) from public.event_announcements),
+  (select count(id) from public.event_announcements),
   1::bigint,
   'authenticated sees only published announcements'
 );
