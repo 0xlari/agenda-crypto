@@ -86,3 +86,15 @@ export type EventAnnouncementInsert = Pick<
       | "promoted_event_id"
     >
   >;
+
+export type EventAnnouncementDuplicate = {
+  key: string;
+  table:
+    | "event_announcements"
+    | "events"
+    | "event_candidates"
+    | "event_submissions";
+  id: string;
+  title: string;
+  matches: Array<"title" | "url" | "organizer" | "year">;
+};
