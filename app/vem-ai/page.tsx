@@ -13,6 +13,12 @@ const DESCRIPTION =
 export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
+  keywords: [
+    "próximos eventos cripto",
+    "eventos cripto 2027",
+    "eventos blockchain América Latina",
+    "eventos web3 a confirmar",
+  ],
   alternates: { canonical: "/vem-ai" },
   openGraph: {
     type: "website",
