@@ -1,9 +1,10 @@
 export const dynamic = "force-dynamic";
 
 import type { Metadata } from "next";
-import { getPublishedEvents } from "@/lib/supabase/queries";
+import { getPublishedEventAnnouncements, getPublishedEvents } from "@/lib/supabase/queries";
 import NewsletterSignup from "@/componentes/newsletter-signup";
 import AgendaBrowser from "@/componentes/agenda/agenda-browser";
+import EventAnnouncementGrid from "@/componentes/event-announcement-grid";
 import Link from "next/link";
 import PageTour from "@/componentes/onboarding/page-tour";
 import { absoluteUrl, SEO_IMAGE, SITE_NAME } from "@/lib/seo";
@@ -54,7 +55,10 @@ export const metadata: Metadata = {
 };
 
 export default async function AgendaPage() {
-  const events = await getPublishedEvents();
+  const [events, announcements] = await Promise.all([
+    getPublishedEvents(),
+    getPublishedEventAnnouncements(),
+  ]);
   const agendaJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -157,6 +161,35 @@ export default async function AgendaPage() {
       </section>
 
       <AgendaBrowser events={events} />
+
+      <section className="border-t border-white/10" aria-labelledby="vem-ai-title">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-14">
+          <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#EC4899]">
+                Radar preliminar
+              </p>
+              <h2 id="vem-ai-title" className="mt-2 text-2xl font-black text-white sm:text-3xl">
+                Vem aí
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-white/55">
+                Eventos anunciados que ainda aguardam confirmação de data ou local.
+              </p>
+            </div>
+            <Link
+              href="/vem-ai"
+              className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border border-white/15 px-5 py-2.5 text-sm font-bold text-white transition hover:border-[#19B5C9] hover:text-[#7DE8F4] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#FFD600]"
+            >
+              Ver todo o radar
+            </Link>
+          </div>
+          <EventAnnouncementGrid
+            announcements={announcements.slice(0, 3)}
+            emptyTitle="Novos anúncios em breve."
+            emptyDescription="Enquanto isso, explore os eventos com data confirmada nesta agenda."
+          />
+        </div>
+      </section>
 
       {/* NEWSLETTER */}
       <section className="border-t border-white/10">

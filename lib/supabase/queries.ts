@@ -1,4 +1,20 @@
 import { supabaseServer } from "./server";
+import type { PublicEventAnnouncement } from "@/lib/event-announcement";
+
+const PUBLIC_EVENT_ANNOUNCEMENT_COLUMNS = `
+  id,
+  title,
+  organizer,
+  country,
+  city,
+  expected_year,
+  expected_period,
+  official_url,
+  summary,
+  agenda_insight,
+  image_url,
+  last_verified_at
+`;
 
 type EventRecord = {
   id: string;
@@ -284,4 +300,20 @@ export async function getRecommendedEvents(userId: string) {
   scored.sort((a, b) => b.score - a.score);
 
   return scored.slice(0, 6);
+}
+
+export async function getPublishedEventAnnouncements(): Promise<PublicEventAnnouncement[]> {
+  const { data, error } = await supabaseServer
+    .from("event_announcements")
+    .select(PUBLIC_EVENT_ANNOUNCEMENT_COLUMNS)
+    .eq("status", "published")
+    .order("expected_year", { ascending: true })
+    .order("title", { ascending: true });
+
+  if (error) {
+    console.error("Erro ao buscar anúncios publicados:", error.message);
+    return [];
+  }
+
+  return (data || []) as PublicEventAnnouncement[];
 }

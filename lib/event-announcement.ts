@@ -59,6 +59,22 @@ export type EventAnnouncement = {
   updated_at: string;
 };
 
+export type PublicEventAnnouncement = Pick<
+  EventAnnouncement,
+  | "id"
+  | "title"
+  | "organizer"
+  | "country"
+  | "city"
+  | "expected_year"
+  | "expected_period"
+  | "official_url"
+  | "summary"
+  | "agenda_insight"
+  | "image_url"
+  | "last_verified_at"
+>;
+
 export type EventAnnouncementInsert = Pick<
   EventAnnouncement,
   | "title"
