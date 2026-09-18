@@ -1,10 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { authorizeAdmin } from "@/lib/supabase/admin-auth";
 
 function normalizeSlug(text: string) {
   return text
@@ -15,24 +10,11 @@ function normalizeSlug(text: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-function normalizeDate(dateStr?: string | null) {
-  if (!dateStr) return null;
-
-  if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
-    return dateStr;
-  }
-
-  const brMatch = dateStr.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-  if (brMatch) {
-    const [, day, month, year] = brMatch;
-    return `${year}-${month}-${day}`;
-  }
-
-  return null;
-}
-
 export async function POST(req: Request) {
   try {
+    const auth = await authorizeAdmin(req);
+    if (auth.error) return auth.error;
+
     const { submissionId } = await req.json();
 
     if (!submissionId) {
@@ -42,7 +24,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { data: submission, error: submissionError } = await supabase
+    const { data: submission, error: submissionError } = await auth.admin
       .from("event_submissions")
       .select("*")
       .eq("id", submissionId)
@@ -57,7 +39,7 @@ export async function POST(req: Request) {
 
     const slug = `${normalizeSlug(submission.event_title || "evento")}-${Date.now()}`;
 
-    const { error: eventInsertError } = await supabase.from("events").insert({
+    const { error: eventInsertError } = await auth.admin.from("events").insert({
       title: submission.event_title,
       slug,
       short_description: submission.short_description || null,
@@ -87,7 +69,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { error: updateSubmissionError } = await supabase
+    const { error: updateSubmissionError } = await auth.admin
       .from("event_submissions")
       .update({ status: "approved" })
       .eq("id", submissionId);

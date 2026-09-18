@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { authorizeAdmin } from "@/lib/supabase/admin-auth";
 
 export async function POST(req: Request) {
   try {
+    const auth = await authorizeAdmin(req);
+    if (auth.error) return auth.error;
+
     const { submissionId, leadStatus } = await req.json();
 
     if (!submissionId || !leadStatus) {
@@ -26,7 +24,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { error } = await supabase
+    const { error } = await auth.admin
       .from("event_submissions")
       .update({
         lead_status: leadStatus,

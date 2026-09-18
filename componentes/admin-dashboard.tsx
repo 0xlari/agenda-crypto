@@ -76,11 +76,13 @@ function getLeadStatusLabel(status?: string) {
 }
 
 export default function AdminDashboard({
+  accessToken,
   stats,
   pendingEvents,
   leads,
   pendingSubmissions,
 }: {
+  accessToken: string;
   stats: Stats;
   pendingEvents: PendingEvent[];
   leads: Lead[];
@@ -103,6 +105,7 @@ export default function AdminDashboard({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ submissionId }),
       });
@@ -131,6 +134,7 @@ export default function AdminDashboard({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ submissionId }),
       });
@@ -159,6 +163,7 @@ export default function AdminDashboard({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({ eventId }),
       });
@@ -190,6 +195,7 @@ export default function AdminDashboard({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
           submissionId,
@@ -252,6 +258,7 @@ async function saveSubmissionEdits(submissionId: string) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
         submissionId,

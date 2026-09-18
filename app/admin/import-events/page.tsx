@@ -1,14 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { supabase } from "@/lib/supabase/client";
 
 export default function AdminPage() {
   const [sheetUrl, setSheetUrl] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [access, setAccess] = useState<"loading" | "denied" | "admin">("loading");
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void supabase.auth.getSession().then(({ data }) => {
+      if (!active) return;
+      const session = data.session;
+      if (!session || session.user.app_metadata?.role !== "admin") {
+        setAccess("denied");
+        return;
+      }
+      setToken(session.access_token);
+      setAccess("admin");
+    });
+    return () => { active = false; };
+  }, []);
 
   async function handleImport(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!token) return;
     setLoading(true);
     setMessage("");
 
@@ -17,6 +37,7 @@ export default function AdminPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ sheetUrl }),
       });
@@ -35,6 +56,22 @@ export default function AdminPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (access === "loading") {
+    return <main className="min-h-screen bg-black px-6 py-16 text-white">Verificando acesso…</main>;
+  }
+
+  if (access === "denied" || !token) {
+    return (
+      <main className="min-h-screen bg-black px-6 py-16 text-white">
+        <div className="mx-auto max-w-xl rounded-2xl border border-white/10 p-8">
+          <h1 className="text-3xl font-bold">Área administrativa protegida</h1>
+          <p className="mt-3 text-zinc-400">Entre com a conta administradora para importar eventos.</p>
+          <Link href="/agenda" className="mt-6 inline-flex rounded-full bg-white px-5 py-3 font-bold text-black">Voltar para a agenda</Link>
+        </div>
+      </main>
+    );
   }
 
   return (
