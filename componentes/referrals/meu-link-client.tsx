@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
+import { authorizedFetch } from "@/lib/supabase/authorized-fetch";
 
 type ReferralProfile = {
   code: string;
@@ -45,7 +46,7 @@ export default function MeuLinkClient() {
         authUser.user_metadata?.name ||
         authUser.email.split("@")[0];
 
-      const response = await fetch("/api/referrals/me", {
+      const response = await authorizedFetch("/api/referrals/me", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

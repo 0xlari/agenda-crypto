@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
+import { authorizedFetch } from "@/lib/supabase/authorized-fetch";
 import { MascotAvatar } from "./MascotAvatar";
 import { MascotOnboarding } from "./MascotOnboarding";
 
@@ -38,7 +39,7 @@ export function MascotCard() {
 
       setUserId(user.id);
 
-      await fetch("/api/mascot/sync", {
+      await authorizedFetch("/api/mascot/sync", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -48,7 +49,7 @@ export function MascotCard() {
         }),
         });
 
-        const response = await fetch(
+        const response = await authorizedFetch(
         `/api/mascot/onboarding?user_id=${user.id}`
         );
 

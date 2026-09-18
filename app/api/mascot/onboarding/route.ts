@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabase/server";
+import { authorizeUser } from "@/lib/supabase/user-auth";
 import { getInitialTraits } from "@/lib/mascot/getInitialMascot";
 
 export async function POST(request: Request) {
@@ -15,6 +15,9 @@ export async function POST(request: Request) {
       );
     }
 
+    const auth = await authorizeUser(request, user_id);
+    if (auth.error) return auth.error;
+
     if (!goal || !vibe) {
       return NextResponse.json(
         { error: "goal e vibe são obrigatórios." },
@@ -24,11 +27,11 @@ export async function POST(request: Request) {
 
     const selectedTraits = getInitialTraits(vibe);
 
-    const { data, error } = await supabaseServer
+    const { data, error } = await auth.admin
       .from("user_mascots")
       .upsert(
         {
-          user_id,
+          user_id: auth.user.id,
           goal,
           vibe,
           interests: interests ?? [],
@@ -81,10 +84,13 @@ export async function GET(request: Request) {
       );
     }
 
-    const { data, error } = await supabaseServer
+    const auth = await authorizeUser(request, user_id);
+    if (auth.error) return auth.error;
+
+    const { data, error } = await auth.admin
       .from("user_mascots")
       .select("*")
-      .eq("user_id", user_id)
+      .eq("user_id", auth.user.id)
       .maybeSingle();
 
     if (error) {

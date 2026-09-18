@@ -3,12 +3,11 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase/client";
+import { authorizedFetch } from "@/lib/supabase/authorized-fetch";
 import AgendaPass from "@/componentes/agenda-pass";
 import ConfirmPresenceButton from "@/componentes/confirm-presence-button";
 import PassDropModal from "./pass-drop-modal";
 import { MascotCard } from "@/componentes/mascot/MascotCard";
-import { useRef } from "react";
-import { toPng } from "html-to-image";
 import EventResponse from "@/componentes/event-response";
 
 type EventData = {
@@ -176,7 +175,7 @@ export default function MinhaAgendaClient() {
           return;
         }
 
-        const recommendationsResponse = await fetch("/api/recommendations", {
+        const recommendationsResponse = await authorizedFetch("/api/recommendations", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -192,7 +191,7 @@ export default function MinhaAgendaClient() {
           setRecommended(recommendationsJson.data || []);
         }
 
-        const passesResponse = await fetch("/api/my-passes", {
+        const passesResponse = await authorizedFetch("/api/my-passes", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

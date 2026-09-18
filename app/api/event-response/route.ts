@@ -5,6 +5,7 @@ import {
   calculateXpFromPasses,
   getUnlockedTraitByPassCount,
 } from "@/lib/mascot/progression";
+import { authorizeUser } from "@/lib/supabase/user-auth";
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -59,15 +60,20 @@ export async function POST(request: Request) {
       );
     }
 
+    const auth = await authorizeUser(request, user_id);
+    if (auth.error) return auth.error;
+    const userId = auth.user.id;
+    const userClient = auth.admin;
+
     /*
       Busca se esse usuário já respondeu esse evento.
       Isso evita duplicar presença e evita somar Agenda Pass mais de uma vez.
     */
-    const { data: existingResponse, error: existingError } = await supabaseAdmin
+    const { data: existingResponse, error: existingError } = await userClient
       .from("event_responses")
       .select("id, response")
       .eq("event_id", event_id)
-      .eq("user_id", user_id)
+      .eq("user_id", userId)
       .maybeSingle();
 
     if (existingError) {
@@ -94,7 +100,7 @@ export async function POST(request: Request) {
       Não uso upsert aqui para não depender de constraint única no banco.
     */
     if (existingResponse?.id) {
-      const { error: updateError } = await supabaseAdmin
+      const { error: updateError } = await userClient
         .from("event_responses")
         .update({
           response: nextResponse,
@@ -108,11 +114,11 @@ export async function POST(request: Request) {
         );
       }
     } else {
-      const { error: insertError } = await supabaseAdmin
+      const { error: insertError } = await userClient
         .from("event_responses")
         .insert({
           event_id,
-          user_id,
+          user_id: userId,
           response: nextResponse,
         });
 
@@ -135,10 +141,10 @@ export async function POST(request: Request) {
     let unlockedTrait = null;
 
     if (shouldEvolveMascot) {
-      const { data: currentMascot, error: mascotError } = await supabaseAdmin
+      const { data: currentMascot, error: mascotError } = await userClient
         .from("user_mascots")
         .select("*")
-        .eq("user_id", user_id)
+        .eq("user_id", userId)
         .maybeSingle();
 
       if (mascotError) {
@@ -182,7 +188,7 @@ export async function POST(request: Request) {
           ];
         }
 
-        const { error: updateMascotError } = await supabaseAdmin
+        const { error: updateMascotError } = await userClient
           .from("user_mascots")
           .update({
             agenda_pass_count: newPassCount,
@@ -192,7 +198,7 @@ export async function POST(request: Request) {
             unlocked_traits: updatedUnlockedTraits,
             updated_at: new Date().toISOString(),
           })
-          .eq("user_id", user_id);
+          .eq("user_id", userId);
 
         if (updateMascotError) {
           return NextResponse.json(
@@ -208,7 +214,7 @@ export async function POST(request: Request) {
     /*
       Recalcula o contador atualizado.
     */
-    const { data: countData, error: countError } = await supabaseAdmin
+    const { data: countData, error: countError } = await userClient
       .from("event_responses")
       .select("response")
       .eq("event_id", event_id);
