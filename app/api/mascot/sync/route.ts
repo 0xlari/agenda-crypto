@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabase/server";
+import { authorizeUser } from "@/lib/supabase/user-auth";
 import {
   calculateMascotLevel,
   calculateXpFromPasses,
   getUnlockedTraitsByPassCount,
 } from "@/lib/mascot/progression";
+
+type StoredUnlockedTrait = {
+  type: string;
+  src: string;
+  label?: string;
+  milestone?: number;
+  unlocked_at?: string;
+};
 
 export async function POST(request: Request) {
   try {
@@ -17,10 +25,14 @@ export async function POST(request: Request) {
       );
     }
 
-    const { count, error: countError } = await supabaseServer
+    const auth = await authorizeUser(request, user_id);
+    if (auth.error) return auth.error;
+    const authenticatedUserId = auth.user.id;
+
+    const { count, error: countError } = await auth.admin
       .from("user_passes")
       .select("id", { count: "exact", head: true })
-      .eq("user_id", user_id);
+      .eq("user_id", authenticatedUserId);
 
     if (countError) {
       return NextResponse.json(
@@ -33,10 +45,10 @@ export async function POST(request: Request) {
     const level = calculateMascotLevel(agendaPassCount);
     const xp = calculateXpFromPasses(agendaPassCount);
 
-    const { data: mascot, error: mascotError } = await supabaseServer
+    const { data: mascot, error: mascotError } = await auth.admin
       .from("user_mascots")
       .select("*")
-      .eq("user_id", user_id)
+      .eq("user_id", authenticatedUserId)
       .maybeSingle();
 
     if (mascotError) {
@@ -59,8 +71,8 @@ export async function POST(request: Request) {
     const milestoneTraits = getUnlockedTraitsByPassCount(agendaPassCount);
 
     const currentSelectedTraits = mascot.selected_traits ?? {};
-    const currentUnlockedTraits = Array.isArray(mascot.unlocked_traits)
-      ? mascot.unlocked_traits
+    const currentUnlockedTraits: StoredUnlockedTrait[] = Array.isArray(mascot.unlocked_traits)
+      ? mascot.unlocked_traits as StoredUnlockedTrait[]
       : [];
 
     /*
@@ -83,7 +95,7 @@ export async function POST(request: Request) {
       Evita duplicar os traits na lista de desbloqueados.
     */
     const existingKeys = new Set(
-      currentUnlockedTraits.map((trait: any) => `${trait.type}-${trait.src}`)
+      currentUnlockedTraits.map((trait) => `${trait.type}-${trait.src}`)
     );
 
     const newUnlockedTraits = milestoneTraits
@@ -101,7 +113,7 @@ export async function POST(request: Request) {
       ...newUnlockedTraits,
     ];
 
-    const { error: updateError } = await supabaseServer
+    const { error: updateError } = await auth.admin
       .from("user_mascots")
       .update({
         agenda_pass_count: agendaPassCount,
@@ -111,7 +123,7 @@ export async function POST(request: Request) {
         unlocked_traits: updatedUnlockedTraits,
         updated_at: new Date().toISOString(),
       })
-      .eq("user_id", user_id);
+      .eq("user_id", authenticatedUserId);
 
     if (updateError) {
       return NextResponse.json(

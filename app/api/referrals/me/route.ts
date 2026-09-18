@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getOrCreateReferralProfile } from "@/lib/referrals/server";
-import { supabaseServer } from "@/lib/supabase/server";
+import { authorizeUser } from "@/lib/supabase/user-auth";
 
 export async function POST(request: Request) {
   try {
@@ -25,11 +25,19 @@ export async function POST(request: Request) {
       );
     }
 
-    const { error: userError } = await supabaseServer.from("users").upsert(
+    const auth = await authorizeUser(request, userId);
+    if (auth.error) return auth.error;
+
+    const verifiedEmail = auth.user.email;
+    if (!verifiedEmail) {
+      return NextResponse.json({ error: "E-mail da conta indisponível." }, { status: 400 });
+    }
+
+    const { error: userError } = await auth.admin.from("users").upsert(
       {
-        id: userId,
-        name: displayName || email.split("@")[0],
-        email,
+        id: auth.user.id,
+        name: displayName || verifiedEmail.split("@")[0],
+        email: verifiedEmail,
         avatar_url: null,
       },
       { onConflict: "id" }
@@ -45,8 +53,8 @@ export async function POST(request: Request) {
     }
 
     const profile = await getOrCreateReferralProfile({
-      userId,
-      email,
+      userId: auth.user.id,
+      email: verifiedEmail,
       displayName,
       preferredCode,
     });

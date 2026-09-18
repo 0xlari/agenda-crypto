@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabase/server";
+import { authorizeUser } from "@/lib/supabase/user-auth";
 
 function generateSerial() {
   const now = new Date();
@@ -24,7 +24,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const { data: event, error: eventError } = await supabaseServer
+    const auth = await authorizeUser(request, userId);
+    if (auth.error) return auth.error;
+    const authenticatedUserId = auth.user.id;
+
+    const { data: event, error: eventError } = await auth.admin
       .from("events")
       .select("id, title, slug, event_type")
       .eq("id", eventId)
@@ -50,18 +54,18 @@ export async function POST(request: Request) {
       ? event.event_type
       : "conference";
 
-    const { data: existingCheckin } = await supabaseServer
+    const { data: existingCheckin } = await auth.admin
       .from("checkins")
       .select("id")
-      .eq("user_id", userId)
+      .eq("user_id", authenticatedUserId)
       .eq("event_id", eventId)
       .maybeSingle();
 
     if (!existingCheckin) {
-      const { error: checkinError } = await supabaseServer
+      const { error: checkinError } = await auth.admin
         .from("checkins")
         .insert({
-          user_id: userId,
+          user_id: authenticatedUserId,
           event_id: eventId,
           validated: true,
         });
@@ -74,19 +78,19 @@ export async function POST(request: Request) {
       }
     }
 
-    const { data: existingInteraction } = await supabaseServer
+    const { data: existingInteraction } = await auth.admin
       .from("event_interactions")
       .select("id")
-      .eq("user_id", userId)
+      .eq("user_id", authenticatedUserId)
       .eq("event_id", eventId)
       .eq("type", "checkin")
       .maybeSingle();
 
     if (!existingInteraction) {
-      const { error: interactionError } = await supabaseServer
+      const { error: interactionError } = await auth.admin
         .from("event_interactions")
         .insert({
-          user_id: userId,
+          user_id: authenticatedUserId,
           event_id: eventId,
           type: "checkin",
         });
@@ -99,18 +103,18 @@ export async function POST(request: Request) {
       }
     }
 
-    const { data: existingPass } = await supabaseServer
+    const { data: existingPass } = await auth.admin
       .from("user_passes")
       .select("id")
-      .eq("user_id", userId)
+      .eq("user_id", authenticatedUserId)
       .eq("event_id", eventId)
       .maybeSingle();
 
     if (!existingPass) {
-      const { error: passError } = await supabaseServer
+      const { error: passError } = await auth.admin
         .from("user_passes")
         .insert({
-          user_id: userId,
+          user_id: authenticatedUserId,
           event_id: eventId,
           pass_type: passType,
           serial: generateSerial(),

@@ -1,10 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { authorizeUser } from "@/lib/supabase/user-auth";
 
 export async function POST(req: Request) {
   try {
@@ -17,11 +12,14 @@ export async function POST(req: Request) {
       );
     }
 
-    const { error: responseError } = await supabaseAdmin
+    const auth = await authorizeUser(req, user_id);
+    if (auth.error) return auth.error;
+
+    const { error: responseError } = await auth.admin
       .from("event_responses")
       .delete()
       .eq("event_id", event_id)
-      .eq("user_id", user_id);
+      .eq("user_id", auth.user.id);
 
     if (responseError) {
       return NextResponse.json(
@@ -30,11 +28,11 @@ export async function POST(req: Request) {
       );
     }
 
-    const { error: interactionError } = await supabaseAdmin
+    const { error: interactionError } = await auth.admin
       .from("event_interactions")
       .delete()
       .eq("event_id", event_id)
-      .eq("user_id", user_id)
+      .eq("user_id", auth.user.id)
       .eq("type", "rsvp_yes");
 
     if (interactionError) {

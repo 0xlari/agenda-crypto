@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { supabase } from "@/lib/supabase/client";
+import { authorizedFetch } from "@/lib/supabase/authorized-fetch";
 
 type Props = {
   eventId: string;
@@ -33,7 +34,7 @@ export default function EventResponse({
   const [mounted, setMounted] = useState(false);
   const [showCalendarPrompt, setShowCalendarPrompt] = useState(false);
 
-  async function loadCounts() {
+  const loadCounts = useCallback(async () => {
     try {
       const response = await fetch("/api/event-response", {
         method: "POST",
@@ -53,7 +54,7 @@ export default function EventResponse({
     } catch (error) {
       console.error("Erro ao carregar contagem:", error);
     }
-  }
+  }, [eventId]);
 
   async function openLoginModalIfNeeded() {
     const {
@@ -89,7 +90,7 @@ export default function EventResponse({
       if (!user) return;
 
       if (saved) {
-        await fetch("/api/untrack-event", {
+        await authorizedFetch("/api/untrack-event", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -107,7 +108,7 @@ export default function EventResponse({
       }
 
 
-      await fetch("/api/track-event", {
+      await authorizedFetch("/api/track-event", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -141,7 +142,7 @@ export default function EventResponse({
       }
 
       if (selected === "going") {
-        await fetch("/api/unrespond", {
+        await authorizedFetch("/api/unrespond", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -158,7 +159,7 @@ export default function EventResponse({
         return;
       }
 
-      const response = await fetch("/api/respond", {
+      const response = await authorizedFetch("/api/respond", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -177,7 +178,7 @@ export default function EventResponse({
         return;
       }
 
-      await fetch("/api/track-event", {
+      await authorizedFetch("/api/track-event", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -206,7 +207,7 @@ export default function EventResponse({
     if (eventId) {
       loadCounts();
     }
-  }, [eventId]);
+  }, [eventId, loadCounts]);
   
   useEffect(() => {
   async function loadUserState() {
@@ -216,7 +217,7 @@ export default function EventResponse({
 
     if (!user) return;
 
-    const response = await fetch("/api/event-user-state", {
+    const response = await authorizedFetch("/api/event-user-state", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

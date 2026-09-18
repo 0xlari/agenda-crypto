@@ -13,9 +13,10 @@ export default function AdminPage() {
 
   useEffect(() => {
     let active = true;
-    void supabase.auth.getSession().then(({ data }) => {
+    void supabase.auth.getSession().then(async ({ data }) => {
       if (!active) return;
-      const session = data.session;
+      const refreshed = data.session ? await supabase.auth.refreshSession() : null;
+      const session = refreshed?.data.session || data.session;
       if (!session || session.user.app_metadata?.role !== "admin") {
         setAccess("denied");
         return;

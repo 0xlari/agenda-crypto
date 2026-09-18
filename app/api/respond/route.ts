@@ -1,10 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { authorizeUser } from "@/lib/supabase/user-auth";
 
 export async function POST(req: Request) {
   try {
@@ -20,12 +15,19 @@ export async function POST(req: Request) {
       );
     }
 
-    const { error } = await supabaseAdmin
+    if (!(["going", "not_going"] as const).includes(response)) {
+      return NextResponse.json({ error: "Resposta inválida." }, { status: 400 });
+    }
+
+    const auth = await authorizeUser(req, user_id);
+    if (auth.error) return auth.error;
+
+    const { error } = await auth.admin
       .from("event_responses")
       .upsert(
         {
           event_id,
-          user_id,
+          user_id: auth.user.id,
           response,
         },
         {

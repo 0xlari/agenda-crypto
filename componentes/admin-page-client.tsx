@@ -23,7 +23,10 @@ export default function AdminPageClient() {
     let active = true;
     void supabase.auth.getSession().then(async ({ data: sessionData }) => {
       if (!active) return;
-      const session = sessionData.session;
+      const refreshed = sessionData.session
+        ? await supabase.auth.refreshSession()
+        : null;
+      const session = refreshed?.data.session || sessionData.session;
       if (!session || session.user.app_metadata?.role !== "admin") {
         setAccess("denied");
         return;

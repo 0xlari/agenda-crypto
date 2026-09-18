@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
+import { authorizedFetch } from "@/lib/supabase/authorized-fetch";
 
 type ReferralProfile = {
   code: string;
@@ -38,7 +39,7 @@ export default function EventReferralShare({
         return;
       }
 
-      const response = await fetch("/api/referrals/me", {
+      const response = await authorizedFetch("/api/referrals/me", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

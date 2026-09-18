@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { supabase } from "@/lib/supabase/client";
+import { authorizedFetch } from "@/lib/supabase/authorized-fetch";
 
 type Props = {
   eventId: string;
@@ -16,7 +17,7 @@ export default function EventViewTracker({ eventId }: Props) {
 
       if (!user) return;
 
-      await fetch("/api/track-event", {
+      await authorizedFetch("/api/track-event", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

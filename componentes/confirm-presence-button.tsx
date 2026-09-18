@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { supabase } from "@/lib/supabase/client";
+import { authorizedFetch } from "@/lib/supabase/authorized-fetch";
 
 type Props = {
   eventId: string;
@@ -84,7 +85,7 @@ export default function ConfirmPresenceButton({
         return;
       }
 
-      const response = await fetch("/api/checkin", {
+      const response = await authorizedFetch("/api/checkin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

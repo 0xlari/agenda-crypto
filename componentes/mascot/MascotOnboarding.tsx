@@ -1,8 +1,10 @@
 "use client";
 
+import { authorizedFetch } from "@/lib/supabase/authorized-fetch";
+
 import { useState } from "react";
 import { MascotAvatar } from "./MascotAvatar";
-import { getInitialTraits } from "@/lib/mascot/getInitialMascot";
+import { getInitialTraits, type MascotVibe } from "@/lib/mascot/getInitialMascot";
 
 type MascotOnboardingProps = {
   userId: string;
@@ -123,7 +125,7 @@ export function MascotOnboarding({
     setLoading(true);
 
     try {
-      const response = await fetch("/api/mascot/onboarding", {
+      const response = await authorizedFetch("/api/mascot/onboarding", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -317,7 +319,7 @@ export function MascotOnboarding({
       {step === 4 && (
         <div className="space-y-5 text-center">
           <div className="flex justify-center">
-            <MascotAvatar traits={getInitialTraits(vibe as any)} size="lg" />
+            <MascotAvatar traits={getInitialTraits(vibe as MascotVibe)} size="lg" />
           </div>
 
           <div>

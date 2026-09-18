@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
+import { authorizeUser } from "@/lib/supabase/user-auth";
 
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+const allowedTypes = ["view", "save", "rsvp_yes", "rsvp_no", "checkin", "click_kaira", "registration_click"];
 
 export async function POST(request: Request) {
   try {
@@ -17,10 +14,17 @@ export async function POST(request: Request) {
       );
     }
 
-    const { error } = await supabaseAdmin
+    if (!allowedTypes.includes(type)) {
+      return NextResponse.json({ error: "Tipo de interação inválido." }, { status: 400 });
+    }
+
+    const auth = await authorizeUser(request, userId);
+    if (auth.error) return auth.error;
+
+    const { error } = await auth.admin
       .from("event_interactions")
       .delete()
-      .eq("user_id", userId)
+      .eq("user_id", auth.user.id)
       .eq("event_id", eventId)
       .eq("type", type);
 

@@ -1,11 +1,18 @@
 import { NextResponse } from "next/server";
-import { supabaseServer } from "@/lib/supabase/server";
+import { authorizeUser } from "@/lib/supabase/user-auth";
 
 export async function POST(request: Request) {
   try {
     const { userId } = await request.json();
 
-    const { data, error } = await supabaseServer
+    if (!userId) {
+      return NextResponse.json({ error: "userId é obrigatório." }, { status: 400 });
+    }
+
+    const auth = await authorizeUser(request, userId);
+    if (auth.error) return auth.error;
+
+    const { data, error } = await auth.admin
       .from("user_passes")
       .select(`
         id,
@@ -20,7 +27,7 @@ export async function POST(request: Request) {
           start_date
         )
       `)
-      .eq("user_id", userId)
+      .eq("user_id", auth.user.id)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -28,7 +35,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ data });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Erro ao buscar passes" },
       { status: 500 }

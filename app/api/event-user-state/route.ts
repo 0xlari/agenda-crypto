@@ -1,10 +1,5 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+import { authorizeUser } from "@/lib/supabase/user-auth";
 
 export async function POST(request: Request) {
   try {
@@ -17,10 +12,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const { data: saveData, error: saveError } = await supabaseAdmin
+    const auth = await authorizeUser(request, userId);
+    if (auth.error) return auth.error;
+
+    const { data: saveData, error: saveError } = await auth.admin
       .from("event_interactions")
       .select("id")
-      .eq("user_id", userId)
+      .eq("user_id", auth.user.id)
       .eq("event_id", eventId)
       .eq("type", "save")
       .limit(1);
@@ -29,10 +27,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: saveError.message }, { status: 500 });
     }
 
-    const { data: responseData, error: responseError } = await supabaseAdmin
+    const { data: responseData, error: responseError } = await auth.admin
       .from("event_responses")
       .select("response")
-      .eq("user_id", userId)
+      .eq("user_id", auth.user.id)
       .eq("event_id", eventId)
       .eq("response", "going")
       .maybeSingle();

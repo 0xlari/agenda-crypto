@@ -3,7 +3,7 @@ import { supabaseServer } from "@/lib/supabase/server";
 type TrackEventInput = {
   userId: string;
   eventId: string;
-  type: "view" | "save" | "rsvp_yes" | "rsvp_no" | "checkin" | "click_kaira";
+  type: "view" | "save" | "rsvp_yes" | "rsvp_no" | "checkin" | "click_kaira" | "registration_click";
 };
 
 export async function trackEventInteraction({
