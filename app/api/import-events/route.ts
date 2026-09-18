@@ -1,4 +1,5 @@
 import { supabaseServer } from "@/lib/supabase/server";
+import { authorizeAdmin } from "@/lib/supabase/admin-auth";
 import { geocodeAddress } from "@/lib/geocode";
 import {
   UNKNOWN_COUNTRY,
@@ -90,6 +91,9 @@ function parseCsv(text: string) {
 
 export async function POST(request: Request) {
   try {
+    const auth = await authorizeAdmin(request);
+    if (auth.error) return auth.error;
+
     const body = await request.json();
     const sheetUrl = body.sheetUrl?.trim();
 
@@ -149,7 +153,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const events: Record<string, any>[] = [];
+    const events: Record<string, unknown>[] = [];
     let skipped = 0;
     let inferredCountries = 0;
     let correctedCountries = 0;

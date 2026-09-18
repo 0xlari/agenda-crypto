@@ -1,5 +1,5 @@
-import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { authorizeAdmin } from "@/lib/supabase/admin-auth";
 import {
   findDuplicatesInRows,
   normalizeAnnouncementPayload,
@@ -15,36 +15,8 @@ function jsonError(error: string, status: number, details?: unknown) {
   return NextResponse.json({ error, details }, { status });
 }
 
-async function authorize(request: Request) {
-  const authorization = request.headers.get("authorization") || "";
-  const match = authorization.match(/^Bearer\s+(.+)$/i);
-  if (!match) return { error: jsonError("Autenticação obrigatória.", 401) };
-
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const publicKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !publicKey || !serviceKey) {
-    return { error: jsonError("Configuração do servidor indisponível.", 500) };
-  }
-
-  const authClient = createClient(url, publicKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-  const { data, error } = await authClient.auth.getUser(match[1]);
-  if (error || !data.user) return { error: jsonError("Sessão inválida ou expirada.", 401) };
-  if (data.user.app_metadata?.role !== "admin") {
-    return { error: jsonError("Acesso restrito a administradores.", 403) };
-  }
-
-  return {
-    admin: createClient(url, serviceKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    }),
-  };
-}
-
 export async function GET(request: Request) {
-  const auth = await authorize(request);
+  const auth = await authorizeAdmin(request);
   if (auth.error) return auth.error;
 
   const status = new URL(request.url).searchParams.get("status");
@@ -58,7 +30,7 @@ export async function GET(request: Request) {
   return NextResponse.json({ announcements: data || [] });
 }
 
-async function duplicateRows(admin: NonNullable<Awaited<ReturnType<typeof authorize>>["admin"]>) {
+async function duplicateRows(admin: NonNullable<Awaited<ReturnType<typeof authorizeAdmin>>["admin"]>) {
   const tables = [
     ["event_announcements", "id,title,slug,organizer,expected_year,official_url"],
     ["events", "id,title,slug,start_date,registration_url,source_url"],
@@ -93,7 +65,7 @@ async function duplicateRows(admin: NonNullable<Awaited<ReturnType<typeof author
 }
 
 export async function POST(request: Request) {
-  const auth = await authorize(request);
+  const auth = await authorizeAdmin(request);
   if (auth.error) return auth.error;
 
   try {

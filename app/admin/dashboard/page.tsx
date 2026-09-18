@@ -1,4 +1,28 @@
-import { getAdminDashboardData } from "@/lib/supabase/admin-queries";
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase/client";
+
+type DashboardData = {
+  overview: {
+    activeEvents: number; publishedEvents: number; totalUsers: number;
+    totalActiveUsers: number; totalLoggedInteractions: number; totalUsersWithPass: number;
+    totalViews: number; totalUniqueLoggedViews: number; totalSaves: number;
+    totalGoing: number; totalIntentions: number; totalCheckins: number;
+    totalPasses: number; totalRegistrationClicks: number; pendingSubmissions: number;
+    totalSubscribers: number; intentRate: number; actionsPerLoggedUser: number;
+    showUpRate: number; registrationCtr: number;
+  };
+  hotEvents: Array<{
+    id: string; title: string; category: string | null; city: string | null;
+    views: number; unique_logged_views: number; saves: number; going: number;
+    checkins: number; passes: number; intent_rate: number; show_up_rate: number;
+    intelligence_score: number;
+  }>;
+  topCities: Array<{ city: string; total: number }>;
+  topCategories: Array<{ category: string; total: number }>;
+};
 
 function MetricCard({
   title,
@@ -85,9 +109,51 @@ function SignalCard({
   );
 }
 
-export default async function AdminDashboardPage() {
-  const { overview, hotEvents, topCities, topCategories } =
-  await getAdminDashboardData();
+export default function AdminDashboardPage() {
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [access, setAccess] = useState<"loading" | "denied" | "admin">("loading");
+
+  useEffect(() => {
+    let active = true;
+    void supabase.auth.getSession().then(async ({ data: sessionData }) => {
+      if (!active) return;
+      const session = sessionData.session;
+      if (!session || session.user.app_metadata?.role !== "admin") {
+        setAccess("denied");
+        return;
+      }
+
+      const response = await fetch("/api/admin/dashboard-metrics", {
+        headers: { Authorization: `Bearer ${session.access_token}` }, cache: "no-store",
+      });
+      if (!active) return;
+      if (!response.ok) {
+        setAccess("denied");
+        return;
+      }
+      setData(await response.json());
+      setAccess("admin");
+    });
+    return () => { active = false; };
+  }, []);
+
+  if (access === "loading") {
+    return <main className="min-h-screen bg-[#08080C] px-6 py-8 text-white">Verificando acesso…</main>;
+  }
+
+  if (access === "denied" || !data) {
+    return (
+      <main className="min-h-screen bg-[#08080C] px-6 py-8 text-white">
+        <div className="mx-auto max-w-xl rounded-2xl border border-white/10 p-8">
+          <h1 className="text-3xl font-semibold">Área administrativa protegida</h1>
+          <p className="mt-3 text-zinc-400">Entre com a conta administradora para acessar os indicadores.</p>
+          <Link href="/agenda" className="mt-6 inline-flex rounded-full bg-white px-5 py-3 font-bold text-black">Voltar para a agenda</Link>
+        </div>
+      </main>
+    );
+  }
+
+  const { overview, hotEvents, topCities, topCategories } = data;
 
   const funnelMax = Math.max(
     overview.totalViews,
