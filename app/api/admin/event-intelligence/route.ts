@@ -102,12 +102,13 @@ export async function PATCH(request: Request) {
 
   try {
     const body = await request.json() as {
-      action?: "update_series" | "update_edition" | "link_edition";
+      action?: "update_series" | "update_edition" | "link_edition" | "update_review_status";
       series_id?: string;
       event_id?: string;
       series?: Record<string, unknown>;
       event?: Record<string, unknown>;
       intelligence?: Record<string, unknown>;
+      review_status?: "retry_required" | "reviewed";
     };
 
     if (body.action === "update_series" && body.series_id) {
@@ -121,6 +122,20 @@ export async function PATCH(request: Request) {
       const { error } = await auth.admin.from("events").update({ series_id: body.series_id || null }).eq("id", body.event_id);
       if (error) return jsonError("Não foi possível vincular a edição.", 500, error.message);
       return NextResponse.json({ ok: true });
+    }
+
+    if (body.action === "update_review_status" && body.event_id && body.review_status) {
+      const { data, error } = await auth.admin
+        .from("event_intelligence")
+        .update({
+          research_status: body.review_status,
+          research_updated_at: new Date().toISOString(),
+        })
+        .eq("event_id", body.event_id)
+        .select("*")
+        .single();
+      if (error) return jsonError("Não foi possível atualizar o status da revisão.", 500, error.message);
+      return NextResponse.json({ intelligence: data });
     }
 
     if (body.action === "update_edition" && body.event_id) {
