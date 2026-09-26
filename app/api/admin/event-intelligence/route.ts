@@ -38,21 +38,32 @@ export async function GET(request: Request) {
   const auth = await authorizeAdmin(request);
   if (auth.error) return auth.error;
 
-  const [seriesResult, eventsResult, intelligenceResult, sideEventsResult] = await Promise.all([
+  const [seriesResult, eventsResult, intelligenceResult] = await Promise.all([
     auth.admin.from("event_series").select("*").order("name"),
-    auth.admin.from("events").select("*").is("parent_event_id", null).order("start_date", { ascending: false }),
+    // A Central precisa exibir também eventos-filhos (por exemplo, fóruns de uma week).
+    // parent_event_id descreve a relação entre eventos, não se a edição possui inteligência própria.
+    auth.admin.from("events").select("*").order("start_date", { ascending: false }),
     auth.admin.from("event_intelligence").select("*"),
-    auth.admin.from("events").select("id,title,slug,start_date,parent_event_id,published").not("parent_event_id", "is", null).order("start_date"),
   ]);
 
-  const failed = [seriesResult, eventsResult, intelligenceResult, sideEventsResult].find((result) => result.error);
+  const failed = [seriesResult, eventsResult, intelligenceResult].find((result) => result.error);
   if (failed?.error) return jsonError("Não foi possível carregar a Central de Inteligência.", 500, failed.error.message);
 
   const intelligenceByEvent = new Map((intelligenceResult.data || []).map((row) => [row.event_id, row]));
-  const sideEventsByParent = new Map<string, typeof sideEventsResult.data>();
-  for (const event of sideEventsResult.data || []) {
+  const sideEventsByParent = new Map<string, Array<{
+    id: string; title: string; slug: string; start_date: string; parent_event_id: string; published: boolean;
+  }>>();
+  for (const event of eventsResult.data || []) {
+    if (!event.parent_event_id) continue;
     const items = sideEventsByParent.get(event.parent_event_id) || [];
-    items.push(event);
+    items.push({
+      id: event.id,
+      title: event.title,
+      slug: event.slug,
+      start_date: event.start_date,
+      parent_event_id: event.parent_event_id,
+      published: event.published,
+    });
     sideEventsByParent.set(event.parent_event_id, items);
   }
 
