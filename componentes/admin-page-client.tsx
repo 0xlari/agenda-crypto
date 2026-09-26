@@ -83,6 +83,7 @@ export default function AdminPageClient() {
             <p className="mt-3 text-white/60">Operação, leads e visão geral do produto em um só lugar.</p>
           </div>
           <div className="flex flex-wrap gap-3">
+            <Link href="/admin/inteligencia" className="rounded-full bg-[#19B5C9] px-5 py-3 text-sm font-bold text-black">Central de inteligência</Link>
             <Link href="/admin/import-events" className="rounded-full bg-[#FFD600] px-5 py-3 text-sm font-bold text-black">Importar eventos</Link>
             <Link href="/admin/dashboard" className="rounded-full border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-white">Ver inteligência</Link>
             <Link href="/agenda" className="rounded-full border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-white">Ver agenda</Link>
