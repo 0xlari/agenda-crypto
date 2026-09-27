@@ -52,6 +52,7 @@ function emptyAnnouncement(): EditableAnnouncement {
     next_verification_at: null,
     published_at: null,
     promoted_event_id: null,
+    series_id: null,
   };
 }
 
