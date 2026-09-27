@@ -55,6 +55,7 @@ export type EventAnnouncement = {
   next_verification_at: string | null;
   published_at: string | null;
   promoted_event_id: string | null;
+  series_id: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -100,6 +101,7 @@ export type EventAnnouncementInsert = Pick<
       | "next_verification_at"
       | "published_at"
       | "promoted_event_id"
+      | "series_id"
     >
   >;
 
