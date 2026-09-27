@@ -38,15 +38,20 @@ export async function GET(request: Request) {
   const auth = await authorizeAdmin(request);
   if (auth.error) return auth.error;
 
-  const [seriesResult, eventsResult, intelligenceResult] = await Promise.all([
+  const [seriesResult, eventsResult, intelligenceResult, announcementsResult] = await Promise.all([
     auth.admin.from("event_series").select("*").order("name"),
     // A Central precisa exibir também eventos-filhos (por exemplo, fóruns de uma week).
     // parent_event_id descreve a relação entre eventos, não se a edição possui inteligência própria.
     auth.admin.from("events").select("*").order("start_date", { ascending: false }),
     auth.admin.from("event_intelligence").select("*"),
+    auth.admin
+      .from("event_announcements")
+      .select("id,title,slug,organizer,country,city,expected_year,expected_period,official_url,status,confidence,series_id,promoted_event_id")
+      .neq("status", "archived")
+      .order("expected_year", { ascending: true }),
   ]);
 
-  const failed = [seriesResult, eventsResult, intelligenceResult].find((result) => result.error);
+  const failed = [seriesResult, eventsResult, intelligenceResult, announcementsResult].find((result) => result.error);
   if (failed?.error) return jsonError("Não foi possível carregar a Central de Inteligência.", 500, failed.error.message);
 
   const intelligenceByEvent = new Map((intelligenceResult.data || []).map((row) => [row.event_id, row]));
@@ -76,11 +81,13 @@ export async function GET(request: Request) {
   const series = (seriesResult.data || []).map((item) => ({
     ...item,
     editions: editions.filter((event) => event.series_id === item.id),
+    announcements: (announcementsResult.data || []).filter((announcement) => announcement.series_id === item.id),
   }));
 
   return NextResponse.json({
     series,
     ungrouped_events: editions.filter((event) => !event.series_id),
+    ungrouped_announcements: (announcementsResult.data || []).filter((announcement) => !announcement.series_id),
   });
 }
 
@@ -113,7 +120,7 @@ export async function PATCH(request: Request) {
 
   try {
     const body = await request.json() as {
-      action?: "update_series" | "update_edition" | "link_edition" | "update_review_status";
+      action?: "update_series" | "update_edition" | "link_edition" | "link_announcement" | "update_review_status";
       series_id?: string;
       event_id?: string;
       series?: Record<string, unknown>;
@@ -132,6 +139,15 @@ export async function PATCH(request: Request) {
     if (body.action === "link_edition" && body.event_id) {
       const { error } = await auth.admin.from("events").update({ series_id: body.series_id || null }).eq("id", body.event_id);
       if (error) return jsonError("Não foi possível vincular a edição.", 500, error.message);
+      return NextResponse.json({ ok: true });
+    }
+
+    if (body.action === "link_announcement" && body.event_id) {
+      const { error } = await auth.admin
+        .from("event_announcements")
+        .update({ series_id: body.series_id || null })
+        .eq("id", body.event_id);
+      if (error) return jsonError("Não foi possível vincular o anúncio do Vem aí.", 500, error.message);
       return NextResponse.json({ ok: true });
     }
 
