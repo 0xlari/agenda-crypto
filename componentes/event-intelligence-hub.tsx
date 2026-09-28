@@ -22,6 +22,7 @@ type EventSeries = Record<string, unknown> & {
 };
 type HubData = { series: EventSeries[]; ungrouped_events: Edition[]; ungrouped_announcements: Announcement[] };
 type ReviewFilter = "all" | "needs_review" | "needs_source_review" | "ready";
+type SearchOption = { value: string; label: string; searchText?: string };
 
 const seriesFields = [
   ["name", "Nome do evento"], ["slug", "Slug"], ["description", "Sobre o evento"],
@@ -74,6 +75,71 @@ function Field({ label, value, onChange, multiline = false, mono = false }: {
       ) : (
         <input className={`${className} normal-case tracking-normal`} value={String(value ?? "")} onChange={(event) => onChange(event.target.value)} />
       )}
+    </label>
+  );
+}
+
+function SearchableSelect({ label, placeholder, options, value = "", onSelect }: {
+  label: string;
+  placeholder: string;
+  options: SearchOption[];
+  value?: string;
+  onSelect: (value: string) => void;
+}) {
+  const selected = options.find((option) => option.value === value);
+  const [query, setQuery] = useState(selected?.label || "");
+  const [open, setOpen] = useState(false);
+
+  const normalizedQuery = query.toLocaleLowerCase("pt-BR").trim();
+  const filtered = options.filter((option) => {
+    const searchable = `${option.label} ${option.searchText || ""}`.toLocaleLowerCase("pt-BR");
+    return !normalizedQuery || searchable.includes(normalizedQuery);
+  }).slice(0, 40);
+
+  return (
+    <label className="relative block text-xs font-bold uppercase tracking-[0.12em] text-white/40">
+      {label}
+      <input
+        value={query}
+        placeholder={placeholder}
+        autoComplete="off"
+        onFocus={() => setOpen(true)}
+        onBlur={() => window.setTimeout(() => setOpen(false), 120)}
+        onChange={(event) => {
+          setQuery(event.target.value);
+          setOpen(true);
+          if (value) onSelect("");
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") setOpen(false);
+          if (event.key === "Enter" && filtered.length === 1) {
+            event.preventDefault();
+            setQuery(filtered[0].label);
+            setOpen(false);
+            onSelect(filtered[0].value);
+          }
+        }}
+        className="mt-2 w-full rounded-xl border border-white/10 bg-[#111118] px-3 py-3 text-sm text-white outline-none normal-case tracking-normal placeholder:text-white/30 focus:border-[#19B5C9]/70"
+      />
+      {open ? (
+        <div className="absolute z-40 mt-2 max-h-64 w-full overflow-y-auto rounded-xl border border-white/10 bg-[#17171F] p-1.5 shadow-2xl">
+          {filtered.length ? filtered.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => {
+                setQuery(option.label);
+                setOpen(false);
+                onSelect(option.value);
+              }}
+              className="block w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium normal-case tracking-normal text-white/80 hover:bg-white/[0.08] hover:text-white"
+            >
+              {option.label}
+            </button>
+          )) : <p className="px-3 py-4 text-center text-xs normal-case tracking-normal text-white/40">Nenhum resultado encontrado.</p>}
+        </div>
+      ) : null}
     </label>
   );
 }
@@ -385,7 +451,7 @@ export default function EventIntelligenceHub() {
 
             {message ? <div className="mt-5 rounded-2xl border border-[#19B5C9]/25 bg-[#19B5C9]/10 px-4 py-3 text-sm text-[#8EEAF5]">{message}</div> : null}
 
-            {!selectedEdition ? <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]"><div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6"><div className="flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.18em] text-white/35">Ficha permanente</p><h3 className="mt-2 text-xl font-black">Visão geral do evento</h3></div><button disabled={busy} onClick={saveSeries} className="rounded-full bg-[#19B5C9] px-5 py-2.5 text-sm font-black text-black disabled:opacity-50">{busy ? "Salvando…" : "Salvar"}</button></div><div className="mt-6 grid gap-5 md:grid-cols-2">{seriesFields.map(([key,label]) => <div key={key} className={key === "description" || key === "internal_notes" || key === "audience" ? "md:col-span-2" : ""}><Field label={label} value={seriesDraft[key]} multiline={["description","internal_notes","audience"].includes(key)} onChange={(value) => setSeriesDraft((draft) => ({ ...draft, [key]: value }))} /></div>)}</div></div><div className="space-y-5"><div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5"><h3 className="font-black">Vincular outra edição</h3><p className="mt-2 text-xs leading-5 text-white/45">Edições publicadas viram abas completas. Anúncios continuam no Vem aí e aparecem na linha do tempo.</p><label className="mt-4 block text-xs font-bold uppercase tracking-[0.12em] text-white/40">Evento publicado<select className="mt-2 w-full rounded-xl border border-white/10 bg-[#111118] px-3 py-3 text-sm normal-case tracking-normal" defaultValue="" onChange={(event) => { if (event.target.value) void linkEdition(event.target.value); }}><option value="">Selecionar evento…</option>{data.ungrouped_events.map((event) => <option key={event.id} value={event.id}>{yearOf(event)} · {event.title}</option>)}</select></label><label className="mt-4 block text-xs font-bold uppercase tracking-[0.12em] text-white/40">Anúncio do Vem aí<select className="mt-2 w-full rounded-xl border border-white/10 bg-[#111118] px-3 py-3 text-sm normal-case tracking-normal" defaultValue="" onChange={(event) => { if (event.target.value) void linkAnnouncement(event.target.value); }}><option value="">Selecionar anúncio…</option>{data.ungrouped_announcements.map((announcement) => <option key={announcement.id} value={announcement.id}>{announcement.expected_year} · {announcement.title}</option>)}</select></label></div><div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5"><h3 className="font-black">Linha do tempo</h3><div className="mt-4 space-y-3">{[...selectedSeries.editions].sort((a,b) => a.start_date.localeCompare(b.start_date)).map((edition) => <button key={edition.id} onClick={() => setSelectedEditionId(edition.id)} className="flex w-full items-center justify-between rounded-xl bg-black/20 p-3 text-left"><span><strong className="block text-sm">{yearOf(edition)} · {edition.title}</strong><span className="text-xs text-white/40">{edition.city || "Cidade não informada"}</span></span><span className="text-xs text-[#19B5C9]">{editionScore(edition)}%</span></button>)}{[...selectedSeries.announcements].sort((a,b) => a.expected_year - b.expected_year || a.title.localeCompare(b.title)).map((announcement) => <div key={announcement.id} className="flex w-full items-center justify-between rounded-xl border border-[#FFD600]/15 bg-[#FFD600]/[0.05] p-3"><span><strong className="block text-sm">{announcement.expected_year} · {announcement.title}</strong><span className="text-xs text-white/40">{announcement.expected_period || announcement.city || "Data em confirmação"}</span></span><span className="rounded-full bg-[#FFD600]/15 px-2 py-1 text-[10px] font-bold text-[#FFD600]">Vem aí</span></div>)}</div></div></div></div> :
+            {!selectedEdition ? <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]"><div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6"><div className="flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.18em] text-white/35">Ficha permanente</p><h3 className="mt-2 text-xl font-black">Visão geral do evento</h3></div><button disabled={busy} onClick={saveSeries} className="rounded-full bg-[#19B5C9] px-5 py-2.5 text-sm font-black text-black disabled:opacity-50">{busy ? "Salvando…" : "Salvar"}</button></div><div className="mt-6 grid gap-5 md:grid-cols-2">{seriesFields.map(([key,label]) => <div key={key} className={key === "description" || key === "internal_notes" || key === "audience" ? "md:col-span-2" : ""}><Field label={label} value={seriesDraft[key]} multiline={["description","internal_notes","audience"].includes(key)} onChange={(value) => setSeriesDraft((draft) => ({ ...draft, [key]: value }))} /></div>)}</div></div><div className="space-y-5"><div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5"><h3 className="font-black">Vincular outra edição</h3><p className="mt-2 text-xs leading-5 text-white/45">Edições publicadas viram abas completas. Anúncios continuam no Vem aí e aparecem na linha do tempo.</p><div className="mt-4"><SearchableSelect label="Evento publicado" placeholder="Digite o nome, ano, cidade ou país…" options={data.ungrouped_events.map((event) => ({ value: event.id, label: `${yearOf(event)} · ${event.title}`, searchText: `${event.city || ""} ${event.country || ""}` }))} onSelect={(eventId) => { if (eventId) void linkEdition(eventId); }} /></div><div className="mt-4"><SearchableSelect label="Anúncio do Vem aí" placeholder="Digite o nome, ano, cidade ou país…" options={data.ungrouped_announcements.map((announcement) => ({ value: announcement.id, label: `${announcement.expected_year} · ${announcement.title}`, searchText: `${announcement.city || ""} ${announcement.country || ""}` }))} onSelect={(announcementId) => { if (announcementId) void linkAnnouncement(announcementId); }} /></div></div><div className="rounded-3xl border border-white/10 bg-white/[0.03] p-5"><h3 className="font-black">Linha do tempo</h3><div className="mt-4 space-y-3">{[...selectedSeries.editions].sort((a,b) => a.start_date.localeCompare(b.start_date)).map((edition) => <button key={edition.id} onClick={() => setSelectedEditionId(edition.id)} className="flex w-full items-center justify-between rounded-xl bg-black/20 p-3 text-left"><span><strong className="block text-sm">{yearOf(edition)} · {edition.title}</strong><span className="text-xs text-white/40">{edition.city || "Cidade não informada"}</span></span><span className="text-xs text-[#19B5C9]">{editionScore(edition)}%</span></button>)}{[...selectedSeries.announcements].sort((a,b) => a.expected_year - b.expected_year || a.title.localeCompare(b.title)).map((announcement) => <div key={announcement.id} className="flex w-full items-center justify-between rounded-xl border border-[#FFD600]/15 bg-[#FFD600]/[0.05] p-3"><span><strong className="block text-sm">{announcement.expected_year} · {announcement.title}</strong><span className="text-xs text-white/40">{announcement.expected_period || announcement.city || "Data em confirmação"}</span></span><span className="rounded-full bg-[#FFD600]/15 px-2 py-1 text-[10px] font-bold text-[#FFD600]">Vem aí</span></div>)}</div></div></div></div> :
             <div className="mt-6 space-y-6"><div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.18em] text-[#19B5C9]">Edição {yearOf(selectedEdition)}</p><h3 className="mt-2 text-2xl font-black">{selectedEdition.title}</h3></div><div className="flex flex-wrap items-center gap-3"><span className="rounded-full border border-white/10 px-3 py-2 text-xs text-white/55">Completude {editionScore(selectedEdition)}%</span><button disabled={busy} onClick={saveEdition} className="rounded-full bg-[#FFD600] px-5 py-2.5 text-sm font-black text-black disabled:opacity-50">{busy ? "Salvando…" : "Salvar edição"}</button></div></div>
               {needsAttention(selectedEdition) ? <div className="rounded-3xl border border-red-400/25 bg-red-400/[0.07] p-5"><div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"><div><div className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-red-400" /><h4 className="font-black">Revisão necessária</h4></div><p className="mt-2 max-w-3xl text-sm leading-6 text-white/60">{reviewReason(selectedEdition)}</p></div><div className="flex flex-wrap gap-2"><button disabled={busy} onClick={() => void updateReviewStatus("retry_required")} className="rounded-full border border-sky-300/30 bg-sky-300/10 px-4 py-2.5 text-sm font-bold text-sky-100 disabled:opacity-50">Reprocessar inteligência</button><button disabled={busy} onClick={() => void updateReviewStatus("reviewed")} className="rounded-full border border-emerald-300/30 bg-emerald-300/10 px-4 py-2.5 text-sm font-bold text-emerald-100 disabled:opacity-50">Marcar como revisado</button></div></div></div> : null}
               <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6"><h4 className="text-lg font-black">Dados da edição</h4><div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">{eventFields.map(([key,label]) => <div key={key} className={["description","short_description","audience"].includes(key) ? "md:col-span-2 xl:col-span-3" : ""}><Field label={label} value={eventDraft[key]} multiline={["description","short_description","audience"].includes(key)} onChange={(value) => setEventDraft((draft) => ({ ...draft, [key]: value }))} /></div>)}</div></div>
@@ -397,7 +463,7 @@ export default function EventIntelligenceHub() {
         </section>
       </div>
 
-      {showCreate ? <div className="fixed inset-0 z-50 grid place-items-center bg-black/75 p-5"><div className="w-full max-w-lg rounded-3xl border border-white/10 bg-[#15151C] p-6 shadow-2xl"><div className="flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.2em] text-[#19B5C9]">Novo cadastro</p><h2 className="mt-2 text-2xl font-black">Criar evento-mãe</h2></div><button onClick={() => setShowCreate(false)} className="rounded-full border border-white/10 px-3 py-2 text-sm">Fechar</button></div><div className="mt-6 space-y-4"><Field label="Nome" value={newSeries.name} onChange={(name) => setNewSeries((draft) => ({ ...draft, name, slug: draft.slug || name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') }))} /><Field label="Slug" value={newSeries.slug} onChange={(slug) => setNewSeries((draft) => ({ ...draft, slug }))} /><label className="block text-xs font-semibold uppercase tracking-[0.12em] text-white/45">Primeira edição (opcional)<select value={newSeries.event_id} onChange={(event) => setNewSeries((draft) => ({ ...draft, event_id: event.target.value }))} className="mt-2 w-full rounded-xl border border-white/10 bg-[#111118] px-3 py-3 text-sm text-white normal-case tracking-normal"><option value="">Vincular depois</option>{data.ungrouped_events.map((event) => <option key={event.id} value={event.id}>{yearOf(event)} · {event.title}</option>)}</select></label></div><button disabled={busy || !newSeries.name || !newSeries.slug} onClick={createSeries} className="mt-6 w-full rounded-full bg-[#FFD600] px-5 py-3 font-black text-black disabled:opacity-40">{busy ? "Criando…" : "Criar evento-mãe"}</button></div></div> : null}
+      {showCreate ? <div className="fixed inset-0 z-50 grid place-items-center bg-black/75 p-5"><div className="w-full max-w-lg rounded-3xl border border-white/10 bg-[#15151C] p-6 shadow-2xl"><div className="flex items-center justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.2em] text-[#19B5C9]">Novo cadastro</p><h2 className="mt-2 text-2xl font-black">Criar evento-mãe</h2></div><button onClick={() => setShowCreate(false)} className="rounded-full border border-white/10 px-3 py-2 text-sm">Fechar</button></div><div className="mt-6 space-y-4"><Field label="Nome" value={newSeries.name} onChange={(name) => setNewSeries((draft) => ({ ...draft, name, slug: draft.slug || name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') }))} /><Field label="Slug" value={newSeries.slug} onChange={(slug) => setNewSeries((draft) => ({ ...draft, slug }))} /><SearchableSelect label="Primeira edição (opcional)" placeholder="Digite o nome, ano, cidade ou país…" value={newSeries.event_id} options={data.ungrouped_events.map((event) => ({ value: event.id, label: `${yearOf(event)} · ${event.title}`, searchText: `${event.city || ""} ${event.country || ""}` }))} onSelect={(eventId) => setNewSeries((draft) => ({ ...draft, event_id: eventId }))} /></div><button disabled={busy || !newSeries.name || !newSeries.slug} onClick={createSeries} className="mt-6 w-full rounded-full bg-[#FFD600] px-5 py-3 font-black text-black disabled:opacity-40">{busy ? "Criando…" : "Criar evento-mãe"}</button></div></div> : null}
     </main>
   );
 }
