@@ -126,8 +126,18 @@ const intelligenceTextFields = [
   ["editorial_angle", "Ângulo editorial"],
   ["agenda_take", "Olhar da Agenda"],
   ["research_confidence", "Confiança da pesquisa"],
-  ["research_status", "Status da pesquisa"],
   ["research_notes", "Lacunas e notas"],
+] as const;
+
+const researchStatusOptions = [
+  ["not_started", "Não iniciada"],
+  ["researched", "Pesquisa concluída"],
+  ["ready_for_review", "Pronta para revisão"],
+  ["needs_review", "Revisão editorial necessária"],
+  ["needs_source_review", "Revisão de fontes necessária"],
+  ["retry_required", "Reprocessamento necessário"],
+  ["reviewed", "Revisada"],
+  ["approved", "Aprovada para newsletter"],
 ] as const;
 
 const intelligenceJsonFields = [
@@ -319,16 +329,21 @@ function researchStatus(edition: Edition) {
 }
 
 function needsAttention(edition: Edition) {
-  return ["needs_review", "needs_source_review", "retry_required"].includes(
-    researchStatus(edition),
-  );
+  return [
+    "ready_for_review",
+    "needs_review",
+    "needs_source_review",
+    "retry_required",
+  ].includes(researchStatus(edition));
 }
 
 function matchesReviewFilter(edition: Edition, filter: ReviewFilter) {
   const status = researchStatus(edition);
   if (filter === "all") return true;
   if (filter === "needs_review")
-    return status === "needs_review" || status === "retry_required";
+    return ["ready_for_review", "needs_review", "retry_required"].includes(
+      status,
+    );
   if (filter === "needs_source_review") return status === "needs_source_review";
   return !needsAttention(edition);
 }
@@ -358,6 +373,16 @@ function reviewReason(edition: Edition) {
 
 function statusBadge(edition: Edition) {
   const status = researchStatus(edition);
+  if (status === "approved")
+    return {
+      label: "Aprovado para newsletter",
+      classes: "border-emerald-300/35 bg-emerald-300/10 text-emerald-100",
+    };
+  if (status === "ready_for_review")
+    return {
+      label: "Pronto para revisão",
+      classes: "border-amber-300/35 bg-amber-300/10 text-amber-100",
+    };
   if (status === "needs_review")
     return {
       label: "Revisar editorial",
@@ -376,7 +401,7 @@ function statusBadge(edition: Edition) {
   if (status === "reviewed")
     return {
       label: "Revisado",
-      classes: "border-emerald-300/35 bg-emerald-300/10 text-emerald-100",
+      classes: "border-sky-300/35 bg-sky-300/10 text-sky-100",
     };
   return {
     label: "Sem pendência",
@@ -512,7 +537,9 @@ export default function EventIntelligenceHub() {
     );
   }, [data]);
   const editorialReviewCount = allEditions.filter((edition) =>
-    ["needs_review", "retry_required"].includes(researchStatus(edition)),
+    ["ready_for_review", "needs_review", "retry_required"].includes(
+      researchStatus(edition),
+    ),
   ).length;
   const sourceReviewCount = allEditions.filter(
     (edition) => researchStatus(edition) === "needs_source_review",
@@ -619,6 +646,10 @@ export default function EventIntelligenceHub() {
         }),
       });
       await load();
+      setIntelligenceDraft((draft) => ({
+        ...draft,
+        research_status: status,
+      }));
       setMessage(
         status === "retry_required"
           ? "Evento enviado para a fila de reprocessamento."
@@ -655,7 +686,7 @@ export default function EventIntelligenceHub() {
     }
   }
 
-  async function saveEdition() {
+  async function saveEdition(statusOverride?: string) {
     if (!selectedEdition) return;
     setBusy(true);
     setMessage(null);
@@ -672,6 +703,7 @@ export default function EventIntelligenceHub() {
             .filter(Boolean);
       if (parsed.edition_number)
         parsed.edition_number = Number(parsed.edition_number);
+      if (statusOverride) parsed.research_status = statusOverride;
       await request("/api/admin/event-intelligence", {
         method: "PATCH",
         body: JSON.stringify({
@@ -682,7 +714,19 @@ export default function EventIntelligenceHub() {
         }),
       });
       await load();
-      setMessage("Edição e inteligência atualizadas.");
+      if (statusOverride) {
+        setIntelligenceDraft((draft) => ({
+          ...draft,
+          research_status: statusOverride,
+        }));
+      }
+      setMessage(
+        statusOverride === "approved"
+          ? "Inteligência aprovada. O evento está liberado para a newsletter."
+          : statusOverride === "ready_for_review"
+            ? "Evento enviado para revisão editorial."
+            : "Edição e inteligência atualizadas.",
+      );
     } catch (error) {
       setMessage(
         error instanceof SyntaxError
@@ -1440,9 +1484,40 @@ export default function EventIntelligenceHub() {
                       <span className="rounded-full border border-white/10 px-3 py-2 text-xs text-white/55">
                         Completude {editionScore(selectedEdition!)}%
                       </span>
+                      <span
+                        className={`rounded-full border px-3 py-2 text-xs font-bold ${statusBadge(selectedEdition!).classes}`}
+                      >
+                        {statusBadge(selectedEdition!).label}
+                      </span>
                       <button
+                        type="button"
+                        disabled={
+                          busy ||
+                          intelligenceDraft.research_status ===
+                            "ready_for_review"
+                        }
+                        onClick={() => void saveEdition("ready_for_review")}
+                        className="rounded-full border border-amber-300/35 bg-amber-300/10 px-4 py-2.5 text-sm font-black text-amber-100 disabled:cursor-not-allowed disabled:opacity-45"
+                      >
+                        Enviar para revisão
+                      </button>
+                      <button
+                        type="button"
+                        disabled={
+                          busy ||
+                          intelligenceDraft.research_status === "approved"
+                        }
+                        onClick={() => void saveEdition("approved")}
+                        className="rounded-full border border-emerald-300/35 bg-emerald-300/10 px-4 py-2.5 text-sm font-black text-emerald-100 disabled:cursor-not-allowed disabled:opacity-45"
+                      >
+                        {intelligenceDraft.research_status === "approved"
+                          ? "Aprovado para newsletter"
+                          : "Aprovar inteligência"}
+                      </button>
+                      <button
+                        type="button"
                         disabled={busy}
-                        onClick={saveEdition}
+                        onClick={() => void saveEdition()}
                         className="rounded-full bg-[#FFD600] px-5 py-2.5 text-sm font-black text-black disabled:opacity-50"
                       >
                         {busy ? "Salvando…" : "Salvar edição"}
@@ -1473,10 +1548,10 @@ export default function EventIntelligenceHub() {
                           </button>
                           <button
                             disabled={busy}
-                            onClick={() => void updateReviewStatus("reviewed")}
+                            onClick={() => void saveEdition("approved")}
                             className="rounded-full border border-emerald-300/30 bg-emerald-300/10 px-4 py-2.5 text-sm font-bold text-emerald-100 disabled:opacity-50"
                           >
-                            Marcar como revisado
+                            Aprovar inteligência
                           </button>
                         </div>
                       </div>
@@ -1558,6 +1633,27 @@ export default function EventIntelligenceHub() {
                           />
                         </div>
                       ))}
+                      <label className="block text-xs font-semibold uppercase tracking-[0.12em] text-white/45">
+                        Status da pesquisa
+                        <select
+                          value={String(
+                            intelligenceDraft.research_status || "not_started",
+                          )}
+                          onChange={(event) =>
+                            setIntelligenceDraft((draft) => ({
+                              ...draft,
+                              research_status: event.target.value,
+                            }))
+                          }
+                          className="mt-2 w-full rounded-xl border border-white/10 bg-[#111118] px-3 py-2.5 text-sm normal-case tracking-normal text-white outline-none transition focus:border-[#19B5C9]/70"
+                        >
+                          {researchStatusOptions.map(([value, label]) => (
+                            <option key={value} value={value}>
+                              {label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
                       <div className="md:col-span-2">
                         <Field
                           label="Temas principais (separados por vírgula)"
