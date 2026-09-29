@@ -291,7 +291,15 @@ export async function PATCH(request: Request) {
       event?: Record<string, unknown>;
       announcement?: Record<string, unknown>;
       intelligence?: Record<string, unknown>;
-      review_status?: "retry_required" | "reviewed";
+      review_status?:
+        | "not_started"
+        | "researched"
+        | "ready_for_review"
+        | "needs_review"
+        | "needs_source_review"
+        | "retry_required"
+        | "reviewed"
+        | "approved";
     };
 
     if (body.action === "update_series" && body.series_id) {
